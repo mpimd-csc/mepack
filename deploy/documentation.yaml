@@ -5,8 +5,8 @@ documentation:
         script:
                 - |
                   apt-get update; apt-get install --yes cmake libopenblas-dev  libhdf5-dev doxygen graphviz gcc gfortran
-                  mkdir -p build.doc
-                  cd build.doc
+                  mkdir -p build
+                  cd build
                   cmake ../ -DDEBUG=OFF -DMATLAB=OFF -DEXAMPLES=OFF -DDOC=ON
                   make doc
                   rm -f doc/*.tar.gz
@@ -16,4 +16,4 @@ documentation:
             when: on_success
             expire_in: 1d
             paths:
-                - build.doc/mepack-*.tar.gz
+                - build.doc/mepack-*-docs.tar.gz
