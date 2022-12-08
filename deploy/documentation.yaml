@@ -16,4 +16,4 @@ documentation:
             when: on_success
             expire_in: 1d
             paths:
-                - build.doc/mepack-*-docs.tar.gz
+                - build/mepack-*-docs.tar.gz
