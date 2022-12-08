@@ -1,0 +1,289 @@
+before_script:
+        - git submodule sync
+        - git submodule init
+        - git submodule update --recursive --init
+        - find . -name "*.h5" -delete
+
+.job_template: &artifact_config
+        artifacts:
+                when: on_failure
+                paths:
+                        - build/Testing/Temporary/*.log
+                expire_in: 1d
+        artifacts:
+                when: on_success
+                expire_in: 12h
+                paths:
+                        - build/
+        rules:
+            - if: $CI_COMMIT_TAG
+
+.job_template: &test_config
+        rules:
+            - if: $CI_COMMIT_TAG
+
+
+stages:
+       - matlab
+       - octave
+       - build
+       - test
+       - misc
+       - release
+
+include:
+    - '/matlab/ci.yaml'
+    - '/deploy/documentation.yaml'
+
+
+ubuntu2004-gcc:
+        <<: *artifact_config
+        stage: build
+        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:focal
+        needs: []
+        script:
+                - apt-get update; apt-get install --yes cmake libopenblas-openmp-dev  libhdf5-dev
+                - cmake --version
+                - mkdir -p build
+                - cd build
+                - cmake ../ -DDEBUG=ON -DEXAMPLES=ON
+                - make
+
+test-ubuntu2004-gcc:
+        <<: *test_config
+        stage: test
+        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:focal
+        needs:
+            - ubuntu2004-gcc
+        script:
+                - apt-get update; apt-get install --yes cmake libopenblas-openmp-dev  libhdf5-dev
+                - cd build
+                - OMP_NUM_THREADS=1 MEPACK_HDF_PATH=. ctest
+        artifacts:
+                when: on_failure
+                paths:
+                        - build/Testing/Temporary/*.log
+
+ubuntu2004-gcc-64bit:
+        <<: *artifact_config
+        stage: build
+        needs: []
+        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:focal
+        script:
+                - apt-get update; apt-get install --yes cmake libopenblas64-openmp-dev  libhdf5-dev
+                - cmake --version
+                - mkdir -p build
+                - cd build
+                - cmake ../ -DDEBUG=ON -DEXAMPLES=ON -DINTEGER8=ON
+                - make
+
+test-ubuntu2004-gcc-64bit:
+        <<: *test_config
+        stage: test
+        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:focal
+        needs:
+            - ubuntu2004-gcc-64bit
+        script:
+                - apt-get update; apt-get install --yes cmake libopenblas64-openmp-dev  libhdf5-dev
+                - cd build
+                - OMP_NUM_THREADS=1 MEPACK_HDF_PATH=. ctest
+        artifacts:
+                when: on_failure
+                paths:
+                        - build/Testing/Temporary/*.log
+
+
+ubuntu2004-gcc-refblas:
+        <<: *artifact_config
+        stage: build
+        needs: []
+        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:focal
+        script:
+                - apt-get update; apt-get install --yes cmake libblas-dev liblapack-dev libhdf5-dev
+                - cmake --version
+                - mkdir -p build
+                - cd build
+                - cmake ../ -DDEBUG=ON -DEXAMPLES=ON
+                - make
+
+test-ubuntu2004-gcc-refblas:
+        <<: *test_config
+        stage: test
+        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:focal
+        needs:
+            - ubuntu2004-gcc-refblas
+        script:
+                - apt-get update; apt-get install --yes cmake libblas-dev liblapack-dev  libhdf5-dev
+                - cd build
+                - OMP_NUM_THREADS=1 MEPACK_HDF_PATH=. ctest
+        artifacts:
+                when: on_failure
+                paths:
+                        - build/Testing/Temporary/*.log
+
+
+
+ubuntu2004-gcc10:
+        <<: *artifact_config
+        stage: build
+        needs: []
+        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:focal
+        script:
+                - apt-get update; apt-get install --yes gcc-10 gfortran-10 g++-10 cmake libopenblas-openmp-dev  libhdf5-dev
+                - cmake --version
+                - mkdir -p build
+                - cd build
+                - CC=gcc-10 CXX=g++-10 FC=gfortran-10 cmake ../ -DDEBUG=ON -DEXAMPLES=ON
+                - make
+
+test-ubuntu2004-gcc10:
+        <<: *test_config
+        stage: test
+        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:focal
+        needs:
+            - ubuntu2004-gcc10
+        script:
+                - apt-get update; apt-get install --yes cmake libopenblas-openmp-dev  libhdf5-dev
+                - cd build
+                - OMP_NUM_THREADS=2 MEPACK_HDF_PATH=. ctest
+        artifacts:
+                when: on_failure
+                paths:
+                        - build/Testing/Temporary/*.log
+
+ubuntu2204-gcc:
+        <<: *artifact_config
+        stage: build
+        needs: []
+        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:jammy
+        script:
+                - export
+                - apt-get update; apt-get install --yes cmake libopenblas-openmp-dev  libhdf5-dev
+                - cmake --version
+                - mkdir -p build
+                - cd build
+                - cmake ../ -DDEBUG=ON -DEXAMPLES=ON
+                - make
+
+test-ubuntu2204-gcc:
+        <<: *test_config
+        stage: test
+        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:jammy
+        needs:
+            - ubuntu2204-gcc
+        script:
+                - apt-get update; apt-get install --yes cmake libopenblas-openmp-dev  libhdf5-dev
+                - cd build
+                - OMP_NUM_THREADS=1 MEPACK_HDF_PATH=. ctest
+        artifacts:
+                when: on_failure
+                paths:
+                        - build/Testing/Temporary/*.log
+
+ubuntu2204-gcc-64bit:
+        <<: *artifact_config
+        stage: build
+        needs: []
+        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:jammy
+        script:
+                - apt-get update; apt-get install --yes cmake libopenblas64-openmp-dev  libhdf5-dev
+                - cmake --version
+                - mkdir -p build
+                - cd build
+                - cmake ../ -DDEBUG=ON -DEXAMPLES=ON -DINTEGER8=ON
+                - make
+
+test-ubuntu2204-gcc-64bit:
+        <<: *test_config
+        stage: test
+        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:jammy
+        needs:
+            - ubuntu2204-gcc-64bit
+        script:
+                - apt-get update; apt-get install --yes cmake libopenblas64-openmp-dev  libhdf5-dev
+                - cd build
+                - OMP_NUM_THREADS=1 MEPACK_HDF_PATH=. ctest
+        artifacts:
+                when: on_failure
+                paths:
+                        - build/Testing/Temporary/*.log
+
+
+
+
+
+ubuntu2204-gcc-coverage:
+        <<: *artifact_config
+        stage: build
+        needs: []
+        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:jammy
+        script:
+                 - apt-get update; apt-get install --yes cmake libopenblas-openmp-dev  libhdf5-dev lcov
+                 - mkdir -p build
+                 - cd build
+                 - cmake ../ -DDEBUG=ON -DEXAMPLES=ON -DCOVERAGE=ON
+                 - make
+
+test-ubuntu2204-gcc-coverage:
+        <<: *test_config
+        stage: test
+        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:jammy
+        needs:
+                - ubuntu2204-gcc-coverage
+        script:
+                - apt-get update; apt-get install --yes cmake libopenblas-openmp-dev  libhdf5-dev lcov
+                - cd build
+                - OMP_NUM_THREADS=1 MEPACK_HDF_PATH=. make coverage
+        coverage : '/\s+lines\.+:\s\d+\.\d\%\s\(\d+ of \d+ lines\)/'
+        artifacts:
+                when: always
+                paths:
+                        - build/coverage/*
+
+release-job:
+        rules:
+            - if: $CI_COMMIT_TAG
+        stage: release
+        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:jammy
+        needs:
+                - matlab-2020b
+                - matlab-2021a
+                - matlab-2022a
+                - octave-4.4
+                - octave-5.1
+                - octave-5.2
+                - octave-6.1
+                - octave-6.2
+                - octave-6.3
+                - octave-6.4
+                - octave-7.1
+                - octave-7.2
+                - octave-7.3
+                - documentation
+        script:
+                - |
+                  cd build
+                  rm -f release.sh
+                  set -x
+                  if [ -z "$CI_COMMIT_TAG" ]; then export CI_COMMIT_TAG=$(git describe) ; fi
+                  echo -n "release-cli create  --tag-name '$CI_COMMIT_TAG' --tag-message 'Version $CI_COMMIT_TAG' " >> release.sh
+                  echo -n "--description 'Release for Version $CI_COMMIT_TAG' --name 'Release $CI_COMMIT_TAG' " >> release.sh
+                  for i in mepack*matlab*.tar.gz
+                  do
+                      curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file ${i} ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/mepack-matlab/${CI_COMMIT_TAG}/${i}
+                      echo  -n " --assets-link '{\"name\":\"${i}\",\"url\":\"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/mepack-matlab/${CI_COMMIT_TAG}/${i}\"}'" >> release.sh
+                  done
+                  for i in mepack*octave*.tar.gz
+                  do
+                     curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file ${i} ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/mepack-octave/${CI_COMMIT_TAG}/${i}
+                     echo -n  " --assets-link '{\"name\":\"${i}\",\"url\":\"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/mepack-octave/${CI_COMMIT_TAG}/${i}\"}'" >> release.sh
+                  done
+                  i=mepack-*docs.tar.gz
+                  curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file ${i} ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/mepack-docs/${CI_COMMIT_TAG}/${i}
+                  echo -n  " --assets-link '{\"name\":\"Documentation (HTML)\",\"url\":\"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/mepack-docs/${CI_COMMIT_TAG}/${i}\"}'" >> release.sh
+                  cat release.sh
+                  bash release.sh
+
+
+
+

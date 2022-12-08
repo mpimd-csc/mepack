@@ -1,0 +1,460 @@
+/**
+
+@defgroup sylv Sylvester Equations
+    @brief Solvers for (generalized) Sylvester equations
+
+    This section contains all solver for (generalized) Sylvester equations.
+    It includes standard and generalized Sylvester equations as well as with
+    general and triangular coefficient matrices.
+
+@defgroup trsylv Standard Triangular Sylvester Equations
+    @ingroup sylv
+    @brief Solvers for standard Sylvester equations with triangular coefficient
+    matrices
+
+    This subsection provides solvers for standard Sylvester equations with
+    triangular coefficient matrices. The coefficient matrices are normally
+    generated with the help of a Schur decomposition.
+
+@defgroup sgltrsylv  Single Precision
+    @ingroup trsylv
+    @brief Single Precision routines for triangular standard Sylvester
+    equations
+
+    This section contains the solvers for the standard Sylvester equation with
+    (quasi) triangular coefficient matrices. The coefficient matrices are
+    normally generated with the help of the Schur decomposition from LAPACK. All
+    codes use single precision arithmetic.
+
+@defgroup dbltrsylv  Double Precision
+    @ingroup trsylv
+    @brief Double Precision routines for triangular standard Sylvester
+
+    This section contains the solvers for the standard Sylvester equation with
+    (quasi) triangular coefficient matrices. The coefficient matrices are
+    normally generated with the help of the Schur decomposition from LAPACK. The
+    routines use double precision arithmetic for computation and data.
+
+
+@defgroup ctrsylv C-Interface
+    @ingroup trsylv
+    @brief C-Interface for triangular standard Sylvester equations
+
+    The Fortran routines to solve the standard Sylvester equation with
+    triangular coefficients are wrapped in C to provide an easier access to
+    them. All wrapper routines are direct wrappers to the corresponding Fortran
+    subroutines without sanity checks. These are performed by the Fortran
+    routines. Since the routines are using \b int values to pass sizes the
+    work_space query will fail for large scale problems. For this reason the
+    function \ref mepack_memory should be used to query the required work_space
+    from a C code. This function is aware of 64 bit integers if MEPACK is
+    compiled with it.
+
+@defgroup tgsylv Generalized Triangular Sylvester Equations
+    @ingroup sylv
+    @brief Solvers for generalized Sylvester equations with triangular
+    coefficient matrices
+
+    This subsection provides solvers for generalized Sylvester equations with
+    triangular coefficient matrices. The coefficient matrices are normally
+    generated with the help of a generalized Schur decomposition.
+
+
+@defgroup sgltgsylv  Single Precision
+    @ingroup tgsylv
+    @brief Single Precision routines for triangular generalized Sylvester
+    equations
+
+    This section contains the solvers for the standard Sylvester equation with
+    (quasi) triangular coefficient matrices. The coefficient matrices are
+    normally generated with the help of the Schur decomposition from LAPACK.
+    All routines work in single precision arithmetic.
+
+@defgroup dbltgsylv  Double Precision
+    @ingroup tgsylv
+    @brief Double Precision routines for triangular generalized Sylvester
+    equations.
+
+    This section contains the solver for the standard Sylvester equation with
+    (quasi) triangular coefficient matrices. The coefficient matrices are
+    normally generated with the help of the Schur decomposition from LAPACK.
+    All routines work in double precision arithmetic.
+
+@defgroup ctgsylv C-Interface
+    @ingroup tgsylv
+    @brief C-Interface for triangular generalized Sylvester equations
+
+    The Fortran routines to solve the generalized Sylvester equation with
+    triangular coefficients are wrapped in C to provide an easier access to
+    them. All wrapper routines are direct wrappers to the corresponding Fortran
+    subroutines without sanity checks. These are performed by the Fortran
+    routines. Since the routines are using \b int values to pass sizes the
+    work_space query will fail for large scale problems. For this reason the
+    function \ref mepack_memory should be used to query the required work_space
+    from a C code. This function is aware of 64 bit integers if MEPACK is
+    compiled with it.
+
+
+@defgroup gesylv Standard Sylvester Equations
+    @ingroup sylv
+    @brief Solver for standard Sylvester equations with general coefficient
+    matrices
+
+    This section contains the solvers for standard Sylvester equations with
+    general coefficient matrices. The required Schur decompositions are computed
+    on demand with the help of LAPACK.
+
+@defgroup sglgesylv  Single Precision
+    @ingroup gesylv
+    @brief Single Precision routines for standard Sylvester equations
+
+    This subsection contains the solvers for standard Sylvester equations with
+    general coefficient matrices in single precision arithmetic. The Schur
+    decompositions are computed in single precision with the help of LAPACK.
+
+
+@defgroup dblgesylv  Double Precision
+    @ingroup gesylv
+    @brief Double Precision routines for standard Sylvester equations
+
+    This subsection contains the solvers for standard Sylvester equations with
+    general coefficient matrices in double precision arithmetic. The Schur
+    decompositions are computed in double precision with the help of LAPACK.
+
+@defgroup cgesylv C-Interface
+    @ingroup gesylv
+    @brief C-Interface for standard Sylvester equations
+
+    The Fortran routines to solve the standard Sylvester equation with
+    arbitrary coefficients are wrapped in C to provide an easier access to
+    them. All wrapper routines are direct wrappers to the corresponding Fortran
+    subroutines without sanity checks. These are performed by the Fortran
+    routines. The only difference is that the C interface does not allow
+    LAPACK-like work_space queries. For this purpose the \ref
+    mepack_memory_frontend function needs to be used.
+
+@defgroup ggsylv Generalized Sylvester Equations
+    @ingroup sylv
+    @brief Solver for generalized Sylvester equations with general coefficient
+    matrices.
+
+    This section contains the solvers for generalized Sylvester equations with
+    general coefficient matrices. The required generalized Schur decomposition
+    are computed on demand with the help of LAPACK.
+
+@defgroup sglggsylv  Single Precision
+    @ingroup ggsylv
+    @brief Single Precision routines for generalized Sylvester equations
+
+    This subsection contains the solvers for generalized Sylvester equations
+    with general coefficient matrices in single precision arithmetic. The
+    generalized Schur decompositions are computed in single precision with the
+    help of LAPACK.
+
+@defgroup dblggsylv  Double Precision
+    @ingroup ggsylv
+    @brief Double Precision routines for standard Sylvester equations
+
+    This subsection contains the solvers for generalized Sylvester equations
+    with general coefficient matrices in double precision arithmetic. The
+    generalized Schur decompositions are computed in double precision with the
+    help of LAPACK.
+
+
+@defgroup cggsylv C-Interface
+    @ingroup ggsylv
+    @brief C-Interface for generalized Sylvester equations
+
+    The Fortran routines to solve the generalized Sylvester equation with
+    arbitrary coefficients are wrapped in C to provide an easier access to
+    them. All wrapper routines are direct wrappers to the corresponding Fortran
+    subroutines without sanity checks. These are performed by the Fortran
+    routines. The only difference is that the C interface does not allow
+    LAPACK-like work_space queries. For this purpose the \ref
+    mepack_memory_frontend function needs to be used.
+
+********************************************************************************
+
+@defgroup lyap Lyapunov and Stein Equations
+    @brief Solvers for Lyapunov and Stein equations
+
+    The Lyapunov and the Stein equation are special cases of the Sylvester
+    equations. They have a symmetric nature and thus the solvers for these
+    equations have to take this into account in order to compute a proper and
+    accurate solution.
+
+@defgroup trlyap Standard Triangular Lyapunov and Stein Equations
+    @ingroup lyap
+    @brief Solvers for standard Lyapunov and Stein equations with triangular
+    coefficient matrices.
+
+    This section contains the solvers for the standard Lyapunov and Stein
+    equations with triangular coefficient matrices. The matrices are normally
+    generated with the of the Schur decomposition from LAPACK.
+
+@defgroup sgltrlyap Single Precision routines.
+    @ingroup trlyap
+    @brief Single precision routines for standard Lyapunov and Stein equations
+    with triangular coefficient matrices.
+
+@defgroup dbltrlyap Double Precision routines.
+    @ingroup trlyap
+    @brief Double precision routines for standard Lyapunov and Stein equations
+    with triangular coefficient matrices.
+
+
+@defgroup ctrlyap C-Interface
+    @ingroup trlyap
+    @brief C-Interface for standard Lyapunov and Stein equations with triangular
+    coefficient matrices.
+
+    The Fortran routines to solve standard Lyapunov and Stein equations with
+    triangular coefficients are wrapped in C to provide an easier access to
+    them. All wrapper routines are direct wrappers to the corresponding Fortran
+    subroutines without sanity checks. These are performed by the Fortran
+    routines. Since the routines are using \b int values to pass sizes the
+    work_space query will fail for large scale problems. For this reason the
+    function \ref mepack_memory should be used to query the required work_space
+    from a C code. This function is aware of 64 bit integers if MEPACK is
+    compiled with it.
+
+
+@defgroup tglyap Generalized Triangular Lyapunov and Stein Equations
+    @ingroup lyap
+    @brief Solvers for generalized Lyapunov and Stein equations with triangular
+    coefficient matrices.
+
+    This section contains the solver for generalized Lyapunov and Stein
+    equations with triangular coefficient matrices. The coefficient matrices
+    are normally generated with the help of the generalized Schur decomposition
+    from LAPACK.
+
+@defgroup sgltglyap  Single Precision
+    @ingroup tglyap
+    @brief Single precision solvers for generalized Lyapunov and Stein equations
+    with triangular coefficient matrices.
+
+
+@defgroup dbltglyap  Double Precision
+    @ingroup tglyap
+    @brief Double precision solvers for generalized Lyapunov and Stein equations
+    with triangular coefficient matrices.
+
+@defgroup ctglyap C-Interface
+    @ingroup tglyap
+    @brief C-Interface for generalized Lyapunov and Stein equations with
+    triangular coefficient matrices.
+
+    The Fortran routines to solve generalized Lyapunov and Stein equations with
+    triangular coefficients are wrapped in C to provide an easier access to
+    them. All wrapper routines are direct wrappers to the corresponding Fortran
+    subroutines without sanity checks. These are performed by the Fortran
+    routines. Since the routines are using \b int values to pass sizes the
+    work_space query will fail for large scale problems. For this reason the
+    function \ref mepack_memory should be used to query the required work_space
+    from a C code. This function is aware of 64 bit integers if MEPACK is
+    compiled with it.
+
+
+@defgroup gelyap Standard Lyapunov and Stein Equations
+    @ingroup lyap
+    @brief Solvers for standard Lyapunov and Stein equations with general
+    coefficient matrices.
+
+    This section contains the solver for standard Lyapunov and Stein equations
+    with general coefficient matrices. The required Schur decomposition for the
+    internal triangular solver is computed with LAPACK if it is required.
+
+@defgroup sglgelyap Single Precision
+    @ingroup gelyap
+    @brief Single precision solvers for standard Lyapunov and Stein equations
+    with general coefficient matrices.
+
+@defgroup dblgelyap Double Precision
+    @ingroup gelyap
+    @brief Double precision solvers for standard Lyapunov and Stein equations
+    with general coefficient matrices.
+
+@defgroup cgelyap C-Interface
+    @ingroup gelyap
+    @brief C-Interface for generalized Lyapunov and Stein equations with
+    triangular coefficient matrices.
+
+    The Fortran routines to solve standard Lyapunov and Stein equations with
+    arbitrary coefficients are wrapped in C to provide an easier access to
+    them. All wrapper routines are direct wrappers to the corresponding Fortran
+    subroutines without sanity checks. These are performed by the Fortran
+    routines. The only difference is that the C interface does not allow
+    LAPACK-like work_space queries. For this purpose the \ref
+    mepack_memory_frontend function needs to be used.
+
+
+@defgroup gglyap Generalized Lyapunov and Stein Equations
+    @ingroup lyap
+    @brief Solvers for generalized Lyapunov and Stein equations with general
+    coefficient matrices.
+
+    This section contains the solver for generalized Lyapunov and Stein
+    equations with general coefficient matrices. The required generalized
+    Schur decomposition for the internal triangular solver is computed with
+    LAPACK if it is required.
+
+@defgroup sglgglyap Single Precision
+    @ingroup gglyap
+    @brief Single precision solvers for generalized Lyapunov and Stein equations
+    with general coefficient matrices.
+
+
+@defgroup dblgglyap Double Precision
+    @ingroup gglyap
+    @brief Double precision solvers for generalized Lyapunov and Stein equations
+    with general coefficient matrices.
+
+@defgroup cgglyap C-Interface
+    @ingroup gglyap
+    @brief C-Interface for generalized Lyapunov and Stein equation with general
+    coefficient matrices.
+
+    The Fortran routines to solve generalized Lyapunov and Stein equations with
+    arbitrary coefficients are wrapped in C to provide an easier access to
+    them. All wrapper routines are direct wrappers to the corresponding Fortran
+    subroutines without sanity checks. These are performed by the Fortran
+    routines. The only difference is that the C interface does not allow
+    LAPACK-like work_space queries. For this purpose the \ref
+    mepack_memory_frontend function needs to be used.
+
+
+********************************************************************************
+@defgroup aux Auxiliary Routines
+    @brief Auxiliary Routines
+
+@defgroup auxinit Library Initialization
+    @ingroup aux
+    @brief Initialize the MEPACK library
+
+    Since MEPACK uses some static internal parameters and relies on the setting
+    of some environment variables, it is necessary to initialize MEPACK first.
+    Therefore, this section contains the required functions.
+
+@defgroup auxmem Memory Query Routines
+    @ingroup aux
+    @brief Query memory requirements of the computational routines
+
+    Many of the computational routines require a separate work_space during the
+    computation. Due to the fact that this memory can be reused and memory
+    allocation is normally a costly process, this needs to be done before
+    calling a matrix equation solver. From Fortran this is achieved by calling
+    a subroutine with the INFO parameter set to -1 on entry. From C this can
+    cause integer overflows if MEPACK is compiled using 64 bit integers. For
+    this reason if the work_space should be queried from C codes, the function
+    from this section should be used. They perform the correct typecasts
+    internally. This avoids most of the integer overflows and makes the query
+    more easy.
+
+
+@defgroup sglaux Single Precision Auxiliary Routines
+    @ingroup aux
+    @brief Helper routines for single precision computations
+
+    This section contains a set of helper routines for the single precision
+    computational routines. This includes the transformation of the
+    right-hand-sides, the transformation of the solutions, the solution of
+    special linear systems and the sorting of eigenvalues.
+
+@defgroup dblaux Double Precision Auxiliary Routines
+    @ingroup aux
+    @brief Helper routines for double precision computations
+
+    This section contains a set of helper routines for the double precision
+    computational routines. This includes the transformation of the
+    right-hand-sides, the transformation of the solutions, the solution of
+    special linear systems and the sorting of eigenvalues.
+
+@defgroup lapackfix Fixed LAPACK routines
+    @ingroup aux
+    @brief Bugfix versions of LAPACK routines
+
+    During the development of MEPACK, some LAPACK routines show some bugs since
+    they are used differently in MEPACK than in LAPACK. Therefore, MEPACK comes
+    with patched version of this routines in order to avoid bugs. Newer LAPACK
+    versions include the bugfixes as well but we do not rely on this.
+
+@defgroup auxerror  Error Handling Routines
+    @ingroup aux
+    @brief Error Handling and Error call back routines
+
+    MEPACK uses a similar error handling as LAPACK. In contrast to LAPACK, the
+    error handler in MEPACK is realized as a callback routine, which can be
+    exchanged via passing a pointer to the new function. The callback function
+    can either be a C or a Fortran function.
+
+********************************************************************************
+
+@defgroup options Options and Settings to tune MEPACK
+    @brief Interface for setting performance related parameters
+
+    The algorithms in MEPACK can be tuned by setting different parameters.
+    Mostly, these are block size parameters but also the sorting of eigenvalue
+    can be influenced. This section contains the routine to set and get these
+    parameters. Furthmore, the parameters can be set via a tuning file. For
+    details see \ref index.
+
+@defgroup machine Machine Specific Data
+    @ingroup options
+    @brief Machine spefific data for double and single precision computations
+
+    This section contains machine specific constants determining the boundaries
+    of IEEE 754 single and double precision arithmetic. The constants need to be
+    initialized by calling
+    \ref mepack_options_machine_double::mepack_options_machine_double_init
+    and
+    \ref mepack_options_machine_single::mepack_options_machine_single_init.
+    Both routines are called when \ref mepack_initialize or \ref mepack_init are
+    called.
+
+@defgroup blocksize Block Size settings
+    @ingroup options
+    @brief Manage the block size setting for the computational routines.
+
+    The algorithms in MEPACK can be adjusted to the current hardware by choosing
+    proper block sizes for the algorithms. Using the functions from this
+    section, these can be done at run_time. Beside setting them inside the code,
+    these parameters can be read from a configuration file, see \ref index.
+
+@defgroup isolver  Level-2 solver selection
+    @ingroup options
+    @brief Select the inner solvers inside the triangular and the DAG solvers
+
+    The Level-3, DAG, and 2-Stage solvers can use different Level-2 solvers
+    internally. These solver include different optimizations. A proper selection
+    of the solvers is beneficial to the overall time to solution.
+
+@defgroup sortev Sorting the eigenvalues
+    @ingroup options
+    @brief Enable or disable the eigenvalue sorting in frontend routines
+
+    By definition, the (generalized) Schur decompositions do not have a
+    predefined order of the eigenvalues on their diagonal. Especially, complex
+    conjugate 2x2 blocks can appear everywhere. This might have a negative
+    effect on the performance of the algorithms. If the sorting of the
+    eigenvalues is enabled, the coefficient matrices can be partitioned in a
+    regular NB x NB grid without the need for an adjustment due to complex
+    conjugate eigenvalues on the diagonal of the Schur decomposition.
+
+@defgroup frontend_solver Select the solvers used by the frontend routines
+    @ingroup options
+    @brief Select the triangular solver for the frontend routines
+
+    The routine to solve the matrix equations with general coefficient matrices
+    can use different triangular solvers. These can be selected using the
+    methods in this section.
+
+@defgroup auxoptions Auxiliary Options
+    @ingroup options
+    @brief Auxiliary Options for OpenMP and verbosity
+
+    This section contains auxiliary routines that do not fit in one of the other
+    categories.
+
+
+**/

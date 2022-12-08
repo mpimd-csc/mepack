@@ -1,0 +1,364 @@
+{
+   GOMP1
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   fun:call_init.part.0
+   fun:call_init
+   fun:_dl_init
+   obj:/lib/x86_64-linux-gnu/ld-2.31.so
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+}
+{
+   HDF51
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:H5TS_cancel_count_inc
+   fun:H5Zfilter_avail
+   fun:csc_hdf5_register_filters
+   fun:csc_hdf5_open
+   fun:*
+}
+{
+   HDF52
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:H5CX_push
+   fun:H5Zfilter_avail
+   fun:csc_hdf5_register_filters
+   fun:csc_hdf5_open
+   fun:*
+}
+{
+   GOMP2
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:realloc
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   fun:GOMP_parallel
+   fun:main
+}
+{
+   GOMP3
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   fun:GOMP_parallel
+   fun:main
+}
+{
+   HDF53
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:H5E_get_stack
+   fun:H5E_clear_stack
+   fun:H5Zfilter_avail
+   fun:csc_hdf5_register_filters
+   fun:csc_hdf5_open
+   fun:*
+}
+{
+   GOMP4
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   fun:GOMP_parallel
+   fun:main
+}
+{
+   PTHREAD1
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:calloc
+   fun:allocate_dtv
+   fun:_dl_allocate_tls
+   fun:allocate_stack
+   fun:pthread_create@@GLIBC_2.2.5
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   fun:GOMP_parallel
+   fun:main
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:H5TS_cancel_count_inc
+   fun:H5Zfilter_avail
+   fun:csc_hdf5_register_filters
+   fun:csc_hdf5_open
+   fun:benchmark_random_evp_double
+   fun:main
+}
+{
+   OPENBLAS-DGEMM
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:realloc
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   fun:GOMP_parallel
+   fun:exec_blas
+   obj:/usr/lib/x86_64-linux-gnu/openblas-openmp/liblapack.so.3
+   fun:*
+   fun:dgemm_
+   fun:*
+}
+{
+   OPENBLAS-DGEMM
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:calloc
+   fun:allocate_dtv
+   fun:_dl_allocate_tls
+   fun:allocate_stack
+   fun:pthread_create@@GLIBC_2.2.5
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   fun:GOMP_parallel
+   fun:exec_blas
+   obj:/usr/lib/x86_64-linux-gnu/openblas-openmp/liblapack.so.3
+   fun:*
+   fun:dgemm_
+   fun:*
+}
+{
+   OPENBLAS-DGEMM
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   fun:GOMP_parallel
+   fun:exec_blas
+   obj:/usr/lib/x86_64-linux-gnu/openblas-openmp/liblapack.so.3
+   fun:*
+   fun:dgemm_
+   fun:*
+}
+
+{
+   OPENBLAS-DSYR2
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:realloc
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   fun:GOMP_parallel
+   fun:exec_blas
+   fun:*
+   fun:dsyr2_
+   fun:*
+}
+{
+   OPENBLAS-DSYR2
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   fun:GOMP_parallel
+   fun:exec_blas
+   fun:*
+   fun:dsyr2_
+   fun:*
+}
+{
+   OPENBLAS-DSYR2
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:calloc
+   fun:allocate_dtv
+   fun:_dl_allocate_tls
+   fun:allocate_stack
+   fun:pthread_create@@GLIBC_2.2.5
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   fun:GOMP_parallel
+   fun:exec_blas
+   fun:*
+   fun:dsyr2_
+   fun:*
+}
+{
+   OPENBLAS-DSYR2K
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:realloc
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   fun:GOMP_parallel
+   fun:exec_blas
+   fun:*
+   fun:dsyr2k_
+   fun:*
+}
+{
+   DLATRANSPOSE
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   fun:GOMP_parallel
+   fun:dla_itranspose_
+   fun:*
+}
+{
+   OPENBLAS-DSYR2K
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:calloc
+   fun:allocate_dtv
+   fun:_dl_allocate_tls
+   fun:allocate_stack
+   fun:pthread_create@@GLIBC_2.2.5
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   fun:GOMP_parallel
+   fun:exec_blas
+   fun:*
+   fun:dsyr2k_
+   fun:*
+}
+{
+   OPENBLAS-DSYR2K
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   fun:GOMP_parallel
+   fun:exec_blas
+   fun:*
+   fun:dsyr2k_
+   fun:*
+}
+
+{
+   OPENBLAS-DTRMV
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:realloc
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   fun:GOMP_parallel
+   fun:exec_blas
+   fun:*
+   fun:dtrmv_
+   fun:*
+}
+{
+   OPENBLAS-DTRMV2
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   fun:GOMP_parallel
+   fun:exec_blas
+   fun:*
+   fun:dtrmv_
+   fun:*
+}
+{
+   OPENBLAS-DTRMV3
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:calloc
+   fun:allocate_dtv
+   fun:_dl_allocate_tls
+   fun:allocate_stack
+   fun:pthread_create@@GLIBC_2.2.5
+   obj:/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+   fun:GOMP_parallel
+   fun:exec_blas
+   fun:*
+   fun:dtrmv_
+   fun:*
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   obj:/usr/lib64/libgomp.so.1.0.0
+   obj:/usr/lib64/libgomp.so.1.0.0
+   obj:/usr/lib64/libgomp.so.1.0.0
+   fun:call_init.part.0
+   fun:_dl_init
+   obj:/usr/lib64/ld-2.32.so
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+}
+{
+   GOMP
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:realloc
+   obj:/usr/lib64/libgomp.so.1.0.0
+   obj:/usr/lib64/libgomp.so.1.0.0
+   fun:GOMP_parallel
+   fun:*
+}
+{
+   GOMP
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   obj:/usr/lib64/libgomp.so.1.0.0
+   obj:/usr/lib64/libgomp.so.1.0.0
+   fun:GOMP_parallel
+   fun:*
+}
+{
+   GOMP
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   obj:/usr/lib64/libgomp.so.1.0.0
+   obj:/usr/lib64/libgomp.so.1.0.0
+   fun:GOMP_parallel
+   fun:*
+}
+{
+   PTHREADTLS
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:calloc
+   fun:_dl_allocate_tls
+   fun:pthread_create@@GLIBC_2.2.5
+   obj:/usr/lib64/libgomp.so.1.0.0
+   fun:GOMP_parallel
+   fun:*
+}

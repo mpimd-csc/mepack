@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: "Köhler"
+    given-names: "Martin"
+    orcid: "https://orcid.org/0000-0003-2338-9904"
+title: "MEPACK: Matrix Equations Package"
+version: 1.0.0
+doi: 10.5281/zenodo.7404481
+date-released: 2022-12-08
+type: software
+url: "https://github.com/mpimd-csc/mepack"
+license: GPL-3.0-or-later
+keywords:
+ - "BLAS"
+ - "LAPACK"
+ - "Lyapunov Equation"
+ - "Sylvester Equation"
+references:
+ - authors:
+    - family-names: "Köhler"
+      given-names: "Martin"
+      orcid: "https://orcid.org/0000-0003-2338-9904"
+   title: "Approximate Solution of Non-Symmetric Generalized Eigenvalue Problems and Linear Matrix Equation on HPC Platforms"
+   type: book
+   isbn: "9783832554347"
+   publisher:
+      name: "Logos Verlag Berlin"
+   thesis-type: "PhD thesis"
+

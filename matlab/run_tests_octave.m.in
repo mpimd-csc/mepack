@@ -1,0 +1,58 @@
+%
+% Run all MEPACK tests in GNU Octave
+%
+% Copytight (C) Martin Koehler, 2022
+
+
+function ret = run_tests_octave
+% let's check where we are and change the working directory accordingly
+
+cwd = '@CMAKE_CURRENT_BINARY_DIR@';
+csd = '@CMAKE_CURRENT_SOURCE_DIR@';
+
+addpath(sprintf('%s/octave/', cwd));
+cd(sprintf('%s/tests/',csd));
+
+%% First run all unit tests from the corresponding subdirectory
+disp('Performing tests');
+tests = dir('.');
+tests = tests(3:end); %ignore current and parent dir
+[nt, success] = loop_on_testfiles(tests);
+fprintf('Finished tests. %g%% passed successfully (failed=%d)\n\n', ...
+success/nt*100, nt-success);
+
+ret = nt~=success;
+
+end
+
+%% This function performs the actual workload. For all m-Files in the list
+% 'tests', we run the test (droping all output) and determine success or
+% failure. Note that the tests are expected to throw an error upon failure.
+function [tst, success] = loop_on_testfiles(tests)
+success = 0;
+tst = 0;
+for i=1:length(tests)
+	fname = tests(i).name(1:end-2);
+	ext = tests(i).name(end-1:end);
+
+	if ( strcmp(ext, '.m') == 0)
+		fprintf('\t Skip %s \n', tests(i).name);
+		continue
+    end
+    tst = tst + 1;
+    fprintf('Test number %4d: %40s ', tst, fname);
+    try
+	    if exist('evalc','builtin') %Octave only adds this in version 4.2
+		    evalc(fname);
+	else
+		eval(fname);
+	end
+catch err
+	fprintf('\t failure!\n');
+	fprintf('\t %s\n\n',err.message);
+	continue
+end
+fprintf('\t success!\n');
+success = success +1;
+end
+end

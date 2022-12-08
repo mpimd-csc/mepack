@@ -1,0 +1,12 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+libdir=${prefix}/@CMAKE_INSTALL_LIBDIR@
+includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@
+moduledir=${prefix}/@CMAKE_INSTALL_MODULEDIR@/shared
+
+Name: @PROJECT_NAME@
+Description: @PROJECT_DESCRIPTION@
+Version: @PROJECT_VERSION@
+Libs: -L${libdir} -l@MEPACK_NAME@
+Cflags: -I${includedir} -I${moduledir} @PKG_CONFIG_ADD_FLAGS@
+Fflags: -I${includedir} -I${moduledir} @PKG_CONFIG_ADD_FLAGS@
+

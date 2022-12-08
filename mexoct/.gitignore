@@ -1,0 +1,7 @@
+*.mexa64
+*.m~
+example/build
+*.swp
+build*
+project_demo/build*
+docs

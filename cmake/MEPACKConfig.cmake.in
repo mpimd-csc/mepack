@@ -1,0 +1,29 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+# Capturing values from config)
+set(MEPACK_INTEGER8 @INTEGER8@)
+
+# Same syntax as find_package
+find_dependency(OpenMP REQUIRED)
+
+if ( CMAKE_Fortran_COMPILER_LOADED)
+    if(NOT TARGET OpenMP::OpenMP_Fortran)
+        find_package(Threads REQUIRED)
+        add_library(OpenMP::OpenMP_Fortran IMPORTED INTERFACE)
+        set_property(TARGET OpenMP::OpenMP_Fortran
+            PROPERTY INTERFACE_COMPILE_OPTIONS ${OpenMP_Fortran_FLAGS})
+        # Only works if the same flag is passed to the linker; use CMake 3.9+ otherwise (Intel, AppleClang)
+        set_property(TARGET OpenMP::OpenMP_Fortran
+            PROPERTY INTERFACE_LINK_LIBRARIES ${OpenMP_Fortran_FLAGS} Threads::Threads)
+
+    endif()
+else()
+    MESSAGE(FATAL_ERROR "MEPACK required Fortran to be enabled as language in your project. Consider adding ENABLE_LANGUAGE(Fortran) to your project." )
+endif()
+
+# Any extra setup
+
+# Add the targets file
+include("${CMAKE_CURRENT_LIST_DIR}/MEPACKTargets.cmake")
