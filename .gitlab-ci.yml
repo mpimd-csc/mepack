@@ -262,12 +262,24 @@ release-job:
                 - documentation
         script:
                 - |
+                 set -x
+                  if [ -z "$CI_COMMIT_TAG" ]; then export CI_COMMIT_TAG=$(git describe) ; fi
+                  export V=$(echo $CI_COMMIT_TAG | sed -e 's/^v//g')
+                  (git ls-files --recurse-submodules | tar --transform="s|^|mepack-$V/|g" -cvzf ../mepack-$V.tar.gz   -T- )
+                  (git ls-files --recurse-submodules | tar --transform="s|^|mepack-$V/|g" -cvjf ../mepack-$V.tar.bz2  -T- )
+                  (git ls-files --recurse-submodules | tar --transform="s|^|mepack-$V/|g" -cvJf ../mepack-$V.tar.xz   -T- )
+
                   cd build
                   rm -f release.sh
-                  set -x
-                  if [ -z "$CI_COMMIT_TAG" ]; then export CI_COMMIT_TAG=$(git describe) ; fi
+
                   echo -n "release-cli create  --tag-name '$CI_COMMIT_TAG' --tag-message 'Version $CI_COMMIT_TAG' " >> release.sh
                   echo -n "--description 'Release for Version $CI_COMMIT_TAG' --name 'Release $CI_COMMIT_TAG' " >> release.sh
+                  for i in "mepack-$V.tar.gz" "mepack-$V.tar.bz2" "mepack-$V.tar.xz"
+                  do
+                      curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file ../../${i} ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/mepack-source/${CI_COMMIT_TAG}/${i}
+                      echo  -n " --assets-link '{\"name\":\"${i}\",\"url\":\"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/mepack-source/${CI_COMMIT_TAG}/${i}\"}'" >> release.sh
+                  done
+
                   for i in mepack*matlab*.tar.gz
                   do
                       curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file ${i} ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/mepack-matlab/${CI_COMMIT_TAG}/${i}
@@ -279,10 +291,10 @@ release-job:
                      echo -n  " --assets-link '{\"name\":\"${i}\",\"url\":\"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/mepack-octave/${CI_COMMIT_TAG}/${i}\"}'" >> release.sh
                   done
                   for i  in mepack-*docs.tar.gz
-                  do 
+                  do
                   curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file ${i} ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/mepack-docs/${CI_COMMIT_TAG}/${i}
                   echo -n  " --assets-link '{\"name\":\"Documentation (HTML)\",\"url\":\"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/mepack-docs/${CI_COMMIT_TAG}/${i}\"}'" >> release.sh
-                  done 
+                  done
                   cat release.sh
                   bash release.sh
 
