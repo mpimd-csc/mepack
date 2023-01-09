@@ -2,7 +2,7 @@ before_script:
         - git submodule sync
         - git submodule init
         - git submodule update --recursive --init
-        - find . -name "*.h5" -delete
+        - find build/ -name "*.h5" -delete
 
 .job_template: &artifact_config
         artifacts:
@@ -262,9 +262,10 @@ release-job:
                 - documentation
         script:
                 - |
-                 set -x
+                  set -x
                   if [ -z "$CI_COMMIT_TAG" ]; then export CI_COMMIT_TAG=$(git describe) ; fi
                   export V=$(echo $CI_COMMIT_TAG | sed -e 's/^v//g')
+                  apt install --yes xz-utils
                   (git ls-files --recurse-submodules | tar --transform="s|^|mepack-$V/|g" -cvzf ../mepack-$V.tar.gz   -T- )
                   (git ls-files --recurse-submodules | tar --transform="s|^|mepack-$V/|g" -cvjf ../mepack-$V.tar.bz2  -T- )
                   (git ls-files --recurse-submodules | tar --transform="s|^|mepack-$V/|g" -cvJf ../mepack-$V.tar.xz   -T- )
