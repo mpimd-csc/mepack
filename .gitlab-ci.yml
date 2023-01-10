@@ -2,7 +2,7 @@ before_script:
         - git submodule sync
         - git submodule init
         - git submodule update --recursive --init
-        - find build/ -name "*.h5" -delete
+        - mkdir -p build && find build/ -name "*.h5" -delete
 
 .job_template: &artifact_config
         artifacts:
