@@ -12,7 +12,7 @@
 ! You should have received a copy of the GNU General Public License
 ! along with this program; if not, see <http://www.gnu.org/licenses/>.
 !
-! Copyright (C) Martin Koehler, 2017-2022
+! Copyright (C) Martin Koehler, 2017-2023
 !
 
 !> \brief Level-3 Recursive Blocked Algorithm for the discrete time  Sylvester equation
@@ -157,7 +157,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date Dezember 2022
+!> \date Januar 2023
 !> \ingroup dbltrsylv
 !
 RECURSIVE SUBROUTINE DLA_TRSYLV2_RECURSIVE(TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, X, LDX, SCALE, WORK, INFO)

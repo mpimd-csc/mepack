@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) Martin Koehler, 2017-2022
+ * Copyright (C) Martin Koehler, 2017-2023
  */
 
 #include <stdio.h>
@@ -33,8 +33,8 @@ double benchmark_check_X_double(Int M, Int N, double *X1, Int LDX1, double *X2, 
             X1[i*LDX1+j] -= X2[i*LDX2+j];
         }
     }
-    e1 = FC_GLOBAL(dlange,DLANGE)("1", &M, &N, X1, &LDX1, &dummy) ;
-    e2 = FC_GLOBAL(dlange,DLANGE)("1", &M, &N, X2, &LDX2, &dummy) ;
+    e1 = FC_GLOBAL(dlange,DLANGE)("1", &M, &N, X1, &LDX1, &dummy, 1) ;
+    e2 = FC_GLOBAL(dlange,DLANGE)("1", &M, &N, X2, &LDX2, &dummy, 1) ;
     return e1/e2;
 }
 
@@ -55,8 +55,8 @@ float benchmark_check_X_float(Int M, Int N, float *X1, Int LDX1, float *X2, Int 
             /* printf("%d %d  = %g\n", j, i, X1[i*LDX1+j]); */
         }
     }
-    nrm1 = FC_GLOBAL(slange,SLANGE)("1", &M, &N, X1, &M, NULL);
-    nrm2 = FC_GLOBAL(slange,SLANGE)("1", &M, &N, X2, &M, NULL);
+    nrm1 = FC_GLOBAL(slange,SLANGE)("1", &M, &N, X1, &M, NULL, 1);
+    nrm2 = FC_GLOBAL(slange,SLANGE)("1", &M, &N, X2, &M, NULL, 1);
 
     return nrm1/nrm2;
 }
@@ -68,10 +68,10 @@ void benchmark_rhs_sylv_double(char *TRANSA, char *TRANSB, double sgn,  Int M, I
 
         alpha=1;
         beta =0;
-        FC_GLOBAL(dgemm,DGEMM)(TRANSA, "N", &M, &N, &M, &alpha , A, &LDA, X, &LDX, &beta, Y, &LDY);
+        FC_GLOBAL(dgemm,DGEMM)(TRANSA, "N", &M, &N, &M, &alpha , A, &LDA, X, &LDX, &beta, Y, &LDY, 1, 1);
         beta = 1;
         alpha = sgn;
-        FC_GLOBAL(dgemm,DGEMM)("N", TRANSB, &M, &N, &N, &alpha , X, &LDX, B, &LDB, &beta, Y, &LDY);
+        FC_GLOBAL(dgemm,DGEMM)("N", TRANSB, &M, &N, &N, &alpha , X, &LDX, B, &LDB, &beta, Y, &LDY, 1, 1);
         return;
 
 }
@@ -82,10 +82,10 @@ void benchmark_rhs_sylv_float(char *TRANSA, char *TRANSB, float sgn,  Int M, Int
 
         alpha=1;
         beta =0;
-        FC_GLOBAL(sgemm,SGEMM)(TRANSA, "N", &M, &N, &M, &alpha , A, &LDA, X, &LDX, &beta, Y, &LDY);
+        FC_GLOBAL(sgemm,SGEMM)(TRANSA, "N", &M, &N, &M, &alpha , A, &LDA, X, &LDX, &beta, Y, &LDY, 1, 1);
         beta = 1;
         alpha = sgn;
-        FC_GLOBAL(sgemm,SGEMM)("N", TRANSB, &M, &N, &N, &alpha , X, &LDX, B, &LDB, &beta, Y, &LDY);
+        FC_GLOBAL(sgemm,SGEMM)("N", TRANSB, &M, &N, &N, &alpha , X, &LDX, B, &LDB, &beta, Y, &LDY, 1, 1);
         return;
 
 }
@@ -99,11 +99,11 @@ void benchmark_rhs_sylv2_double(char *TRANSA, char *TRANSB, double sgn,  Int M, 
         Work = malloc(M*N*sizeof(double));
         alpha=1;
         beta =0;
-        FC_GLOBAL(dlacpy,DLACPY)("All", &M, &N, X, &M, Y, &LDY);
-        FC_GLOBAL(dgemm,DGEMM)(TRANSA, "N", &M, &N, &M, &alpha , A, &LDA, X, &LDX, &beta, Work, &M);
+        FC_GLOBAL(dlacpy,DLACPY)("All", &M, &N, X, &M, Y, &LDY, 1);
+        FC_GLOBAL(dgemm,DGEMM)(TRANSA, "N", &M, &N, &M, &alpha , A, &LDA, X, &LDX, &beta, Work, &M, 1, 1);
         alpha = 1;
         beta = sgn;
-        FC_GLOBAL(dgemm,DGEMM)("N", TRANSB, &M, &N, &N, &alpha , Work, &M, B, &LDB, &beta, Y, &LDY);
+        FC_GLOBAL(dgemm,DGEMM)("N", TRANSB, &M, &N, &N, &alpha , Work, &M, B, &LDB, &beta, Y, &LDY, 1, 1);
         free(Work);
         return;
 
@@ -117,11 +117,11 @@ void benchmark_rhs_sylv2_float(char *TRANSA, char *TRANSB, float sgn,  Int M, In
         Work = malloc(M*N*sizeof(float));
         alpha=1;
         beta =0;
-        FC_GLOBAL(slacpy,SLACPY)("All", &M, &N, X, &M, Y, &LDY);
-        FC_GLOBAL(sgemm,SGEMM)(TRANSA, "N", &M, &N, &M, &alpha , A, &LDA, X, &LDX, &beta, Work, &M);
+        FC_GLOBAL(slacpy,SLACPY)("All", &M, &N, X, &M, Y, &LDY, 1);
+        FC_GLOBAL(sgemm,SGEMM)(TRANSA, "N", &M, &N, &M, &alpha , A, &LDA, X, &LDX, &beta, Work, &M, 1, 1);
         alpha = 1;
         beta = sgn;
-        FC_GLOBAL(sgemm,SGEMM)("N", TRANSB, &M, &N, &N, &alpha , Work, &M, B, &LDB, &beta, Y, &LDY);
+        FC_GLOBAL(sgemm,SGEMM)("N", TRANSB, &M, &N, &N, &alpha , Work, &M, B, &LDB, &beta, Y, &LDY, 1, 1);
         free(Work);
         return;
 
@@ -138,13 +138,13 @@ void benchmark_rhs_gsylv_double(char *TRANSA, char *TRANSB, double sgn,  Int M, 
         Work = malloc(M*N*sizeof(double));
         alpha=1;
         beta =0;
-        FC_GLOBAL(dgemm,DGEMM)(TRANSA, "N", &M, &N, &M, &alpha , A, &LDA, X, &LDX, &beta, Work, &M);
-        FC_GLOBAL(dgemm,DGEMM)("N", TRANSB, &M, &N, &N, &alpha , Work, &M, B, &LDB, &beta, Y, &LDY);
+        FC_GLOBAL(dgemm,DGEMM)(TRANSA, "N", &M, &N, &M, &alpha , A, &LDA, X, &LDX, &beta, Work, &M, 1, 1);
+        FC_GLOBAL(dgemm,DGEMM)("N", TRANSB, &M, &N, &N, &alpha , Work, &M, B, &LDB, &beta, Y, &LDY, 1, 1);
 
-        FC_GLOBAL(dgemm,DGEMM)(TRANSA, "N", &M, &N, &M, &alpha , C, &LDC, X, &LDX, &beta, Work, &M);
+        FC_GLOBAL(dgemm,DGEMM)(TRANSA, "N", &M, &N, &M, &alpha , C, &LDC, X, &LDX, &beta, Work, &M, 1, 1);
         beta = 1;
         alpha = sgn;
-        FC_GLOBAL(dgemm,DGEMM)("N", TRANSB, &M, &N, &N, &alpha , Work, &M, D, &LDD, &beta, Y, &LDY);
+        FC_GLOBAL(dgemm,DGEMM)("N", TRANSB, &M, &N, &N, &alpha , Work, &M, D, &LDD, &beta, Y, &LDY, 1, 1);
         free(Work);
         return;
 
@@ -152,8 +152,10 @@ void benchmark_rhs_gsylv_double(char *TRANSA, char *TRANSB, double sgn,  Int M, 
 
 void FC_GLOBAL(benchmark_rhs_gsylv_double_f,BENCHMARK_RHS_GSYLV_DOUBLE_F)
         (char *TRANSA, char *TRANSB, double *sgn,  Int *M, Int *N, double * A, Int *LDA, double * B, Int *LDB, double * C, Int *LDC, double *D, Int *LDD,
-         double *X, Int *LDX, double *Y, Int *LDY)
+         double *X, Int *LDX, double *Y, Int *LDY, fortran_charlen_t l1, fortran_charlen_t l2 )
 {
+    (void ) l1;
+    (void ) l2;
     char ta[2] = { TRANSA[0], 0};
     char tb[2] = { TRANSB[0], 0};
 
@@ -171,12 +173,12 @@ void benchmark_rhs_gsylv_float(char *TRANSA, char *TRANSB, float sgn,  Int M, In
         Work = malloc(M*N*sizeof(float));
         alpha=1;
         beta =0;
-        FC_GLOBAL(sgemm,SGEMM)(TRANSA, "N", &M, &N, &M, &alpha , A, &LDA, X, &LDX, &beta, Work, &M);
-        FC_GLOBAL(sgemm,SGEMM)("N", TRANSB, &M, &N, &N, &alpha , Work, &M, B, &LDB, &beta, Y, &LDY);
-        FC_GLOBAL(sgemm,SGEMM)(TRANSA, "N", &M, &N, &M, &alpha , C, &LDC, X, &LDX, &beta, Work, &M);
+        FC_GLOBAL(sgemm,SGEMM)(TRANSA, "N", &M, &N, &M, &alpha , A, &LDA, X, &LDX, &beta, Work, &M, 1, 1);
+        FC_GLOBAL(sgemm,SGEMM)("N", TRANSB, &M, &N, &N, &alpha , Work, &M, B, &LDB, &beta, Y, &LDY, 1, 1);
+        FC_GLOBAL(sgemm,SGEMM)(TRANSA, "N", &M, &N, &M, &alpha , C, &LDC, X, &LDX, &beta, Work, &M, 1, 1);
         beta = 1;
         alpha = sgn;
-        FC_GLOBAL(sgemm,SGEMM)("N", TRANSB, &M, &N, &N, &alpha , Work, &M, D, &LDD, &beta, Y, &LDY);
+        FC_GLOBAL(sgemm,SGEMM)("N", TRANSB, &M, &N, &N, &alpha , Work, &M, D, &LDD, &beta, Y, &LDY, 1, 1);
         free(Work);
         return;
 
@@ -189,17 +191,17 @@ void benchmark_rhs_ggcsylv_double(char *TRANSA, char *TRANSB, double sgn1, doubl
         double alpha, beta;
         alpha=1;
         beta =0;
-        FC_GLOBAL(dgemm,DGEMM)(TRANSA, "N", &M, &N, &M, &alpha , A, &LDA, R, &LDR, &beta, Y1, &LDY1);
+        FC_GLOBAL(dgemm,DGEMM)(TRANSA, "N", &M, &N, &M, &alpha , A, &LDA, R, &LDR, &beta, Y1, &LDY1, 1, 1);
         beta = 1;
         alpha = sgn1;
-        FC_GLOBAL(dgemm,DGEMM)("N", TRANSB, &M, &N, &N, &alpha,  L, &LDL, B, &LDB, &beta, Y1, &LDY1);
+        FC_GLOBAL(dgemm,DGEMM)("N", TRANSB, &M, &N, &N, &alpha,  L, &LDL, B, &LDB, &beta, Y1, &LDY1, 1, 1);
 
         alpha = 1;
         beta =0;
-        FC_GLOBAL(dgemm,DGEMM)(TRANSA, "N", &M, &N, &M, &alpha , C, &LDC, R, &LDR, &beta, Y2, &LDY2);
+        FC_GLOBAL(dgemm,DGEMM)(TRANSA, "N", &M, &N, &M, &alpha , C, &LDC, R, &LDR, &beta, Y2, &LDY2, 1, 1);
         beta = 1;
         alpha = sgn2;
-        FC_GLOBAL(dgemm,DGEMM)("N", TRANSB, &M, &N, &N, &alpha,  L, &LDL, D, &LDD, &beta, Y2, &LDY2);
+        FC_GLOBAL(dgemm,DGEMM)("N", TRANSB, &M, &N, &N, &alpha,  L, &LDL, D, &LDD, &beta, Y2, &LDY2, 1, 1);
 
         return;
 
@@ -226,19 +228,19 @@ void benchmark_rhs_ggcsylv_dual_double(char *TRANSA, char *TRANSB, double sgn1, 
 
         alpha = 1;
         beta = 0;
-        FC_GLOBAL(dgemm,DGEMM)(TA, "N", &M, &N, &M, &alpha , A, &LDA, R, &LDR, &beta, Y1, &LDY1);
+        FC_GLOBAL(dgemm,DGEMM)(TA, "N", &M, &N, &M, &alpha , A, &LDA, R, &LDR, &beta, Y1, &LDY1, 1, 1);
 
         beta = 1;
         alpha = 1;
-        FC_GLOBAL(dgemm,DGEMM)(TA, "N", &M, &N, &M, &alpha,  C, &LDC, L, &LDL, &beta, Y1, &LDY1);
+        FC_GLOBAL(dgemm,DGEMM)(TA, "N", &M, &N, &M, &alpha,  C, &LDC, L, &LDL, &beta, Y1, &LDY1, 1, 1);
 
         beta = 0;
         alpha = sgn1;
-        FC_GLOBAL(dgemm,DGEMM)("N", TB, &M, &N, &N, &alpha,  R, &LDR, B, &LDB, &beta, Y2, &LDY2);
+        FC_GLOBAL(dgemm,DGEMM)("N", TB, &M, &N, &N, &alpha,  R, &LDR, B, &LDB, &beta, Y2, &LDY2, 1, 1);
 
         beta = 1;
         alpha = sgn2;
-        FC_GLOBAL(dgemm,DGEMM)("N", TB, &M, &N, &N, &alpha,  L, &LDL, D, &LDD, &beta, Y2, &LDY2);
+        FC_GLOBAL(dgemm,DGEMM)("N", TB, &M, &N, &N, &alpha,  L, &LDL, D, &LDD, &beta, Y2, &LDY2, 1, 1);
 
         return;
 
@@ -250,17 +252,17 @@ void benchmark_rhs_ggcsylv_float(char *TRANSA, char *TRANSB, float sgn1, float s
         float alpha, beta;
         alpha=1;
         beta =0;
-        FC_GLOBAL(sgemm,SGEMM)(TRANSA, "N", &M, &N, &M, &alpha , A, &LDA, R, &LDR, &beta, Y1, &LDY1);
+        FC_GLOBAL(sgemm,SGEMM)(TRANSA, "N", &M, &N, &M, &alpha , A, &LDA, R, &LDR, &beta, Y1, &LDY1, 1, 1);
         beta = 1;
         alpha = sgn1;
-        FC_GLOBAL(sgemm,SGEMM)("N", TRANSB, &M, &N, &N, &alpha,  L, &LDL, B, &LDB, &beta, Y1, &LDY1);
+        FC_GLOBAL(sgemm,SGEMM)("N", TRANSB, &M, &N, &N, &alpha,  L, &LDL, B, &LDB, &beta, Y1, &LDY1, 1, 1);
 
         alpha = 1;
         beta =0;
-        FC_GLOBAL(sgemm,SGEMM)(TRANSA, "N", &M, &N, &M, &alpha , C, &LDC, R, &LDR, &beta, Y2, &LDY2);
+        FC_GLOBAL(sgemm,SGEMM)(TRANSA, "N", &M, &N, &M, &alpha , C, &LDC, R, &LDR, &beta, Y2, &LDY2, 1, 1);
         beta = 1;
         alpha = sgn2;
-        FC_GLOBAL(sgemm,SGEMM)("N", TRANSB, &M, &N, &N, &alpha,  L, &LDL, D, &LDD, &beta, Y2, &LDY2);
+        FC_GLOBAL(sgemm,SGEMM)("N", TRANSB, &M, &N, &N, &alpha,  L, &LDL, D, &LDD, &beta, Y2, &LDY2, 1, 1);
 
         return;
 
@@ -288,19 +290,19 @@ void benchmark_rhs_ggcsylv_dual_float(char *TRANSA, char *TRANSB, float sgn1, fl
 
         alpha = 1;
         beta = 0;
-        FC_GLOBAL(sgemm,SGEMM)(TA, "N", &M, &N, &M, &alpha , A, &LDA, R, &LDR, &beta, Y1, &LDY1);
+        FC_GLOBAL(sgemm,SGEMM)(TA, "N", &M, &N, &M, &alpha , A, &LDA, R, &LDR, &beta, Y1, &LDY1, 1, 1);
 
         beta = 1;
         alpha = 1;
-        FC_GLOBAL(sgemm,SGEMM)(TA, "N", &M, &N, &M, &alpha,  C, &LDC, L, &LDL, &beta, Y1, &LDY1);
+        FC_GLOBAL(sgemm,SGEMM)(TA, "N", &M, &N, &M, &alpha,  C, &LDC, L, &LDL, &beta, Y1, &LDY1, 1, 1);
 
         beta = 0;
         alpha = sgn1;
-        FC_GLOBAL(sgemm,SGEMM)("N", TB, &M, &N, &N, &alpha,  R, &LDR, B, &LDB, &beta, Y2, &LDY2);
+        FC_GLOBAL(sgemm,SGEMM)("N", TB, &M, &N, &N, &alpha,  R, &LDR, B, &LDB, &beta, Y2, &LDY2, 1, 1);
 
         beta = 1;
         alpha = sgn2;
-        FC_GLOBAL(sgemm,SGEMM)("N", TB, &M, &N, &N, &alpha,  L, &LDL, D, &LDD, &beta, Y2, &LDY2);
+        FC_GLOBAL(sgemm,SGEMM)("N", TB, &M, &N, &N, &alpha,  L, &LDL, D, &LDD, &beta, Y2, &LDY2, 1, 1);
 
         return;
 
@@ -322,12 +324,12 @@ void benchmark_rhs_glyap_double(char *TRANSA, Int M, double * A, Int LDA, double
     Work = malloc(M*M*sizeof(double));
     alpha = 1;
     beta  = 0;
-    FC_GLOBAL(dgemm,DGEMM)(TRANSA, "N", &M, &M, &M, &alpha , A, &LDA, X, &LDX, &beta, Work, &M);
-    FC_GLOBAL(dgemm,DGEMM)("N", TRANSB, &M, &M, &M, &alpha , Work, &M, B, &LDB, &beta, Y, &LDY);
-    FC_GLOBAL(dgemm,DGEMM)(TRANSA, "N", &M, &M, &M, &alpha , B, &LDB, X, &LDX, &beta, Work, &M);
+    FC_GLOBAL(dgemm,DGEMM)(TRANSA, "N", &M, &M, &M, &alpha , A, &LDA, X, &LDX, &beta, Work, &M, 1, 1);
+    FC_GLOBAL(dgemm,DGEMM)("N", TRANSB, &M, &M, &M, &alpha , Work, &M, B, &LDB, &beta, Y, &LDY, 1, 1);
+    FC_GLOBAL(dgemm,DGEMM)(TRANSA, "N", &M, &M, &M, &alpha , B, &LDB, X, &LDX, &beta, Work, &M, 1, 1);
     beta = 1;
     alpha = 1;
-    FC_GLOBAL(dgemm,DGEMM)("N", TRANSB, &M, &M, &M, &alpha , Work, &M, A, &LDA, &beta, Y, &LDY);
+    FC_GLOBAL(dgemm,DGEMM)("N", TRANSB, &M, &M, &M, &alpha , Work, &M, A, &LDA, &beta, Y, &LDY, 1, 1);
     free(Work);
     return;
 
@@ -347,12 +349,12 @@ void benchmark_rhs_glyap_float(char *TRANSA, Int M, float * A, Int LDA, float * 
     Work = malloc(M*M*sizeof(float));
     alpha = 1;
     beta  = 0;
-    FC_GLOBAL(sgemm,SGEMM)(TRANSA, "N", &M, &M, &M, &alpha , A, &LDA, X, &LDX, &beta, Work, &M);
-    FC_GLOBAL(sgemm,SGEMM)("N", TRANSB, &M, &M, &M, &alpha , Work, &M, B, &LDB, &beta, Y, &LDY);
-    FC_GLOBAL(sgemm,SGEMM)(TRANSA, "N", &M, &M, &M, &alpha , B, &LDB, X, &LDX, &beta, Work, &M);
+    FC_GLOBAL(sgemm,SGEMM)(TRANSA, "N", &M, &M, &M, &alpha , A, &LDA, X, &LDX, &beta, Work, &M, 1, 1);
+    FC_GLOBAL(sgemm,SGEMM)("N", TRANSB, &M, &M, &M, &alpha , Work, &M, B, &LDB, &beta, Y, &LDY, 1, 1);
+    FC_GLOBAL(sgemm,SGEMM)(TRANSA, "N", &M, &M, &M, &alpha , B, &LDB, X, &LDX, &beta, Work, &M, 1, 1);
     beta = 1;
     alpha = 1;
-    FC_GLOBAL(sgemm,SGEMM)("N", TRANSB, &M, &M, &M, &alpha , Work, &M, A, &LDA, &beta, Y, &LDY);
+    FC_GLOBAL(sgemm,SGEMM)("N", TRANSB, &M, &M, &M, &alpha , Work, &M, A, &LDA, &beta, Y, &LDY, 1, 1);
     free(Work);
     return;
 
@@ -371,9 +373,9 @@ void benchmark_rhs_lyap_double(char *TRANSA, Int M, double * A, Int LDA, double 
 
     alpha = 1;
     beta  = 0;
-    FC_GLOBAL(dgemm,DGEMM)(TRANSA, "N", &M, &M, &M, &alpha , A, &LDA, X, &LDX, &beta, Y , &LDY);
+    FC_GLOBAL(dgemm,DGEMM)(TRANSA, "N", &M, &M, &M, &alpha , A, &LDA, X, &LDX, &beta, Y , &LDY, 1, 1);
     beta = 1;
-    FC_GLOBAL(dgemm,DGEMM)("N", TRANSB, &M, &M, &M, &alpha , X, &LDX, A, &LDA, &beta, Y, &LDY);
+    FC_GLOBAL(dgemm,DGEMM)("N", TRANSB, &M, &M, &M, &alpha , X, &LDX, A, &LDA, &beta, Y, &LDY, 1, 1);
     return;
 
 }
@@ -390,9 +392,9 @@ void benchmark_rhs_lyap_float(char *TRANSA, Int M, float * A, Int LDA, float *X,
 
     alpha = 1;
     beta  = 0;
-    FC_GLOBAL(sgemm,SGEMM)(TRANSA, "N", &M, &M, &M, &alpha , A, &LDA, X, &LDX, &beta, Y , &LDY);
+    FC_GLOBAL(sgemm,SGEMM)(TRANSA, "N", &M, &M, &M, &alpha , A, &LDA, X, &LDX, &beta, Y , &LDY, 1, 1);
     beta = 1;
-    FC_GLOBAL(sgemm,SGEMM)("N", TRANSB, &M, &M, &M, &alpha , X, &LDX, A, &LDA, &beta, Y, &LDY);
+    FC_GLOBAL(sgemm,SGEMM)("N", TRANSB, &M, &M, &M, &alpha , X, &LDX, A, &LDA, &beta, Y, &LDY, 1, 1);
     return;
 
 }
@@ -412,8 +414,8 @@ void benchmark_rhs_stein_double(char *TRANSA, Int M, double * A, Int LDA, double
 
     alpha = 1;
     beta  = 0;
-    FC_GLOBAL(dgemm,DGEMM)(TRANSA, "N", &M, &M, &M, &alpha , A, &LDA, X, &LDX, &beta, work, &M);
-    FC_GLOBAL(dgemm,DGEMM)("N", TRANSB, &M, &M, &M, &alpha , work, &M, A, &LDA, &beta, Y, &LDY);
+    FC_GLOBAL(dgemm,DGEMM)(TRANSA, "N", &M, &M, &M, &alpha , A, &LDA, X, &LDX, &beta, work, &M, 1, 1);
+    FC_GLOBAL(dgemm,DGEMM)("N", TRANSB, &M, &M, &M, &alpha , work, &M, A, &LDA, &beta, Y, &LDY, 1, 1);
     for (j = 0; j < M; j++) {
         for (i = 0; i < M; i++) {
             Y[i+j*LDY] -= X[i+j*LDX];
@@ -441,8 +443,8 @@ void benchmark_rhs_stein_float(char *TRANSA, Int M, float * A, Int LDA, float *X
 
     alpha = 1;
     beta  = 0;
-    FC_GLOBAL(sgemm,SGEMM)(TRANSA, "N", &M, &M, &M, &alpha , A, &LDA, X, &LDX, &beta, work, &M);
-    FC_GLOBAL(sgemm,SGEMM)("N", TRANSB, &M, &M, &M, &alpha , work, &M, A, &LDA, &beta, Y, &LDY);
+    FC_GLOBAL(sgemm,SGEMM)(TRANSA, "N", &M, &M, &M, &alpha , A, &LDA, X, &LDX, &beta, work, &M, 1, 1);
+    FC_GLOBAL(sgemm,SGEMM)("N", TRANSB, &M, &M, &M, &alpha , work, &M, A, &LDA, &beta, Y, &LDY, 1, 1);
     for (j = 0; j < M; j++) {
         for (i = 0; i < M; i++) {
             Y[i+j*LDY] -= X[i+j*LDX];
@@ -471,12 +473,12 @@ void benchmark_rhs_gstein_double(char *TRANSA, Int M, double * A, Int LDA, doubl
     Work = malloc(M*M*sizeof(double));
     alpha = 1;
     beta  = 0;
-    FC_GLOBAL(dgemm,DGEMM)(TRANSA, "N", &M, &M, &M, &alpha , A, &LDA, X, &LDX, &beta, Work, &M);
-    FC_GLOBAL(dgemm,DGEMM)("N", TRANSB, &M, &M, &M, &alpha , Work, &M, A, &LDA, &beta, Y, &LDY);
-    FC_GLOBAL(dgemm,DGEMM)(TRANSA, "N", &M, &M, &M, &alpha , B, &LDB, X, &LDX, &beta, Work, &M);
+    FC_GLOBAL(dgemm,DGEMM)(TRANSA, "N", &M, &M, &M, &alpha , A, &LDA, X, &LDX, &beta, Work, &M, 1, 1);
+    FC_GLOBAL(dgemm,DGEMM)("N", TRANSB, &M, &M, &M, &alpha , Work, &M, A, &LDA, &beta, Y, &LDY, 1, 1);
+    FC_GLOBAL(dgemm,DGEMM)(TRANSA, "N", &M, &M, &M, &alpha , B, &LDB, X, &LDX, &beta, Work, &M, 1, 1);
     beta = 1;
     alpha = -1;
-    FC_GLOBAL(dgemm,DGEMM)("N", TRANSB, &M, &M, &M, &alpha , Work, &M, B, &LDB, &beta, Y, &LDY);
+    FC_GLOBAL(dgemm,DGEMM)("N", TRANSB, &M, &M, &M, &alpha , Work, &M, B, &LDB, &beta, Y, &LDY, 1, 1);
     free(Work);
     return;
 
@@ -497,12 +499,12 @@ void benchmark_rhs_gstein_float(char *TRANSA, Int M, float * A, Int LDA, float *
     Work = malloc(M*M*sizeof(float));
     alpha = 1;
     beta  = 0;
-    FC_GLOBAL(sgemm,SGEMM)(TRANSA, "N", &M, &M, &M, &alpha , A, &LDA, X, &LDX, &beta, Work, &M);
-    FC_GLOBAL(sgemm,SGEMM)("N", TRANSB, &M, &M, &M, &alpha , Work, &M, A, &LDA, &beta, Y, &LDY);
-    FC_GLOBAL(sgemm,SGEMM)(TRANSA, "N", &M, &M, &M, &alpha , B, &LDB, X, &LDX, &beta, Work, &M);
+    FC_GLOBAL(sgemm,SGEMM)(TRANSA, "N", &M, &M, &M, &alpha , A, &LDA, X, &LDX, &beta, Work, &M, 1, 1);
+    FC_GLOBAL(sgemm,SGEMM)("N", TRANSB, &M, &M, &M, &alpha , Work, &M, A, &LDA, &beta, Y, &LDY, 1, 1);
+    FC_GLOBAL(sgemm,SGEMM)(TRANSA, "N", &M, &M, &M, &alpha , B, &LDB, X, &LDX, &beta, Work, &M, 1, 1);
     beta = 1;
     alpha = -1;
-    FC_GLOBAL(sgemm,SGEMM)("N", TRANSB, &M, &M, &M, &alpha , Work, &M, B, &LDB, &beta, Y, &LDY);
+    FC_GLOBAL(sgemm,SGEMM)("N", TRANSB, &M, &M, &M, &alpha , Work, &M, B, &LDB, &beta, Y, &LDY, 1, 1);
     free(Work);
     return;
 

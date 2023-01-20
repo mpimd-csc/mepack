@@ -4,7 +4,7 @@ if(NOT DEFINED CMAKE_INSTALL_MODULEDIR)
     endif()
   set(
     CMAKE_INSTALL_MODULEDIR
-    "${CMAKE_INSTALL_INCLUDEDIR}/${Fortran_MODULE_NAME}/${CMAKE_Fortran_COMPILER_ID}-${CMAKE_Fortran_COMPILER_VERSION}"
+    "${CMAKE_INSTALL_INCLUDEDIR}/${Fortran_MODULE_NAME}"
     CACHE
     STRING
     "Directory in prefix to install generated module files"

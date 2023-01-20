@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) Martin Koehler, 2017-2022
+ * Copyright (C) Martin Koehler, 2017-2023
  */
 
 
@@ -194,7 +194,7 @@ int main(int argc, char **argv)
 
     double times,ts2, te2;
     double ctimes;
-    double ress;
+    double ress = 1.0;
     ssize_t mem = 0;
 
     int choice;
@@ -407,6 +407,8 @@ optional_argument: "::" */
     printf("# Solver: "); solver_name(is);
     eps = mepack_double_epsilon();
 
+    ress = 1.0;
+
     printf("#\n");
     printf("#  M    N    MB  NB   Wall-Time     CPU-Time       Ratio    Forward-Err\n");
     for (M = M_MIN, N = N_MIN; M <= M_MAX && N<=N_MAX; M = (N>=N_MAX) ? (M+M_STEP): M,  N=(N<N_MAX)?(N+N_STEP):(N_MIN)) {
@@ -490,7 +492,7 @@ optional_argument: "::" */
             Work = (double *) malloc(sizeof(double) * (mem));
 
             alpha = 1; beta = 1;
-            FC_GLOBAL_(dlaset,DLASET)("All", &M, &N, &alpha, &beta, Xorig, &M);
+            FC_GLOBAL_(dlaset,DLASET)("All", &M, &N, &alpha, &beta, Xorig, &M, 1);
 
             info = 0;
 
@@ -516,7 +518,7 @@ optional_argument: "::" */
                     te = 0.0;
                     te2 = 0.0;
                     for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &N, RHS, &M, X, &M);
+                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &N, RHS, &M, X, &M, 1);
                         ts = get_wtime();
                         ts2 = get_ctime();
                         if ( is < 7 )
@@ -548,7 +550,7 @@ optional_argument: "::" */
                     te2= 0.0;
 
                     for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &N, RHS, &M, X, &M);
+                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &N, RHS, &M, X, &M, 1);
                         ts = get_wtime();
                         ts2 = get_ctime();
                         if ( is == 19 ){
@@ -603,7 +605,7 @@ optional_argument: "::" */
                     te2= 0.0;
                     Int infox = 0;
                     for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &N, RHS, &M, X, &M);
+                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &N, RHS, &M, X, &M, 1);
                         ts = get_wtime();
                         ts2 = get_ctime();
                         FC_GLOBAL_(recsyct,RECSYCT)(&type, &scale, &M, &N, A, &M, B, &N,X,  &M, &infox, MACHINE_RECSY);
@@ -634,7 +636,7 @@ optional_argument: "::" */
                     te2= 0.0;
 
                     for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &N, RHS, &M, X, &M);
+                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &N, RHS, &M, X, &M, 1);
                         ts = get_wtime();
                         ts2 = get_ctime();
                         FC_GLOBAL_(recsyct_p,RECSYCT_P)(&proc, &type, &scale, &M, &N, A, &M, B, &N,X,  &M, &infox, MACHINE_RECSY);
@@ -665,7 +667,7 @@ optional_argument: "::" */
                     te2= 0.0;
 
                     for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &N, RHS, &M, X, &M);
+                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &N, RHS, &M, X, &M, 1);
                         if ( sign < 0 )
                             isgn = -1;
                         else

@@ -105,7 +105,7 @@ int csc_table_save_latex(const char *filename, csc_table_t *t, int standalone)
     FILE *fp;
     int c;
     int r;
-    char SAVE_COMMENT[CSC_TABLE_MAXLEN];
+    char SAVE_COMMENT[CSC_TABLE_MAXLEN+1];
 
     if (!filename) return -1;
     if (!t) return -1;
@@ -116,7 +116,7 @@ int csc_table_save_latex(const char *filename, csc_table_t *t, int standalone)
         return -1;
     }
 
-    strncpy(SAVE_COMMENT, t->comment->start, CSC_TABLE_MAXLEN);
+    memcpy(SAVE_COMMENT, t->comment->start, (CSC_TABLE_MAXLEN+1)*sizeof(char));
     strncpy(t->comment->start, "% ", CSC_TABLE_MAXLEN);
 
     /* Standalone    */
@@ -159,7 +159,7 @@ int csc_table_save_latex(const char *filename, csc_table_t *t, int standalone)
         fprintf(fp, "\\end{document}\n");
     }
 
-    strncpy(t->comment->start, SAVE_COMMENT, CSC_TABLE_MAXLEN);
+    memcpy(t->comment->start, SAVE_COMMENT, (CSC_TABLE_MAXLEN+1)*sizeof(char));
     fclose(fp);
     return 0;
 }

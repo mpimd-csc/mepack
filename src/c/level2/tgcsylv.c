@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) Martin Koehler, 2017-2022
+ * Copyright (C) Martin Koehler, 2017-2023
  */
 
 #include "FCMangle.h"
@@ -207,7 +207,7 @@
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Dezember 2022
+ \date Januar 2023
 */
 
 
@@ -418,7 +418,7 @@ void mepack_double_tgcsylv_level2(const char *TRANSA, const char*TRANSB, double 
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Dezember 2022
+ \date Januar 2023
 */
 
 
@@ -629,7 +629,7 @@ void mepack_double_tgcsylv_level2_unopt(const char *TRANSA, const char*TRANSB, d
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Dezember 2022
+ \date Januar 2023
 */
 
 
@@ -840,7 +840,7 @@ void mepack_double_tgcsylv_level2_reorder(const char *TRANSA, const char*TRANSB,
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Dezember 2022
+ \date Januar 2023
 */
 
 
@@ -1052,7 +1052,7 @@ void mepack_double_tgcsylv_level2_local_copy(const char *TRANSA, const char*TRAN
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Dezember 2022
+ \date Januar 2023
 */
 
 void mepack_double_tgcsylv_level2_local_copy_32(const char *TRANSA, const char*TRANSB, double SGN1, double SGN2,  int M, int N,
@@ -1262,7 +1262,7 @@ void mepack_double_tgcsylv_level2_local_copy_32(const char *TRANSA, const char*T
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Dezember 2022
+ \date Januar 2023
 */
 
 void mepack_double_tgcsylv_level2_local_copy_64(const char *TRANSA, const char*TRANSB, double SGN1, double SGN2,  int M, int N,
@@ -1472,7 +1472,7 @@ void mepack_double_tgcsylv_level2_local_copy_64(const char *TRANSA, const char*T
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Dezember 2022
+ \date Januar 2023
 */
 
 void mepack_double_tgcsylv_level2_local_copy_96(const char *TRANSA, const char*TRANSB, double SGN1, double SGN2,  int M, int N,
@@ -1682,7 +1682,7 @@ void mepack_double_tgcsylv_level2_local_copy_96(const char *TRANSA, const char*T
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Dezember 2022
+ \date Januar 2023
 */
 
 void mepack_double_tgcsylv_level2_local_copy_128(const char *TRANSA, const char*TRANSB, double SGN1, double SGN2,  int M, int N,
@@ -1893,7 +1893,7 @@ void mepack_double_tgcsylv_level2_local_copy_128(const char *TRANSA, const char*
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Dezember 2022
+ \date Januar 2023
 */
 
 
@@ -2104,7 +2104,7 @@ void mepack_single_tgcsylv_level2(const char *TRANSA, const char*TRANSB, float S
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Dezember 2022
+ \date Januar 2023
 */
 
 
@@ -2315,7 +2315,7 @@ void mepack_single_tgcsylv_level2_unopt(const char *TRANSA, const char*TRANSB, f
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Dezember 2022
+ \date Januar 2023
 */
 
 
@@ -2526,7 +2526,7 @@ void mepack_single_tgcsylv_level2_reorder(const char *TRANSA, const char*TRANSB,
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Dezember 2022
+ \date Januar 2023
 */
 
 
@@ -2737,7 +2737,7 @@ void mepack_single_tgcsylv_level2_local_copy(const char *TRANSA, const char*TRAN
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Dezember 2022
+ \date Januar 2023
 */
 
 
@@ -2948,7 +2948,7 @@ void mepack_single_tgcsylv_level2_local_copy_32(const char *TRANSA, const char*T
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Dezember 2022
+ \date Januar 2023
 */
 
 void mepack_single_tgcsylv_level2_local_copy_64(const char *TRANSA, const char*TRANSB, float SGN1, float SGN2,  int M, int N,
@@ -3158,7 +3158,7 @@ void mepack_single_tgcsylv_level2_local_copy_64(const char *TRANSA, const char*T
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Dezember 2022
+ \date Januar 2023
 */
 
 void mepack_single_tgcsylv_level2_local_copy_96(const char *TRANSA, const char*TRANSB, float SGN1, float SGN2,  int M, int N,
@@ -3368,7 +3368,7 @@ void mepack_single_tgcsylv_level2_local_copy_96(const char *TRANSA, const char*T
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Dezember 2022
+ \date Januar 2023
 */
 
 void mepack_single_tgcsylv_level2_local_copy_128(const char *TRANSA, const char*TRANSB, float SGN1, float SGN2,  int M, int N,

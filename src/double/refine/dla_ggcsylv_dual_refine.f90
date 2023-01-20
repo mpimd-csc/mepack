@@ -12,7 +12,7 @@
 ! You should have received a copy of the GNU General Public License
 ! along with this program; if not, see <http://www.gnu.org/licenses/>.
 !
-! Copyright (C) Martin Koehler, 2017-2022
+! Copyright (C) Martin Koehler, 2017-2023
 !
 
 !> \brief Iterative Refinement for the  dual Coupled Generalized Sylvester Equations.
@@ -393,7 +393,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date Dezember 2022
+!> \date Januar 2023
 !> \ingroup dblggsylv
 !
 SUBROUTINE DLA_GGCSYLV_DUAL_REFINE(TRANSA, TRANSB, GUESS, SGN1, SGN2, M , N,  &
@@ -633,6 +633,8 @@ SUBROUTINE DLA_GGCSYLV_DUAL_REFINE(TRANSA, TRANSB, GUESS, SGN1, SGN2, M , N,  &
 
     NRME = DLANGE("F", M, N, E(1,1), LDE, WORK(WS))
     NRMF = DLANGE("F", M, N, F(1,1), LDF, WORK(WS))
+    NRMER = ONE
+    NRMFR = ONE
     IT = 1
     CONVLOG(1:MAXIT) = ZERO
     LASTSTEP = .FALSE.

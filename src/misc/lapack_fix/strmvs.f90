@@ -126,7 +126,7 @@
 !> \author Univ. of Colorado Denver
 !> \author NAG Ltd.
 !
-!> \date Dezember 2022
+!> \date Januar 2023
 !
 !> \ingroup single_blas_level2
 !
@@ -214,6 +214,7 @@
 !     Set up the start point in X if the increment is not unity. This
 !     will be  ( N - 1 )*INCX  too small for descending loops.
 !
+      KX = 1
       IF (INCX.LE.0) THEN
           KX = 1 - (N-1)*INCX
       ELSE IF (INCX.NE.1) THEN

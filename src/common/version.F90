@@ -12,7 +12,7 @@
 ! YOU SHOULD HAVE RECEIVED A COPY OF THE GNU GENERAL PUBLIC LICENSE
 ! ALONG WITH THIS PROGRAM; IF NOT, SEE <HTTP://WWW.GNU.ORG/LICENSES/>.
 !
-! Copyright (C) Martin Koehler, 2017-2022
+! Copyright (C) Martin Koehler, 2017-2023
 !
 
 !> @brief Get the MEPACK version number

@@ -12,56 +12,66 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) Martin Koehler, 2017-2022
+ * Copyright (C) Martin Koehler, 2017-2023
  */
 /* For Documentation see xerror_handler_doc.f90  */
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h> 
+#include <stdint.h>
 #include <string.h>
 
 #ifndef FC_GLOBAL
 #include "FCMangle.h"
-#endif 
+#endif
 
-#ifndef Int 
-#define Int int 
-#endif 
+#ifdef INTEGER8
+#define Int int64_t
+#endif
+#ifndef Int
+#define Int int
+#endif
 
-static void (*error_handler_c)(const char *, int ) = NULL; 
-static void (*error_handler_f)(const char *, Int* , Int ) = NULL; 
-void FC_GLOBAL_(xerror_handler,XERROR_HANDLER)(const char * str, Int * info, Int length) {
-    char *istr; 
+#if __GNUC__ > 7
+typedef size_t fortran_charlen_t;
+#else
+typedef int fortran_charlen_t;
+#endif
 
-    istr = malloc(sizeof(char)*(length+1)); 
-    memcpy(istr, str, length*sizeof(char)); 
-    istr[length] = '\0'; 
+static void (*error_handler_c)(const char *, int ) = NULL;
+static void (*error_handler_f)(const char *, Int* , fortran_charlen_t ) = NULL;
+
+void FC_GLOBAL_(xerror_handler,XERROR_HANDLER)(const char * str, Int * info, fortran_charlen_t length) {
+    char *istr;
+
+    istr = malloc(sizeof(char)*(length+1));
+    memcpy(istr, str, length*sizeof(char));
+    istr[length] = '\0';
     if ( error_handler_c != NULL ) {
-        int _info = (int) *info; 
-        error_handler_c(istr, _info); 
+        int _info = (int) *info;
+        error_handler_c(istr, _info);
     } else if ( error_handler_f != NULL ) {
-        error_handler_f(str, info, length); 
+        error_handler_f(str, info, length);
     } else {
-        fprintf(stderr, "On entry function %s has an invalid argument %d.\n", istr, *info);
+        fprintf(stderr, "On entry function %s has an invalid argument %d.\n", istr, (int) *info);
     }
 
 
-    free(istr); 
-    return; 
+    free(istr);
+    return;
 }
 
-void FC_GLOBAL_(xerror_set_handler_c,XERROR_SET_HANDLER_C) ( void (*eh)(const char*,int)) 
+void FC_GLOBAL_(xerror_set_handler_c,XERROR_SET_HANDLER_C) ( void (*eh)(const char*,int))
 {
-    error_handler_f = NULL; 
-    error_handler_c = eh; 
-    return; 
+    error_handler_f = NULL;
+    error_handler_c = eh;
+    return;
 }
 
-void FC_GLOBAL_(xerror_set_handler_f,XERROR_SET_HANDLER_F) ( void (*eh)(const char*,Int*, Int)) 
+void FC_GLOBAL_(xerror_set_handler_f,XERROR_SET_HANDLER_F) ( void (*eh)(const char*,Int*, fortran_charlen_t))
 {
-    error_handler_f = eh; 
-    error_handler_c = NULL; 
-    return; 
+    error_handler_f = eh;
+    error_handler_c = NULL;
+    return;
 }
 
 

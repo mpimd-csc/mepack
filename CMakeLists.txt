@@ -10,7 +10,7 @@ CheckPolicy(CMP0075 NEW)
 CheckPolicy(CMP0115 NEW)
 
 # General Project Setup
-SET(VERSION 1.0.0)
+SET(VERSION 1.0.1)
 PROJECT(MEPACK
         VERSION ${VERSION}
 	    LANGUAGES C Fortran
@@ -24,21 +24,20 @@ ELSE()
 ENDIF()
 
 INCLUDE(GNUInstallDirs)
-INCLUDE(EnablePedanticC)
-INCLUDE(EnablePedanticFortran)
-INCLUDE(EnableStrictPrototypesC)
-INCLUDE(EnableCastQual)
-
-SET(CMAKE_POSITION_INDEPENDENT_CODE True)
 
 # Options
 OPTION(DEBUG "Enable Debug" OFF)
+OPTION(LTO  "Enable Link Time Optimization" ON)
 OPTION(HOSTOPT "Enable Host Optimization" OFF)
 # OPTION(BUILD_SHARED_LIBS "Build a shared libary" ON)
 OPTION(INTEGER8 "Build 8-byte integer aware libary." OFF)
 OPTION(EXAMPLES "Build Examples" ON)
 OPTION(MATLAB "Build the MATLAB and Octave Interface" OFF)
 OPTION(DOC "Build documentation" OFF)
+OPTION(BUILD_STATIC "Build Static Libraries" OFF)
+
+SET(CMAKE_POSITION_INDEPENDENT_CODE True)
+
 
 IF ( DEBUG STREQUAL ON )
 	SET (CMAKE_BUILD_TYPE "Debug")
@@ -131,6 +130,19 @@ INCLUDE(${PROJECT_SOURCE_DIR}/lapack-missing/LapackMissing.cmake)
 # SET(LIBRARIES lapack_missing ${LIBRARIES})
 
 CHECK_ADD_C_FLAG("-Wno-overlength-strings" NO_OVERLENGTH)
+
+# Make the compilers working more strict
+INCLUDE(EnablePedanticC)
+INCLUDE(EnablePedanticFortran)
+INCLUDE(EnableStrictPrototypesC)
+INCLUDE(EnableCastQual)
+INCLUDE(EnableMayBeUninitialized)
+INCLUDE(EnableStringOpTruncation)
+INCLUDE(EnableConversionFortran)
+IF (LTO STREQUAL ON)
+    INCLUDE(EnableLTO)
+ENDIF()
+
 
 # COVERAGE TEST
 IF(COVERAGE)

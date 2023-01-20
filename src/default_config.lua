@@ -7,7 +7,7 @@
 -- The parameters are not tuned extensively but give a good performance
 -- in the almost all systems.
 --
--- Copyright (C) Martin Koehler, 2017-2022
+-- Copyright (C) Martin Koehler, 2017-2023
 
 --- Return the default block size for tgcsylv
 function tgcsylv_double_2stage()

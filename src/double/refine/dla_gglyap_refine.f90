@@ -12,7 +12,7 @@
 ! You should have received a copy of the GNU General Public License
 ! along with this program; if not, see <http://www.gnu.org/licenses/>.
 !
-! Copyright (C) Martin Koehler, 2017-2022
+! Copyright (C) Martin Koehler, 2017-2023
 !
 
 !> \brief Iterative Refinement for the Generalized Lyapunov Equations.
@@ -238,7 +238,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date Dezember 2022
+!> \date Januar 2023
 !> \ingroup dblgglyap
 !
 SUBROUTINE DLA_GGLYAP_REFINE(TRANS, GUESS, M, A, LDA, B, LDB, X, LDX, Y, LDY, &
@@ -394,6 +394,7 @@ SUBROUTINE DLA_GGLYAP_REFINE(TRANS, GUESS, M, A, LDA, B, LDB, X, LDX, Y, LDY, &
 
     NRMA = DLANGE("F", M, M, A, LDA, WORK(WS))
     NRMB = DLANGE("F", M, M, B, LDB, WORK(WS))
+    NRMR = ONE
     NRMRHS = DLANGE("F", M, M, Y(1,1), LDY, WORK(WS))
 
     TOL = DBLE(M) * ( TWO * NRMA * NRMB) * EPS * TAU

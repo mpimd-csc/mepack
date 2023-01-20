@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) Martin Koehler, 2017-2022
+ * Copyright (C) Martin Koehler, 2017-2023
  */
 
 
@@ -177,7 +177,7 @@ int main(int argc, char **argv)
 
     double times,ts2, te2;
     double ctimes;
-    float ress;
+    float ress = 1.0;
 
     int choice;
     int reuse = 0;
@@ -373,7 +373,7 @@ optional_argument: "::" */
             Work = (float *) malloc(sizeof(float) * (mem));
 
             alpha = 1; beta = 1;
-            FC_GLOBAL_(slaset,SLASET)("All", &M, &M, &alpha, &beta, Xorig, &M);
+            FC_GLOBAL_(slaset,SLASET)("All", &M, &M, &alpha, &beta, Xorig, &M, 1);
 
 
             for (mat = 0; mat < nMAT; mat++) {
@@ -384,17 +384,17 @@ optional_argument: "::" */
                 N2 = M * M;
                 FC_GLOBAL(slarnv,SLARNV)(&IDIST, iseed, &N2, A);
                 FC_GLOBAL(slarnv,SLARNV)(&IDIST, iseed, &N2, B);
-                FC_GLOBAL_(slacpy,SLACPY)("All", &M, &M, A, &M, Aorig, &M);
-                FC_GLOBAL_(slacpy,SLACPY)("All", &M, &M, B, &M, Borig, &M);
+                FC_GLOBAL_(slacpy,SLACPY)("All", &M, &M, A, &M, Aorig, &M, 1);
+                FC_GLOBAL_(slacpy,SLACPY)("All", &M, &M, B, &M, Borig, &M, 1);
                 benchmark_rhs_glyap_float(TRANSA, M, A, M, B, M, Xorig, M, RHS, M );
 
                 te = 0.0;
                 te2 = 0.0;
                 for (run = -1; run < RUNS; run++) {
-                    FC_GLOBAL_(slacpy,SLACPY)("All", &M, &M, RHS, &M, X, &M);
+                    FC_GLOBAL_(slacpy,SLACPY)("All", &M, &M, RHS, &M, X, &M, 1);
                     if ( run == -1 || !reuse ) {
-                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &M, Aorig, &M, A, &M);
-                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &M, Borig, &M, B, &M);
+                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &M, Aorig, &M, A, &M, 1);
+                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &M, Borig, &M, B, &M, 1);
                     }
 
                     ts = get_wtime();

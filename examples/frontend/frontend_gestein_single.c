@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) Martin Koehler, 2017-2022
+ * Copyright (C) Martin Koehler, 2017-2023
  */
 
 
@@ -170,7 +170,7 @@ int main(int argc, char **argv)
     float eps;
     double times,ts2, te2;
     double ctimes;
-    float ress;
+    float ress = 1.0;
     size_t mem;
     Int ldwork;
     Int reuse = 0 ;
@@ -370,7 +370,7 @@ optional_argument: "::" */
             ldwork = (Int) mem;
 
             alpha = 1; beta = 1;
-            FC_GLOBAL_(slaset,SLASET)("All", &M, &M, &alpha, &beta, Xorig, &M);
+            FC_GLOBAL_(slaset,SLASET)("All", &M, &M, &alpha, &beta, Xorig, &M, 1);
 
 
             for (mat = 0; mat < nMAT; mat++) {
@@ -378,7 +378,7 @@ optional_argument: "::" */
                 Int N2 = M * M;
                 Int IDIST = 2;
                 FC_GLOBAL(slarnv,SLARNV)(&IDIST, iseed, &N2, A);
-                FC_GLOBAL_(slacpy,SLACPY)("All", &M, &M, A, &M, Aorig, &M);
+                FC_GLOBAL_(slacpy,SLACPY)("All", &M, &M, A, &M, Aorig, &M, 1);
                 benchmark_rhs_stein_float(TRANSA, M, A, M, Xorig, M, RHS, M );
 
                  /* Setup the Problem  */
@@ -386,9 +386,9 @@ optional_argument: "::" */
                 te = 0.0;
                 te2 = 0.0;
                 for (run = -1; run < RUNS; run++) {
-                    FC_GLOBAL_(slacpy,SLACPY)("All", &M, &M, RHS, &M, X, &M);
+                    FC_GLOBAL_(slacpy,SLACPY)("All", &M, &M, RHS, &M, X, &M, 1);
                     if ( run == -1 || !reuse ) {
-                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &M, Aorig, &M, A, &M);
+                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &M, Aorig, &M, A, &M, 1);
                     }
 
                     if ( run >= 0 ) {

@@ -36,26 +36,31 @@ make -C build-dir install
 The following options can be added to `CMake` to configure MEPACK properly, for
 MATLAB/GNU Octave specific options, see below:
 
-|  Option                         | Description                                 | Default      |
-|---------------------------------|---------------------------------------------|--------------|
-| `-DDEBUG=ON/OFF`                | Enable building the library in debug mode   | `OFF`        |
-| `-DCOVERAGE=ON/OFF`             | Enable the creation of code coverage files  | `OFF`        |
-| `-DCMAKE_INSTALL_PREFIX=PREFIX` | Installation prefix                         | `/usr/local` |
-| `-DBLA_VENDOR=VENDOR_NAME`      | Set the BLAS library to use.                | `Generic`    |
-| ^                               | See FindBLAS.cmake for details              | ^            |
-| `-DHOSTOPT=ON/OFF`              | Enable host-specific optimizations          | `OFF`        |
-| `-DVALGRIND_SUPPRESSIONS=PATH`  | Set a suppressions file for valgrind        | empty        |
-| `-DINTEGER8=ON/OFF`             | Build with 64-bit integers and 64 bit BLAS  | `OFF`        |
-| `-DFORTRAN_BOUND_CHECK=ON/OFF`  | Check the array bounds at runtime (slow)    | `OFF`        |
-| `-DFORTRAN_SANITIZE=ON/OFF`     | Check the memory accesses at runtime (slow) | `OFF`        |
-| `-DDOC=ON/OFF`                  | Build the documentation                     | `OFF`        |
-| `-DMATLAB=ON/OFF`               | Enable MATLAB / Octave interface building   | `OFF`        |
-| `-DEXAMPLES=ON/OFF`             | Build the tests and examples                | `ON`         |
-| `-DMEPACK_LUA_CONFIG=PATH`      | Path for an alternative configuration file  | empty        |
-| `-DRECSY=PATH`                  | Path to a precompiled library containing    | empty        |
-|                                 | the RECSY library.                          | empty        |
-| `-DGL705=PATH`                  | Path to a precompiled library containing    | empty        |
-|                                 | the code from Algorithm 705 as library.     | empty        |
+|  Option                          | Description                                 | Default              |
+|----------------------------------|---------------------------------------------|----------------------|
+| `-DDEBUG=ON/OFF`                 | Enable building the library in debug mode   | `OFF`                |
+| `-DBUILD_STATIC=ON/OFF`          | Enable building the static libraries.       | `OFF`                |
+| `-DCOVERAGE=ON/OFF`              | Enable the creation of code coverage files  | `OFF`                |
+| `-DCMAKE_INSTALL_PREFIX=PREFIX`  | Installation prefix                         | `/usr/local`         |
+| `-DBLA_VENDOR=VENDOR_NAME`       | Set the BLAS library to use.                | `Generic`            |
+|                                  | See FindBLAS.cmake for details              |                      |
+| `-DHOSTOPT=ON/OFF`               | Enable host-specific optimizations          | `OFF`                |
+| `-DLTO=ON/OFF`                   | Enable Link Time Optimization               | `OFF`                |
+| `-DVALGRIND_SUPPRESSIONS=PATH`   | Set a suppressions file for valgrind        | empty                |
+| `-DINTEGER8=ON/OFF`              | Build with 64-bit integers and 64 bit BLAS  | `OFF`                |
+| `-DFORTRAN_BOUND_CHECK=ON/OFF`   | Check the array bounds at runtime (slow)    | `OFF`                |
+| `-DFORTRAN_SANITIZE=ON/OFF`      | Check the memory accesses at runtime (slow) | `OFF`                |
+| `-DDOC=ON/OFF`                   | Build the documentation                     | `OFF`                |
+| `-DMATLAB=ON/OFF`                | Enable MATLAB / Octave interface building   | `OFF`                |
+| `-DEXAMPLES=ON/OFF`              | Build the tests and examples                | `ON`                 |
+| `-DMEPACK_LUA_CONFIG=PATH`       | Path for an alternative configuration file  | empty                |
+| `-DRECSY=PATH`                   | Path to a precompiled library containing    | empty                |
+|                                  | the RECSY library.                          | empty                |
+| `-DGL705=PATH`                   | Path to a precompiled library containing    | empty                |
+|                                  | the code from Algorithm 705 as library.     | empty                |
+| `-DCMAKE_INSTALL_MODULEDIR=PATH` | Custom destination directory for Fortran    | /usr/include/mepack/ |
+|                                  | modules.                                    |                      |
+
 
 The test suite is executed by calling
 ```shell
@@ -128,6 +133,9 @@ cases, since MATLAB uses 64-bit integers everywhere. In the case of GNU Octave
 the setting `-DINTEGER8=OFF` is required in most cases, since Octave uses 64-bit
 integers internally, but uses  BLAS/LAPACK/other Fortran codes with 32-bit
 integers.
+
+**Attention:** Enable the static linkage with `MEXOCT_LINK_STATIC` also
+requires to build the static library with `BUILD_STATIC=ON`.
 
 **Warning:** The MATLAB interface is implemented using C++ template meta
 programming and thus the compiling the code leads to a huge memory consumption.

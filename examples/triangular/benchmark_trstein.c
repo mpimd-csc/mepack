@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) Martin Koehler, 2017-2022
+ * Copyright (C) Martin Koehler, 2017-2023
  */
 
 
@@ -181,7 +181,7 @@ int main(int argc, char **argv)
 
     double times,ts2, te2;
     double ctimes;
-    double ress;
+    double ress = 1.0;
     double eps;
     size_t mem ;
 
@@ -368,7 +368,7 @@ optional_argument: "::" */
 
             Work = (double *) malloc(sizeof(double) * (mem));
             alpha = 1; beta = 1;
-            FC_GLOBAL_(dlaset,DLASET)("All", &M, &M, &alpha, &beta, Xorig, &M);
+            FC_GLOBAL_(dlaset,DLASET)("All", &M, &M, &alpha, &beta, Xorig, &M, 1);
 
 
             for (mat = 0; mat < nMAT; mat++) {
@@ -393,7 +393,7 @@ optional_argument: "::" */
                     te = 0.0;
                     te2 = 0.0;
                     for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, RHS, &M, X, &M);
+                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, RHS, &M, X, &M, 1);
                         if ( run >= 0 ) {
                             ts = get_wtime();
                             ts2 = get_ctime();
@@ -432,7 +432,7 @@ optional_argument: "::" */
                     te2= 0.0;
                     N2 = M *M;
                     for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, RHS, &M, X, &M);
+                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, RHS, &M, X, &M, 1);
                         if ( run >= 0 ) {
                             ts = get_wtime();
                             ts2 = get_ctime();
@@ -473,7 +473,7 @@ optional_argument: "::" */
                     te2= 0.0;
                     N2 = M *M;
                     for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, RHS, &M, X, &M);
+                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, RHS, &M, X, &M, 1);
                         if ( run >= 0 ) {
                             ts = get_wtime();
                             ts2 = get_ctime();
@@ -517,12 +517,12 @@ optional_argument: "::" */
                     }
 
                     for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, RHS, &M, X, &M);
+                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, RHS, &M, X, &M, 1);
 
                         ts = get_wtime();
                         ts2 = get_ctime();
 
-                        FC_GLOBAL_(sb03mx,SB03MX)(TRANSX, &M, A, &M, X, &M, &scale, Work, &infox);
+                        FC_GLOBAL_(sb03mx,SB03MX)(TRANSX, &M, A, &M, X, &M, &scale, Work, &infox, 1);
 
                         if (run >= 0 ) {
                             te2 += (get_ctime()-ts2);

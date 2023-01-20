@@ -1,7 +1,7 @@
 prefix=@CMAKE_INSTALL_PREFIX@
 libdir=${prefix}/@CMAKE_INSTALL_LIBDIR@
-includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@
-moduledir=${prefix}/@CMAKE_INSTALL_MODULEDIR@/shared
+includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@/mepack@MEPACK_SUFFIX@
+moduledir=${prefix}/@CMAKE_INSTALL_MODULEDIR@
 
 Name: @PROJECT_NAME@
 Description: @PROJECT_DESCRIPTION@

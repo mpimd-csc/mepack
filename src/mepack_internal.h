@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) Martin Koehler, 2017-2022
+ * Copyright (C) Martin Koehler, 2017-2023
  */
 
 #ifndef MEPACK_INTERNAL_H
@@ -134,7 +134,7 @@ void FC_MODULE_(mepack_options_openmp,openmp_enable,MEPACK_OPTIONS_OPENMP,OPENMP
  * Verbosity
  */
 void FC_MODULE_(mepack_options_verbose,verbose_init,MEPACK_OPTIONS_VERBOSE,VERBOSE_INIT)(void);
-void FC_MODULE_(mepack_options_verbose,verbose_set,MEPACK_OPTIONS_VERBOSE,VERBOSE_SET)(Int level);
+void FC_MODULE_(mepack_options_verbose,verbose_set,MEPACK_OPTIONS_VERBOSE,VERBOSE_SET)(Int *level);
 Int  FC_MODULE_(mepack_options_verbose,verbose_get,MEPACK_OPTIONS_VERBOSE,VERBOSE_GET)(void);
 
 /*

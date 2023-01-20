@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) Martin Koehler, 2017-2022
+ * Copyright (C) Martin Koehler, 2017-2023
  */
 
 
@@ -105,7 +105,7 @@ int main(int argc, char **argv)
 
     double  times,ts2, te2;
     double  ctimes;
-    float ress;
+    float ress = 1.0;
     float eps;
     int choice;
     int changerole = 0;
@@ -385,8 +385,8 @@ optional_argument: "::" */
             Work = (float *) malloc(sizeof(float) * (mem));
 
             alpha = 1; beta = 1;
-            FC_GLOBAL_(slaset,SLASET)("All", &M, &N, &alpha, &beta, Rorig, &M);
-            FC_GLOBAL_(slaset,SLASET)("All", &M, &N, &alpha, &beta, Lorig, &M);
+            FC_GLOBAL_(slaset,SLASET)("All", &M, &N, &alpha, &beta, Rorig, &M, 1);
+            FC_GLOBAL_(slaset,SLASET)("All", &M, &N, &alpha, &beta, Lorig, &M, 1);
 
 
             for (mat = 0; mat < nMAT; mat++) {
@@ -407,8 +407,8 @@ optional_argument: "::" */
                         float ltau = TAU;
                         int lmaxit = MAXIT;
                         Int ldwork = mem;
-                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &N, RHS_R, &M, R, &M);
-                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &N, RHS_L, &M, L, &M);
+                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &N, RHS_R, &M, R, &M, 1);
+                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &N, RHS_L, &M, L, &M, 1);
 
                         ts = get_wtime();
                         ts2 = get_ctime();

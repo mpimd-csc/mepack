@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) Martin Koehler, 2017-2022
+ * Copyright (C) Martin Koehler, 2017-2023
  */
 
 #include "FCMangle.h"
@@ -161,7 +161,7 @@
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Dezember 2022
+ \date Januar 2023
 */
 void mepack_double_trsylv_dag(const char *TRANSA, const char *TRANSB, double SGN,  int M, int N,
                                  double * A, int LDA, double * B, int LDB, double *X, int LDX,
@@ -318,7 +318,7 @@ void mepack_double_trsylv_dag(const char *TRANSA, const char *TRANSB, double SGN
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Dezember 2022
+ \date Januar 2023
 */
 
 void mepack_single_trsylv_dag(const char *TRANSA, const char *TRANSB, float SGN,  int M, int N,

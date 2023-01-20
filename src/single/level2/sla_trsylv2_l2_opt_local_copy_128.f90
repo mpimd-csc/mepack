@@ -12,7 +12,7 @@
 ! You should have received a copy of the GNU General Public License
 ! along with this program; if not, see <http://www.gnu.org/licenses/>.
 !
-! Copyright (C) Martin Koehler, 2017-2022
+! Copyright (C) Martin Koehler, 2017-2023
 !
 
 !> \brief Level-2 Bartels-Stewart Algorithm for the discrete time  Sylvester equation (Optimized)
@@ -178,7 +178,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date Dezember 2022
+!> \date Januar 2023
 !> \ingroup sgltrsylv
 !
 SUBROUTINE SLA_TRSYLV2_L2_LOCAL_COPY_128( TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, X, LDX, SCALE, &

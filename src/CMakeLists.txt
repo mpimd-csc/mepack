@@ -404,7 +404,9 @@ SET_SOURCE_FILES_PROPERTIES(common/version.F90 PROPERTIES COMPILE_DEFINITIONS "M
 
 # Add the libraries
 ADD_LIBRARY(mepack SHARED ${SRC} $<TARGET_OBJECTS:lapack_missing> $<TARGET_OBJECTS:cscutils_lua_src> $<TARGET_OBJECTS:lua_src>)
-ADD_LIBRARY(mepack_static STATIC ${SRC} $<TARGET_OBJECTS:lapack_missing> $<TARGET_OBJECTS:cscutils_lua_src> $<TARGET_OBJECTS:lua_src> )
+IF(BUILD_STATIC STREQUAL "ON")
+    ADD_LIBRARY(mepack_static STATIC ${SRC} $<TARGET_OBJECTS:lapack_missing> $<TARGET_OBJECTS:cscutils_lua_src> $<TARGET_OBJECTS:lua_src> )
+ENDIF()
 
 # Generate the export headers
 generate_export_header(mepack
@@ -412,36 +414,6 @@ generate_export_header(mepack
     INCLUDE_GUARD_NAME MEPACK${MEPACK_SUFFIX}_EXPORTS_H
     BASE_NAME mepack
 )
-SET_TARGET_PROPERTIES(mepack_static PROPERTIES COMPILE_FLAGS -DMEPACK_STATIC_DEFINE)
-
-
-TARGET_INCLUDE_DIRECTORIES(
-        mepack
-        PUBLIC
-            $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/f90mod-shared>
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-            $<INSTALL_INTERFACE:include/mepack${MEPACK_SUFFIX}>  # <prefix>/include
-            $<INSTALL_INTERFACE:${CMAKE_INSTALL_MODULEDIR}/shared>
-        PRIVATE
-            $<TARGET_PROPERTY:cscutils_src,INCLUDE_DIRECTORIES>
-     )
-
-TARGET_INCLUDE_DIRECTORIES(
-        mepack_static
-        PUBLIC
-            $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/f90mod-static>
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-            $<INSTALL_INTERFACE:include/mepack${MEPACK_SUFFIX}>  # <prefix>/include
-            $<INSTALL_INTERFACE:${CMAKE_INSTALL_MODULEDIR}/static>
-        PRIVATE
-            $<TARGET_PROPERTY:cscutils_src,INCLUDE_DIRECTORIES>
-     )
-
-
 
 MACRO(MEPACK_LINK_LIBRARIES target)
     TARGET_LINK_LIBRARIES(
@@ -453,28 +425,57 @@ MACRO(MEPACK_LINK_LIBRARIES target)
         )
 ENDMACRO(MEPACK_LINK_LIBRARIES)
 
+
+TARGET_INCLUDE_DIRECTORIES(
+        mepack
+        PUBLIC
+            $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/f90mod-shared>
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+            $<INSTALL_INTERFACE:include/mepack${MEPACK_SUFFIX}>  # <prefix>/include
+            $<INSTALL_INTERFACE:${CMAKE_INSTALL_MODULEDIR}>
+        PRIVATE
+            $<TARGET_PROPERTY:cscutils_src,INCLUDE_DIRECTORIES>
+     )
+
 MEPACK_LINK_LIBRARIES(mepack)
-MEPACK_LINK_LIBRARIES(mepack_static)
-
-
-
 SET_TARGET_PROPERTIES(mepack PROPERTIES Fortran_MODULE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/f90mod-shared")
-SET_TARGET_PROPERTIES(mepack_static PROPERTIES Fortran_MODULE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/f90mod-static")
-
 SET_TARGET_PROPERTIES(mepack PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION ${PROJECT_VERSION_MAJOR}  )
 SET_PROPERTY(TARGET mepack PROPERTY
                            PUBLIC_HEADER
                                 "${CMAKE_CURRENT_SOURCE_DIR}/mepack.h"
                                 "${CMAKE_CURRENT_BINARY_DIR}/mepack_exports.h"
                      )
-SET_PROPERTY(TARGET mepack_static PROPERTY
+
+SET_TARGET_PROPERTIES(mepack PROPERTIES OUTPUT_NAME mepack${MEPACK_SUFFIX})
+
+IF(BUILD_STATIC STREQUAL "ON")
+    SET_TARGET_PROPERTIES(mepack_static PROPERTIES COMPILE_FLAGS -DMEPACK_STATIC_DEFINE)
+
+    TARGET_INCLUDE_DIRECTORIES(
+        mepack_static
+        PUBLIC
+            $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/f90mod-static>
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+            $<INSTALL_INTERFACE:include/mepack${MEPACK_SUFFIX}>  # <prefix>/include
+            $<INSTALL_INTERFACE:${CMAKE_INSTALL_MODULEDIR}>
+        PRIVATE
+            $<TARGET_PROPERTY:cscutils_src,INCLUDE_DIRECTORIES>
+    )
+    MEPACK_LINK_LIBRARIES(mepack_static)
+    SET_TARGET_PROPERTIES(mepack_static PROPERTIES Fortran_MODULE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/f90mod-static")
+
+    SET_PROPERTY(TARGET mepack_static PROPERTY
                                   PUBLIC_HEADER
                                      "${CMAKE_CURRENT_SOURCE_DIR}/mepack.h"
                                      "${CMAKE_CURRENT_BINARY_DIR}/mepack_exports.h"
                      )
 
-SET_TARGET_PROPERTIES(mepack PROPERTIES OUTPUT_NAME mepack${MEPACK_SUFFIX})
-SET_TARGET_PROPERTIES(mepack_static PROPERTIES OUTPUT_NAME mepack${MEPACK_SUFFIX})
+    SET_TARGET_PROPERTIES(mepack_static PROPERTIES OUTPUT_NAME mepack${MEPACK_SUFFIX})
+ENDIF()
 
 
 
@@ -484,10 +485,14 @@ SET_TARGET_PROPERTIES(mepack_static PROPERTIES OUTPUT_NAME mepack${MEPACK_SUFFIX
 INCLUDE(${PROJECT_SOURCE_DIR}/libcscutils/src/lua/LuaInterface.cmake)
 IF ( NOT MEPACK_LUA_CONFIG )
     CSC_LUA_ADD_INLINE_CODE(mepack ${CMAKE_CURRENT_SOURCE_DIR}/default_config.lua VARNAME mepack_default_config_code FUNCTIONNAME mepack_default_config)
-    CSC_LUA_ADD_INLINE_CODE(mepack_static ${CMAKE_CURRENT_SOURCE_DIR}/default_config.lua VARNAME mepack_default_config_code FUNCTIONNAME mepack_default_config)
+    IF(BUILD_STATIC STREQUAL "ON")
+        CSC_LUA_ADD_INLINE_CODE(mepack_static ${CMAKE_CURRENT_SOURCE_DIR}/default_config.lua VARNAME mepack_default_config_code FUNCTIONNAME mepack_default_config)
+    ENDIF()
 ELSE()
     CSC_LUA_ADD_INLINE_CODE(mepack ${MEPACK_LUA_CONFIG} VARNAME mepack_default_config_code FUNCTIONNAME mepack_default_config)
-    CSC_LUA_ADD_INLINE_CODE(mepack_static ${MEPACK_LUA_CONFIG} VARNAME mepack_default_config_code FUNCTIONNAME mepack_default_config)
+    IF(BUILD_STATIC STREQUAL "ON")
+        CSC_LUA_ADD_INLINE_CODE(mepack_static ${MEPACK_LUA_CONFIG} VARNAME mepack_default_config_code FUNCTIONNAME mepack_default_config)
+    ENDIF()
 ENDIF()
 
 
@@ -514,11 +519,11 @@ ENDIF()
 
 
 ADD_LIBRARY(MEPACK::mepack ALIAS mepack)
-ADD_LIBRARY(MEPACK::mepack_static ALIAS mepack_static)
 
 
+INSTALL(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/f90mod-shared/" DESTINATION ${CMAKE_INSTALL_MODULEDIR})
 
-INSTALL(TARGETS mepack_static mepack
+INSTALL(TARGETS mepack
     EXPORT MEPACKTargets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -526,9 +531,18 @@ INSTALL(TARGETS mepack_static mepack
     PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/mepack${MEPACK_SUFFIX}
 
 )
+IF(BUILD_STATIC STREQUAL "ON")
+    ADD_LIBRARY(MEPACK::mepack_static ALIAS mepack_static)
+    INSTALL(TARGETS mepack_static
+        EXPORT MEPACKTargets
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/mepack${MEPACK_SUFFIX}
+    )
 
-INSTALL(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/f90mod-static/" DESTINATION ${CMAKE_INSTALL_MODULEDIR}/static)
-INSTALL(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/f90mod-shared/" DESTINATION ${CMAKE_INSTALL_MODULEDIR}/shared)
+ENDIF()
+
 
 
 

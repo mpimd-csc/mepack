@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) Martin Koehler, 2017-2022
+ * Copyright (C) Martin Koehler, 2017-2023
  */
 
 
@@ -187,7 +187,7 @@ int main(int argc, char **argv)
 
     double times,ts2, te2;
     double ctimes;
-    float ress;
+    float ress = 1.0;
     float eps;
     int choice;
     int changerole = 0;
@@ -490,8 +490,8 @@ optional_argument: "::" */
             Work = (float *) malloc(sizeof(float) * (mem));
 
             alpha = 1; beta = 1;
-            FC_GLOBAL_(slaset,SLASET)("All", &M, &N, &alpha, &beta, Xorig, &M);
-            FC_GLOBAL_(slaset,SLASET)("All", &M, &N, &alpha, &beta, Yorig, &M);
+            FC_GLOBAL_(slaset,SLASET)("All", &M, &N, &alpha, &beta, Xorig, &M, 1);
+            FC_GLOBAL_(slaset,SLASET)("All", &M, &N, &alpha, &beta, Yorig, &M, 1);
 
 
             for (mat = 0; mat < nMAT; mat++) {
@@ -501,13 +501,13 @@ optional_argument: "::" */
                 N2 = M * M;
                 FC_GLOBAL(slarnv,SLARNV)(&IDIST, iseed, &N2, A);
                 FC_GLOBAL(slarnv,SLARNV)(&IDIST, iseed, &N2, C);
-                FC_GLOBAL_(slacpy,SLACPY)("All", &M, &M, A, &M, Aorig, &M);
-                FC_GLOBAL_(slacpy,SLACPY)("All", &M, &M, C, &M, Corig, &M);
+                FC_GLOBAL_(slacpy,SLACPY)("All", &M, &M, A, &M, Aorig, &M, 1);
+                FC_GLOBAL_(slacpy,SLACPY)("All", &M, &M, C, &M, Corig, &M, 1);
                 N2 = N * N;
                 FC_GLOBAL(slarnv,SLARNV)(&IDIST, iseed, &N2, B);
                 FC_GLOBAL(slarnv,SLARNV)(&IDIST, iseed, &N2, D);
-                FC_GLOBAL_(slacpy,SLACPY)("All", &N, &N, B, &N, Borig, &N);
-                FC_GLOBAL_(slacpy,SLACPY)("All", &N, &N, D, &N, Dorig, &N);
+                FC_GLOBAL_(slacpy,SLACPY)("All", &N, &N, B, &N, Borig, &N, 1);
+                FC_GLOBAL_(slacpy,SLACPY)("All", &N, &N, D, &N, Dorig, &N, 1);
 
                 benchmark_rhs_ggcsylv_dual_float(TRANSA, TRANSB, sign1, sign2,  M, N, A, M, B, N, C, M, D, N,Xorig, M , Yorig, M, RHS,M , RHS2, M );
 
@@ -515,14 +515,14 @@ optional_argument: "::" */
                                te = 0.0;
                 te2 = 0.0;
                 for (run = -1; run < RUNS; run++) {
-                    FC_GLOBAL_(slacpy,SLACPY)("All", &M, &N, RHS, &M, X, &M);
-                    FC_GLOBAL_(slacpy,SLACPY)("All", &M, &N, RHS2, &M, Y, &M);
+                    FC_GLOBAL_(slacpy,SLACPY)("All", &M, &N, RHS, &M, X, &M, 1);
+                    FC_GLOBAL_(slacpy,SLACPY)("All", &M, &N, RHS2, &M, Y, &M, 1);
 
                     if ( run == -1 || !reuse ) {
-                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &M, Aorig, &M, A, &M);
-                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &M, Corig, &M, C, &M);
-                        FC_GLOBAL_(slacpy,SLACPY)("All", &N, &N, Borig, &N, B, &N);
-                        FC_GLOBAL_(slacpy,SLACPY)("All", &N, &N, Dorig, &N, D, &N);
+                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &M, Aorig, &M, A, &M, 1);
+                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &M, Corig, &M, C, &M, 1);
+                        FC_GLOBAL_(slacpy,SLACPY)("All", &N, &N, Borig, &N, B, &N, 1);
+                        FC_GLOBAL_(slacpy,SLACPY)("All", &N, &N, Dorig, &N, D, &N, 1);
                     }
 
                     ts = get_wtime();

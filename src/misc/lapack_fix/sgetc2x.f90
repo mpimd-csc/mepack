@@ -101,7 +101,7 @@
 !> \author Univ. of Colorado Denver
 !> \author NAG Ltd.
 !
-!> \date Dezember 2022
+!> \date Januar 2023
 !
 !> \ingroup lapackfix
 !

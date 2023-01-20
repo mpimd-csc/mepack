@@ -12,7 +12,7 @@
 ! You should have received a copy of the GNU General Public License
 ! along with this program; if not, see <http://www.gnu.org/licenses/>.
 !
-! Copyright (C) Martin Koehler, 2017-2022
+! Copyright (C) Martin Koehler, 2017-2023
 !
 
 !> \brief Iterative Refinement for the Standard Stein Equations.
@@ -196,7 +196,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date Dezember 2022
+!> \date Januar 2023
 !> \ingroup dblgelyap
 !
 SUBROUTINE DLA_GESTEIN_REFINE(TRANS, GUESS, M, A, LDA, X, LDX, Y, LDY, &
@@ -345,6 +345,7 @@ SUBROUTINE DLA_GESTEIN_REFINE(TRANS, GUESS, M, A, LDA, X, LDX, Y, LDY, &
 
     NRMA = DLANGE("F", M, M, A, LDA, WORK(WS))
     NRMRHS = DLANGE("F", M, M, Y(1,1), LDY, WORK(WS))
+    NRMR = ONE
 
     TOL = DBLE(M) * ( NRMA**TWO ) * EPS * TAU
 

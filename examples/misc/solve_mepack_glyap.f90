@@ -12,7 +12,7 @@
 ! You should have received a copy of the GNU General Public License
 ! along with this program.  If not, see <http://www.gnu.org/licenses/>.
 !
-! Copyright (C) Martin Koehler, 2017-2022
+! Copyright (C) Martin Koehler, 2017-2023
 
 !
 ! Solve a generalized Lyapunov Equation
@@ -36,7 +36,7 @@ PROGRAM RUN_SOLVE_GLYAP
     INTEGER :: NARGS, M1, M2, M, INFO, MAXLEN
     DOUBLE PRECISION, PARAMETER :: ONE = 1.0D0
     DOUBLE PRECISION, PARAMETER :: ZERO = 0.0D0
-    DOUBLE PRECISION, DIMENSION(2) :: TIMES1, TIMES2
+    DOUBLE PRECISION, DIMENSION(2) :: TIMES1
     DOUBLE PRECISION :: SCALE, NRMX, RES, NRMRHS, RES2
     INTEGER :: LDWORK, K, SOLVER
     CHARACTER(1) TRANSA, TRANSB
@@ -163,7 +163,7 @@ PROGRAM RUN_SOLVE_GLYAP
     Y = Y - 1.0D0
 
     RES = DLANGE("F", M, M, Y, M, WORK)
-    TALL = TE - TS + TIMES1(1) + TIMES2(1)
+    TALL = TE - TS + TIMES1(1)
 
     WRITE(*,'(A)') "# M, Time, Forward, Residual"
     WRITE(*,'(I5," ",D20.13," ",D20.13," ",D20.13)') M, TALL, RES/NRMX, RES2/NRMRHS

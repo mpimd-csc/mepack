@@ -1,7 +1,7 @@
 !
 ! Inline code to solve a 8x8 Linear system
 !
-! Copyright (C) Martin Koehler, 2017-2022
+! Copyright (C) Martin Koehler, 2017-2023
 INFO1 = 0
 DO J = 1, 8
     JP = J-1+MAXLOC(ABS(MAT(J:8,J)),1)

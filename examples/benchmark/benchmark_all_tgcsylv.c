@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) Martin Koehler, 2017-2022
+ * Copyright (C) Martin Koehler, 2017-2023
  */
 
 #include <stdio.h>
@@ -347,8 +347,8 @@ optional_argument: "::" */
             Work = (double *) malloc(sizeof(double) * (2*M*N));
 
             alpha = 1; beta = 1;
-            FC_GLOBAL_(dlaset,DLASET)("All", &M, &N, &alpha, &beta, Rorig, &M);
-            FC_GLOBAL_(dlaset,DLASET)("All", &M, &N, &alpha, &beta, Lorig, &M);
+            FC_GLOBAL_(dlaset,DLASET)("All", &M, &N, &alpha, &beta, Rorig, &M, 1);
+            FC_GLOBAL_(dlaset,DLASET)("All", &M, &N, &alpha, &beta, Lorig, &M, 1);
 
 
             for (mat = 0; mat < nMAT; mat++) {
@@ -365,8 +365,8 @@ optional_argument: "::" */
                 FC_GLOBAL_(recsy_machine,RECSY_MACHINE)(MACHINE_RECSY);
                 te = 0;
                 for (run = 0; run < RUNS; run++) {
-                    FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &N, RHS_R, &M, R, &M);
-                    FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &N, RHS_L, &M, L, &M);
+                    FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &N, RHS_R, &M, R, &M, 1);
+                    FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &N, RHS_L, &M, L, &M, 1);
 
                     ts = get_wtime();
                     FC_GLOBAL_(recgcsy,RECGCSY)(&type, &scale, &M, &N, A, &M, B, &N, R, &M, C, &M, D, &N, L, &M,  &infox, MACHINE_RECSY);
@@ -389,8 +389,8 @@ optional_argument: "::" */
                     mepack_tgcsylv_isolver_set(is);
                     te = 0.0;
                     for (run = 0; run < RUNS; run++) {
-                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &N, RHS_R, &M, R, &M);
-                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &N, RHS_L, &M, L, &M);
+                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &N, RHS_R, &M, R, &M, 1);
+                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &N, RHS_L, &M, L, &M, 1);
 
                         if ( is < 7 ) {
                             ts = get_wtime();

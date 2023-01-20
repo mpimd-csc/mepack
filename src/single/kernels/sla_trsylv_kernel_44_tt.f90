@@ -12,7 +12,7 @@
 ! You should have received a copy of the GNU General Public License
 ! along with this program; if not, see <http://www.gnu.org/licenses/>.
 !
-! Copyright (C) Martin Koehler, 2017-2022
+! Copyright (C) Martin Koehler, 2017-2023
 !
 
 !> \brief Solver for a 4x4 Sylvester equation (TRANSA = T, TRANSB = T)
@@ -127,7 +127,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date Dezember 2022
+!> \date Januar 2023
 !> \ingroup sgltrsylv
 !
 SUBROUTINE SLA_TRSYLV_KERNEL_44TT (SGN, M, N, A, LDA, B, LDB, X, LDX, SCALE, INFO)

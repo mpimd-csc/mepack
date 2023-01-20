@@ -12,7 +12,7 @@
 ! You should have received a copy of the GNU General Public License
 ! along with this program; if not, see <http://www.gnu.org/licenses/>.
 ! 
-! Copyright (C) Martin Koehler, 2017-2022
+! Copyright (C) Martin Koehler, 2017-2023
 ! 
 
 !>  \brief Error handler callback subroutine 
@@ -58,7 +58,7 @@
 !>  
 !>  \author Martin Koehler, MPI Magdeburg 
 !>  
-!>  \date Dezember 2022
+!>  \date Januar 2023
 !>  \ingroup auxerror
 SUBROUTINE XERROR_HANDLER(NAME, INFO)
     RETURN 
@@ -103,7 +103,7 @@ END SUBROUTINE
 !>  
 !>  \author Martin Koehler, MPI Magdeburg 
 !>  
-!>  \date Dezember 2022
+!>  \date Januar 2023
 !>  \ingroup auxerror
 SUBROUTINE XERROR_SET_HANDLER_C(ROUTINE)
     RETURN 
@@ -150,7 +150,7 @@ END SUBROUTINE
 !>  
 !>  \author Martin Koehler, MPI Magdeburg 
 !>  
-!>  \date Dezember 2022
+!>  \date Januar 2023
 !>  \ingroup auxerror
 SUBROUTINE XERROR_SET_HANDLER_F(ROUTINE)
     RETURN 

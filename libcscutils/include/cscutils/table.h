@@ -73,7 +73,7 @@ extern "C" {
       * initialized with "#" to obtain an output which is easily parsed by \b sed or \b awk.
       */
     typedef struct _csc_table_comment_t {
-        char start[CSC_TABLE_MAXLEN];       /**< The comment start string. Printed in front of every comment line. */
+        char start[CSC_TABLE_MAXLEN+1];       /**< The comment start string. Printed in front of every comment line. */
         char **lines;                       /**< Array of strings containing the comments. */
         int len;                            /**< Number of elements in lines. */
     } csc_table_comment_t;
@@ -98,14 +98,14 @@ extern "C" {
      */
     typedef struct _csc_table_column_t {
         csc_table_value_t type;         /**< Data type of the cell entries. */
-        char name[CSC_TABLE_MAXLEN];    /**< Name of the column. Used as headline while printing. */
+        char name[CSC_TABLE_MAXLEN+1];    /**< Name of the column. Used as headline while printing. */
         union {
             long   *integer_values;     /**< Array containing the integer values of the cell entries. */
             double *float_values;       /**< Array containing the double precision values of the cell entries. */
             char  **string_values;      /**< Array containing the strings in the cell entries. */
             void *ptr;                  /**< Array for future extension and generic access to the other entries. */
         } v;                            /**< Union representing the column entries. */
-        char format_str[CSC_TABLE_MAXLEN]; /**< Printf compatible format string for the table cells. */
+        char format_str[CSC_TABLE_MAXLEN+1]; /**< Printf compatible format string for the table cells. */
         csc_table_formater_t formater; /**< Format function for the table cells. If it is set than the format_str is ignored. */
         int *set;                      /**< Array which indicates which rows in the column are set.  */
         int len;                       /**< Number of elments in the column. */

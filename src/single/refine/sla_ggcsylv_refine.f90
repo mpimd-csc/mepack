@@ -12,7 +12,7 @@
 ! You should have received a copy of the GNU General Public License
 ! along with this program; if not, see <http://www.gnu.org/licenses/>.
 !
-! Copyright (C) Martin Koehler, 2017-2022
+! Copyright (C) Martin Koehler, 2017-2023
 !
 
 !> \brief Iterative Refinement for the  Coupled Generalized Sylvester Equations.
@@ -375,7 +375,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date Dezember 2022
+!> \date Januar 2023
 !> \ingroup sglggsylv
 !
 SUBROUTINE SLA_GGCSYLV_REFINE(TRANSA, TRANSB, GUESS, SGN1, SGN2, M , N,  &
@@ -614,6 +614,8 @@ SUBROUTINE SLA_GGCSYLV_REFINE(TRANSA, TRANSB, GUESS, SGN1, SGN2, M , N,  &
     NRMC = SLANGE("F", M, M, C, LDC, WORK(WS))
     NRMB = SLANGE("F", N, N, B, LDB, WORK(WS))
     NRMD = SLANGE("F", N, N, D, LDD, WORK(WS))
+    NRMER = ONE
+    NRMFR = ONE
     TOL = SQRT(REAL(M*N)) * ( NRMA + NRMB + NRMC + NRMD) * EPS * TAU
 
     NRMRHSE = SLANGE("F", M, N, E(1,1), LDE, WORK(WS))

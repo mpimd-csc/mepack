@@ -12,7 +12,7 @@
 ! You should have received a copy of the GNU General Public License
 ! along with this program; if not, see <http://www.gnu.org/licenses/>.
 !
-! Copyright (C) Martin Koehler, 2017-2022
+! Copyright (C) Martin Koehler, 2017-2023
 !
 
 !> \brief Frontend for the solution of Generalized Lyapunov Equations.
@@ -190,7 +190,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date Dezember 2022
+!> \date Januar 2023
 !> \ingroup dblgglyap
 !
 SUBROUTINE DLA_GGLYAP(FACT, TRANS, M , A, LDA, B, LDB, Q, LDQ, Z, LDZ, X, LDX, SCALE, WORK, LDWORK, INFO)

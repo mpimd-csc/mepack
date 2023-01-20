@@ -143,7 +143,7 @@ int csc_table_add_column(csc_table_t *t, const char *name, csc_table_value_t typ
     }
     t->columns[last].type = type;
     t->columns[last].v.ptr = NULL;
-    strncpy(t->columns[last].name, name, CSC_TABLE_MAXLEN);
+    memcpy(t->columns[last].name, name, (CSC_TABLE_MAXLEN+1)*sizeof(char));
     t->columns[last].set = NULL;
     t->columns[last].len = 0;
     t->columns[last].width = strnlen(name, CSC_TABLE_MAXLEN);

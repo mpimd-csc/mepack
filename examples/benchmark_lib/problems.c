@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) Martin Koehler, 2017-2022
+ * Copyright (C) Martin Koehler, 2017-2023
  */
 
 #include <stdio.h>
@@ -106,7 +106,7 @@ void benchmark_random_evp_double(Int M, Int *iseed,double *Ar, double *Q, double
 
         csc_hdf5_matrix_write_real(group, "A", M, M, M, iA);
         if ( A != NULL ) {
-            FC_GLOBAL(dlacpy,DLACPY)("All", &M, &M, iA, &M, A, &M);
+            FC_GLOBAL(dlacpy,DLACPY)("All", &M, &M, iA, &M, A, &M, 1);
         }
 
 
@@ -147,7 +147,7 @@ void benchmark_random_evp_double(Int M, Int *iseed,double *Ar, double *Q, double
         }
 
         if ( Ar != NULL )
-            FC_GLOBAL(dlacpy,DLACPY)("All", &M, &M, iA, &M, Ar, &M);
+            FC_GLOBAL(dlacpy,DLACPY)("All", &M, &M, iA, &M, Ar, &M, 1);
 
         if ( freeQ ) free(Q);
         free(alphar);
@@ -251,7 +251,7 @@ void benchmark_random_evp_float(Int M, Int *iseed,float *Ar, float *Q, float *A,
 
         csc_hdf5_matrix_write_real_single(group, "A", M, M, M, iA);
         if ( A != NULL ) {
-            FC_GLOBAL(slacpy,SLACPY)("All", &M, &M, iA, &M, A, &M);
+            FC_GLOBAL(slacpy,SLACPY)("All", &M, &M, iA, &M, A, &M, 1);
         }
 
 
@@ -292,7 +292,7 @@ void benchmark_random_evp_float(Int M, Int *iseed,float *Ar, float *Q, float *A,
         }
 
         if ( Ar != NULL )
-            FC_GLOBAL(slacpy,SLACPY)("All", &M, &M, iA, &M, Ar, &M);
+            FC_GLOBAL(slacpy,SLACPY)("All", &M, &M, iA, &M, Ar, &M, 1);
 
         if ( freeQ ) free(Q);
         free(alphar);
@@ -330,10 +330,10 @@ void benchmark_random_gevp_double(Int M, Int *iseed, double *Ar, double *Cr, dou
     	FC_GLOBAL(dlarnv,DLARNV)(&IDIST, iseed, &N2, C);
 
         if ( Ao != NULL ) {
-            FC_GLOBAL(dlacpy,DLACPY)("All", &M, &M, A, &M, Ao, &M);
+            FC_GLOBAL(dlacpy,DLACPY)("All", &M, &M, A, &M, Ao, &M, 1);
         }
         if ( Co != NULL ) {
-            FC_GLOBAL(dlacpy,DLACPY)("All", &M, &M, C, &M, Co, &M);
+            FC_GLOBAL(dlacpy,DLACPY)("All", &M, &M, C, &M, Co, &M, 1);
         }
 
 
@@ -460,8 +460,8 @@ void benchmark_random_gevp_double(Int M, Int *iseed, double *Ar, double *Cr, dou
             FC_GLOBAL(dla_sort_gev,DLA_SORT_GEV)( &M,  A, &M, C, &M, Q, &M, Z, &M, &NB, work, &ldwork, &info );
         }
 
-        FC_GLOBAL(dlacpy,DLACPY)("All", &M, &M, A, &M, Ar, &M);
-        FC_GLOBAL(dlacpy,DLACPY)("All", &M, &M, C, &M, Cr, &M);
+        FC_GLOBAL(dlacpy,DLACPY)("All", &M, &M, A, &M, Ar, &M, 1);
+        FC_GLOBAL(dlacpy,DLACPY)("All", &M, &M, C, &M, Cr, &M, 1);
 
 
 
@@ -515,10 +515,10 @@ void benchmark_random_gevp_float(Int M, Int *iseed, float *Ar, float *Cr, float 
     	FC_GLOBAL(slarnv,SLARNV)(&IDIST, iseed, &N2, C);
 
         if ( Ao != NULL ) {
-            FC_GLOBAL(slacpy,SLACPY)("All", &M, &M, A, &M, Ao, &M);
+            FC_GLOBAL(slacpy,SLACPY)("All", &M, &M, A, &M, Ao, &M, 1);
         }
         if ( Co != NULL ) {
-            FC_GLOBAL(slacpy,SLACPY)("All", &M, &M, C, &M, Co, &M);
+            FC_GLOBAL(slacpy,SLACPY)("All", &M, &M, C, &M, Co, &M, 1);
         }
 
 
@@ -635,8 +635,8 @@ void benchmark_random_gevp_float(Int M, Int *iseed, float *Ar, float *Cr, float 
             FC_GLOBAL(sla_sort_gev,SLA_SORT_GEV)( &M,  A, &M, C, &M, Q, &M, Z, &M, &NB, work, &ldwork, &info );
         }
 
-        FC_GLOBAL(slacpy,SLACPY)("All", &M, &M, A, &M, Ar, &M);
-        FC_GLOBAL(slacpy,SLACPY)("All", &M, &M, C, &M, Cr, &M);
+        FC_GLOBAL(slacpy,SLACPY)("All", &M, &M, A, &M, Ar, &M, 1);
+        FC_GLOBAL(slacpy,SLACPY)("All", &M, &M, C, &M, Cr, &M, 1);
 
 
 

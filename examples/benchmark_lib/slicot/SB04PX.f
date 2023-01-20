@@ -377,6 +377,8 @@ C     Perform elimination.
 C
       DO 100 I = 1, 3
          XMAX = ZERO
+         JPSV = I
+         IPSV = I
 C
          DO 70 IP = I, 4
 C

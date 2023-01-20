@@ -12,7 +12,7 @@
 ! You should have received a copy of the GNU General Public License
 ! along with this program.  If not, see <http://www.gnu.org/licenses/>.
 !
-! Copyright (C) Martin Koehler, 2017-2022
+! Copyright (C) Martin Koehler, 2017-2023
 
 ! This is an internal MEPACK routine and not intended to be called from outside.
 !
@@ -57,19 +57,19 @@ SUBROUTINE SLA_GEAXB(TRANSA, TRANSB, FORMA, FORMB, M, N, K, L, ALPHA, A, LDA, X,
 
 
     IF (FORMA.eq.'F') THEN
-        MULT1A = (TWO*M)*N*K
-        MULT2B = (TWO*M)*N*L
+        MULT1A = (TWO*REAL(M))*REAL(N)*REAL(K)
+        MULT2B = (TWO*REAL(M))*REAL(N)*REAL(L)
     ELSE
-        MULT1A = (ONE*M)*M*K+(TWO*M)*(N-M)*K
-        MULT2B = (ONE*M)*N*L+(TWO*M)*(N-M)*L
+        MULT1A = (ONE*REAL(M))*REAL(M)*REAL(K)+(TWO*REAL(M))*REAL(N-M)*REAL(K)
+        MULT2B = (ONE*REAL(M))*REAL(N)*REAL(L)+(TWO*REAL(M))*REAL(N-M)*REAL(L)
     ENDIF
 
     IF (FORMB.eq.'F') THEN
-        MULT1B = (TWO*M)*K*L
-        MULT2A = (TWO*N)*K*L
+        MULT1B = (TWO*REAL(M))*REAL(K)*REAL(L)
+        MULT2A = (TWO*REAL(N))*REAL(K)*REAL(L)
     ELSE
-        MULT1B = (ONE*M)*L*L+(TWO*M)*L*(K-L)
-        MULT2A = (ONE*N)*L*L+(TWO*N)*L*(K-L)
+        MULT1B = (ONE*REAL(M))*REAL(L)*REAL(L)+(TWO*REAL(M))*REAL(L)*REAL(K-L)
+        MULT2A = (ONE*REAL(N))*REAL(L)*REAL(L)+(TWO*REAL(N))*REAL(L)*REAL(K-L)
     ENDIF
 
     IF ((MULT1A+MULT1B) .LT. (MULT2A+MULT2B)) THEN

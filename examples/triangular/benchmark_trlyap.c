@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) Martin Koehler, 2017-2022
+ * Copyright (C) Martin Koehler, 2017-2023
  */
 
 
@@ -180,7 +180,7 @@ int main(int argc, char **argv)
     double eps;
     double times,ts2, te2;
     double ctimes;
-    double ress;
+    double ress = 1.0;
     size_t mem;
 
     int choice;
@@ -375,7 +375,7 @@ optional_argument: "::" */
             Work = (double *) malloc(sizeof(double) * (mem));
 
             alpha = 1; beta = 1;
-            FC_GLOBAL_(dlaset,DLASET)("All", &M, &M, &alpha, &beta, Xorig, &M);
+            FC_GLOBAL_(dlaset,DLASET)("All", &M, &M, &alpha, &beta, Xorig, &M, 1);
 
 
             for (mat = 0; mat < nMAT; mat++) {
@@ -400,7 +400,7 @@ optional_argument: "::" */
                     te = 0.0;
                     te2 = 0.0;
                     for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, RHS, &M, X, &M);
+                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, RHS, &M, X, &M, 1);
                         if ( run >= 0 ) {
                             ts = get_wtime();
                             ts2 = get_ctime();
@@ -435,7 +435,7 @@ optional_argument: "::" */
                     mepack_trlyap_isolver_set(1);
 
                     for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, RHS, &M, X, &M);
+                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, RHS, &M, X, &M, 1);
 
                         if ( run >= 0 ) {
                             ts = get_wtime();
@@ -446,7 +446,7 @@ optional_argument: "::" */
                         } else if ( is == 20 || is == 21){
                             mepack_double_trlyap_level2(TRANSA, M, A, M, X, M, &scale, Work, &info);
                         } else if ( is == 22 || is ==23) {
-                            FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, Xorig, &M, X, &M);
+                            FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, Xorig, &M, X, &M, 1);
                         } else if ( is == 24 ) {
                             mepack_double_trlyap_recursive(TRANSA, M, A, M, X, M, &scale, Work, &info);
                         }
@@ -476,7 +476,7 @@ optional_argument: "::" */
                     te2= 0.0;
 
                     for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, RHS, &M, X, &M);
+                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, RHS, &M, X, &M, 1);
 
                         if ( run >= 0 ) {
                             ts = get_wtime();
@@ -516,7 +516,7 @@ optional_argument: "::" */
                     te2= 0.0;
 
                     for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, RHS, &M, X, &M);
+                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, RHS, &M, X, &M, 1);
 
                         if ( run >= 0 ) {
                             ts = get_wtime();
@@ -559,12 +559,12 @@ optional_argument: "::" */
                     }
 
                     for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, RHS, &M, X, &M);
+                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, RHS, &M, X, &M, 1);
 
                         ts = get_wtime();
                         ts2 = get_ctime();
 
-                        FC_GLOBAL_(sb03my,SB03MY)(TRANSX, &M, A, &M, X, &M, &scale, &infox);
+                        FC_GLOBAL_(sb03my,SB03MY)(TRANSX, &M, A, &M, X, &M, &scale, &infox, 1);
 
                         if (run >= 0 ) {
                             te2 += (get_ctime()-ts2);

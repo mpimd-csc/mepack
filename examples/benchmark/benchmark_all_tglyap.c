@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) Martin Koehler, 2017-2022
+ * Copyright (C) Martin Koehler, 2017-2023
  */
 
 
@@ -240,7 +240,7 @@ int main(int argc, char **argv)
             for (i = 0; i < M*M; i+=512) { X[i] = 0.0; }
 
             alpha = 1; beta = 1;
-            FC_GLOBAL_(dlaset,DLASET)("All", &M, &M, &alpha, &beta, Xorig, &M);
+            FC_GLOBAL_(dlaset,DLASET)("All", &M, &M, &alpha, &beta, Xorig, &M, 1);
 
 
             for (mat = 0; mat < nMAT; mat++) {
@@ -257,7 +257,7 @@ int main(int argc, char **argv)
                 te = 0;
                 j = M * M ;
                 for (run = 0; run < RUNS; run++) {
-                    FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, RHS, &M, X, &M);
+                    FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, RHS, &M, X, &M, 1);
                     ts = get_wtime();
                     FC_GLOBAL_(recglyct,RECGLYCT)(&type, &scale, &M, A, &M, B, &M, X, &M, &infox, MACHINE_RECSY, Work, &j);
                     for (j = 0; j < M; j++) {
@@ -283,7 +283,7 @@ int main(int argc, char **argv)
                     mepack_tglyap_isolver_set(is);
                     te = 0.0;
                     for (run = 0; run < RUNS; run++) {
-                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, RHS, &M, X, &M);
+                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, RHS, &M, X, &M, 1);
 
                         if ( is < 7 ) {
                             ts = get_wtime();

@@ -12,7 +12,7 @@
 ! You should have received a copy of the GNU General Public License
 ! along with this program; if not, see <http://www.gnu.org/licenses/>.
 !
-! Copyright (C) Martin Koehler, 2017-2022
+! Copyright (C) Martin Koehler, 2017-2023
 !
 
 !> \brief Level-2 Kagstroem-Westin/Bartels-Stewart Algorithm for the dual generalized coupled Sylvester equation (Local Copy)
@@ -242,7 +242,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date Dezember 2022
+!> \date Januar 2023
 !> \ingroup dbltgsylv
 !
 SUBROUTINE DLA_TGCSYLV_DUAL_L2_LOCAL_COPY_128 ( TRANSA, TRANSB, SGN1, SGN2,  M, N, A, LDA, B, LDB, C, LDC, D, LDD, &

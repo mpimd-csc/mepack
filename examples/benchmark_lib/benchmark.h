@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) Martin Koehler, 2017-2022
+ * Copyright (C) Martin Koehler, 2017-2023
  */
 
 #ifdef __cplusplus
@@ -38,6 +38,11 @@ extern "C" {
 
 #define MAX(A,B) (((A)>(B))?(A):(B))
 
+#if __GNUC__ > 7
+    typedef size_t fortran_charlen_t;
+#else
+    typedef int fortran_charlen_t;
+#endif
 
 
     void benchmark_init(void);
@@ -117,21 +122,21 @@ extern "C" {
             double *VSL, Int *LDVSL, double *VSR, Int *LDVR,  double *WORK, Int * LDWORK, Int *BWORK, Int *INFO);
 
 
-    extern void FC_GLOBAL(dlaset,DLASET)(char *UL, Int *M, Int *N, double *alpha, double *beta, double *X, Int *lda);
-    extern void FC_GLOBAL(dlacpy,DLACPY)(char *uplo,Int *M, Int *N, double *A, Int *LDA, double *B, Int *LDB);
+    extern void FC_GLOBAL(dlaset,DLASET)(char *UL, Int *M, Int *N, double *alpha, double *beta, double *X, Int *lda, fortran_charlen_t l1);
+    extern void FC_GLOBAL(dlacpy,DLACPY)(char *uplo,Int *M, Int *N, double *A, Int *LDA, double *B, Int *LDB, fortran_charlen_t l1);
 
     extern void FC_GLOBAL(dlarnv,DLARNV)(Int *i, Int *S, Int *N, double * X);
-    extern double FC_GLOBAL(dlange,DLANGE)(char *NORM, Int *N, Int *M, double *A, Int *LDA, double *WORK);
-    extern void FC_GLOBAL(dgemm,DGEMM)(char *ta, char *tb, Int *M, Int *N, Int *K, double *alpha, double *A, Int *LDA, double *B, Int *LDB, double *beta, double *C, Int *LDC);
+    extern double FC_GLOBAL(dlange,DLANGE)(char *NORM, Int *N, Int *M, double *A, Int *LDA, double *WORK, fortran_charlen_t l1);
+    extern void FC_GLOBAL(dgemm,DGEMM)(char *ta, char *tb, Int *M, Int *N, Int *K, double *alpha, double *A, Int *LDA, double *B, Int *LDB, double *beta, double *C, Int *LDC,fortran_charlen_t l1, fortran_charlen_t l2);
 
 
-    extern float FC_GLOBAL(slange,SLANGE)(char *NORM, Int *N, Int *M, float *A, Int *LDA, float *WORK);
-    extern void FC_GLOBAL(sgemm,SGEMM)(char *ta, char *tb, Int *M, Int *N, Int *K, float *alpha, float *A, Int *LDA, float *B, Int *LDB, float *beta, float *C, Int *LDC);
-    extern void FC_GLOBAL(slacpy,SLACPY)(char *uplo,Int *M, Int *N, float *A, Int *LDA, float *B, Int *LDB);
+    extern float FC_GLOBAL(slange,SLANGE)(char *NORM, Int *N, Int *M, float *A, Int *LDA, float *WORK, fortran_charlen_t l1);
+    extern void FC_GLOBAL(sgemm,SGEMM)(char *ta, char *tb, Int *M, Int *N, Int *K, float *alpha, float *A, Int *LDA, float *B, Int *LDB, float *beta, float *C, Int *LDC, fortran_charlen_t l1, fortran_charlen_t l2);
+    extern void FC_GLOBAL(slacpy,SLACPY)(char *uplo,Int *M, Int *N, float *A, Int *LDA, float *B, Int *LDB, fortran_charlen_t l1);
     void FC_GLOBAL(sgees,SGEES)(char *JOBVSL, char * SORT, void * SELECTG, Int *N, float *A, Int *LDA, Int *SDIM, float *ALPHAR, float *ALPHAI,
             float *VSL, Int *LDVSL, float *WORK, Int * LDWORK, Int *BWORK, Int *INFO);
     extern void FC_GLOBAL(slarnv,SLARNV)(Int *i, Int *S, Int *N, float * X);
-    extern void FC_GLOBAL(slaset,SLASET)(char *UL, Int *M, Int *N, float *alpha, float *beta, float *X, Int *lda);
+    extern void FC_GLOBAL(slaset,SLASET)(char *UL, Int *M, Int *N, float *alpha, float *beta, float *X, Int *lda, fortran_charlen_t l1);
     extern void FC_GLOBAL(sgges,SGGES)(char *JOBVSL, char*JOBVSRL, char * SORT, void * SELECTG, Int *N, float *A, Int *LDA, float *C, Int *ldc, Int *SDIM, float *ALPHAR, float *ALPHAI, float *betar,
             float *VSL, Int *LDVSL, float *VSR, Int *LDVR,  float *WORK, Int * LDWORK, Int *BWORK, Int *INFO);
 
@@ -140,7 +145,7 @@ extern "C" {
      *  Error Handler
      *-----------------------------------------------------------------------------*/
     void FC_GLOBAL_(xerror_set_handler_c,XERROR_SET_HANDLER_C) ( void (*eh)(const char*,int));
-    void FC_GLOBAL_(xerror_set_handler_f,XERROR_SET_HANDLER_F) ( void (*eh)(const char*,Int*, Int));
+    void FC_GLOBAL_(xerror_set_handler_f,XERROR_SET_HANDLER_F) ( void (*eh)(const char*,Int*, fortran_charlen_t));
 
     /*-----------------------------------------------------------------------------
      *  MEPACK Double
@@ -151,26 +156,6 @@ extern "C" {
     extern void FC_GLOBAL_(dla_sort_ev,DLA_SORT_EV)( Int * M,  double * A, Int * lDA, double * Q, Int *ldq, Int *NB, double * work, Int *ldwork, Int *info );
     extern void FC_GLOBAL_(sla_sort_ev,SLA_SORT_EV)( Int * M,  float * A, Int * lDA, float * Q, Int *ldq, Int *NB, float * work, Int *ldwork, Int *info );
     extern void FC_GLOBAL_(sla_sort_gev,SLA_SORT_GEV)( Int * M,  float * A, Int * lDA, float *C, Int *ldc, float * Q, Int *ldq, float *Z, Int *ldz, Int *NB, float * work, Int *ldwork, Int *info );
-
-        /* TGCSYLV  */
-
-
-    /* TGSTEIN  */
-
-    /*-----------------------------------------------------------------------------
-     *  MEPACK Frontends
-     *-----------------------------------------------------------------------------*/
-
-    /* Frontend for TGSYLV  */
-   /* TGCSYLV  */
-    /*
-     * Refinement
-     */
-
-
-
-
-
 
     /*-----------------------------------------------------------------------------
      *  RECSY
@@ -198,19 +183,20 @@ extern "C" {
     /*-----------------------------------------------------------------------------
      *  SLICOT
      *-----------------------------------------------------------------------------*/
-    extern void FC_GLOBAL(sg03ay,SG03AY)(char *TRANS, Int *N, double *A, Int *LDA, double *B, Int *LDB, double *X, Int *LDX, double *SCALE, Int *info, Int l1);
-    extern void FC_GLOBAL(sg03ax,SG03AX)(char *TRANS, Int *N, double *A, Int *LDA, double *B, Int *LDB, double *X, Int *LDX, double *SCALE, Int *info);
+    extern void FC_GLOBAL(sg03ay,SG03AY)(char *TRANS, Int *N, double *A, Int *LDA, double *B, Int *LDB, double *X, Int *LDX, double *SCALE, Int *info, fortran_charlen_t l1);
+    extern void FC_GLOBAL(sg03ax,SG03AX)(char *TRANS, Int *N, double *A, Int *LDA, double *B, Int *LDB, double *X, Int *LDX, double *SCALE, Int *info, fortran_charlen_t l1);
     extern void FC_GLOBAL(sg03ad,SG03AD)(char *DICO, char *JOB, char *FACT, char *TRANS, char *UPLO,
             Int *N, double *A, Int *LDA, double *B, Int *LDB, double *Q, Int *LDQ, double *Z, Int *LDZ,  double *X, Int *LDX,
             double *SCALE, double *SEP, double *FERR, double*ALPHAR, double *ALPHAI, double *BETA, Int *IWORK,
-            double *DWORK, Int *LDWORK, Int *info);
+            double *DWORK, Int *LDWORK, Int *info, fortran_charlen_t l1, fortran_charlen_t l2, fortran_charlen_t l3, fortran_charlen_t l4, fortran_charlen_t l5);
     extern void FC_GLOBAL(sb03md,SB03MD)(char *DICO, char *JOB, char *FACT, char *TRANS,
             Int *N, double *A, Int *LDA, double *Q, Int *LDQ, double *X, Int *LDX,
             double *SCALE, double *SEP, double *FERR, double*ALPHAR, double *ALPHAI, Int *IWORK,
-            double *DWORK, Int *LDWORK, Int *info);
-    extern void FC_GLOBAL(sb04py,SB04PY)(char * TRANSA, char *TRANSB, Int *ISGN, Int *M, Int *N, double *A, Int *LDA, double *B, Int *LDB, double *X, Int *LDX, double *SCALE, double *dwork, Int *Info, Int l1,Int  l2);
-    extern void FC_GLOBAL(sb03my,SB03MY)( char *TRANA, Int * N, double *A, Int *LDA, double *C, Int *LDC, double *SCAL, Int *INFO);
-    extern void FC_GLOBAL(sb03mx,SB03MX)( char *TRANA, Int * N, double *A, Int *LDA, double *C, Int *LDC, double *SCAL, double *WORK, Int *INFO);
+            double *DWORK, Int *LDWORK, Int *info,
+            fortran_charlen_t l1, fortran_charlen_t l2, fortran_charlen_t l3, fortran_charlen_t l4);
+    extern void FC_GLOBAL(sb04py,SB04PY)(char * TRANSA, char *TRANSB, Int *ISGN, Int *M, Int *N, double *A, Int *LDA, double *B, Int *LDB, double *X, Int *LDX, double *SCALE, double *dwork, Int *Info, fortran_charlen_t l1, fortran_charlen_t l2);
+    extern void FC_GLOBAL(sb03my,SB03MY)( char *TRANA, Int * N, double *A, Int *LDA, double *C, Int *LDC, double *SCAL, Int *INFO, fortran_charlen_t l1);
+    extern void FC_GLOBAL(sb03mx,SB03MX)( char *TRANA, Int * N, double *A, Int *LDA, double *C, Int *LDC, double *SCAL, double *WORK, Int *INFO, fortran_charlen_t l1);
 
     /* Algorithm 705  */
     extern void FC_GLOBAL(bkcon,BKCON)(Int *N, double *A, Int *LDA, double *B, Int *LDB, double *X, Int *LDX, Int *JOB, Int *info);

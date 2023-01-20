@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) Martin Koehler, 2017-2022
+ * Copyright (C) Martin Koehler, 2017-2023
  */
 
 #include <stdio.h>
@@ -338,7 +338,7 @@ optional_argument: "::" */
             for (i = 0; i < M*N; i+=512) { X[i] = 0.0; }
 
             alpha = 1; beta = 1;
-            FC_GLOBAL_(dlaset,DLASET)("All", &M, &N, &alpha, &beta, Xorig, &M);
+            FC_GLOBAL_(dlaset,DLASET)("All", &M, &N, &alpha, &beta, Xorig, &M, 1);
 
 
             for (mat = 0; mat < nMAT; mat++) {
@@ -356,7 +356,7 @@ optional_argument: "::" */
                 te = 0;
                 j = M * N ;
                 for (run = 0; run < RUNS; run++) {
-                    FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &N, RHS, &M, X, &M);
+                    FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &N, RHS, &M, X, &M, 1);
                     ts = get_wtime();
                     FC_GLOBAL_(recgsyl,RECGSYL)(&type, &scale, &M, &N, A, &M, B, &N, C, &M, D, &N, X, &M, &infox, MACHINE_RECSY, Work, &j);
                     te += (get_wtime() - ts);
@@ -377,7 +377,7 @@ optional_argument: "::" */
                     mepack_tgsylv_isolver_set(is);
                     te = 0.0;
                     for (run = 0; run < RUNS; run++) {
-                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &N, RHS, &M, X, &M);
+                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &N, RHS, &M, X, &M, 1);
                         if ( is < 7 ) {
                             ts = get_wtime();
                             mepack_double_tgsylv_level3(TRANSA, TRANSB, sign,  M, N, A, M, B, N, C, M, D, N, X, M, &scale, Work, &info);

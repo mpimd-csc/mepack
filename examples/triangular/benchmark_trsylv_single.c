@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) Martin Koehler, 2017-2022
+ * Copyright (C) Martin Koehler, 2017-2023
  */
 
 
@@ -185,7 +185,7 @@ int main(int argc, char **argv)
 
     double times,ts2, te2;
     double ctimes;
-    float ress;
+    float ress = 1.0;
 
     int choice;
     float eps;
@@ -479,7 +479,7 @@ optional_argument: "::" */
             Work = (float *) malloc(sizeof(float) * (mem));
 
             alpha = 1; beta = 1;
-            FC_GLOBAL_(slaset,SLASET)("All", &M, &N, &alpha, &beta, Xorig, &M);
+            FC_GLOBAL_(slaset,SLASET)("All", &M, &N, &alpha, &beta, Xorig, &M, 1);
 
             info = 0;
 
@@ -505,7 +505,7 @@ optional_argument: "::" */
                     te = 0.0;
                     te2 = 0.0;
                     for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &N, RHS, &M, X, &M);
+                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &N, RHS, &M, X, &M, 1);
                         ts = get_wtime();
                         ts2 = get_ctime();
                         if ( is < 7 )
@@ -537,7 +537,7 @@ optional_argument: "::" */
                     te2= 0.0;
 
                     for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &N, RHS, &M, X, &M);
+                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &N, RHS, &M, X, &M, 1);
                         ts = get_wtime();
                         ts2 = get_ctime();
                         if ( is == 19 ){
@@ -589,7 +589,7 @@ optional_argument: "::" */
                     te2= 0.0;
 
                     for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &N, RHS, &M, X, &M);
+                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &N, RHS, &M, X, &M, 1);
                         if ( sign < 0 )
                             isgn = -1;
                         else

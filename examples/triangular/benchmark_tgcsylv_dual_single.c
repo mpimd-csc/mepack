@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) Martin Koehler, 2017-2022
+ * Copyright (C) Martin Koehler, 2017-2023
  */
 
 
@@ -194,7 +194,7 @@ int main(int argc, char **argv)
 
     double times,ts2, te2;
     double ctimes;
-    float ress;
+    float ress = 1.0;
     float eps;
     int choice;
     int changerole = 0;
@@ -500,8 +500,8 @@ optional_argument: "::" */
             Work = (float *) malloc(sizeof(float) * (mem));
 
             alpha = 1; beta = 1;
-            FC_GLOBAL_(slaset,SLASET)("All", &M, &N, &alpha, &beta, Rorig, &M);
-            FC_GLOBAL_(slaset,SLASET)("All", &M, &N, &alpha, &beta, Lorig, &M);
+            FC_GLOBAL_(slaset,SLASET)("All", &M, &N, &alpha, &beta, Rorig, &M, 1);
+            FC_GLOBAL_(slaset,SLASET)("All", &M, &N, &alpha, &beta, Lorig, &M, 1);
 
 
 
@@ -511,9 +511,9 @@ optional_argument: "::" */
                 benchmark_random_gevp_float(N, iseed, B, D, NULL, NULL, NULL, NULL, align_on* gcd(MB, NB));
                 if ( changerole ) {
                     float *tmp = malloc ( sizeof( float ) * N * N);
-                    FC_GLOBAL(slacpy,SLACPY) ( "All", &N, &N, B, &N, tmp, &N);
-                    FC_GLOBAL(slacpy,SLACPY) ( "All", &N, &N, D, &N, B, &N);
-                    FC_GLOBAL(slacpy,SLACPY) ( "All", &N, &N, tmp, &N, D, &N);
+                    FC_GLOBAL(slacpy,SLACPY) ( "All", &N, &N, B, &N, tmp, &N, 1);
+                    FC_GLOBAL(slacpy,SLACPY) ( "All", &N, &N, D, &N, B, &N, 1);
+                    FC_GLOBAL(slacpy,SLACPY) ( "All", &N, &N, tmp, &N, D, &N, 1);
                     free(tmp);
                 }
                 benchmark_rhs_ggcsylv_dual_float(TRANSA, TRANSB, sign1, sign2,  M, N, A, M, B, N, C, M, D, N, Rorig, M, Lorig, M,  RHS_R, M, RHS_L, M );
@@ -533,8 +533,8 @@ optional_argument: "::" */
                     te = 0.0;
                     te2 = 0.0;
                     for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &N, RHS_R, &M, R, &M);
-                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &N, RHS_L, &M, L, &M);
+                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &N, RHS_R, &M, R, &M, 1);
+                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &N, RHS_L, &M, L, &M, 1);
 
                         ts = get_wtime();
                         ts2 = get_ctime();
@@ -569,8 +569,8 @@ optional_argument: "::" */
                     te2 = 0.0;
 
                     for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &N, RHS_R, &M, R, &M);
-                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &N, RHS_L, &M, L, &M);
+                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &N, RHS_R, &M, R, &M, 1);
+                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &N, RHS_L, &M, L, &M, 1);
 
 
                         ts = get_wtime();

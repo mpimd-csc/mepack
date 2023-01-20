@@ -12,7 +12,7 @@
 ! You should have received a copy of the GNU General Public License
 ! along with this program; if not, see <http://www.gnu.org/licenses/>.
 !
-! Copyright (C) Martin Koehler, 2017-2022
+! Copyright (C) Martin Koehler, 2017-2023
 !
 
 !> \brief Level-2 Gardiner-Laub algorithm for the generalized Sylvester equation
@@ -198,7 +198,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date Dezember 2022
+!> \date Januar 2023
 !> \ingroup sgltgsylv
 !
 SUBROUTINE SLA_TGSYLV_GARDINER_LAUB ( TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, C, LDC, &

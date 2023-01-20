@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) Martin Koehler, 2017-2022
+ * Copyright (C) Martin Koehler, 2017-2023
  */
 
 #include "FCMangle.h"
@@ -240,7 +240,7 @@
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Dezember 2022
+ \date Januar 2023
 */
 void mepack_double_gesylv2_refine(const char * TRANSA, const char * TRANSB, const char *GUESS,double SGN, int M, int N , double * A, int LDA,
         double *B, int LDB, double *X, int LDX, double *Y, int LDY, double *AS, int LDAS, double *BS, int LDBS,
@@ -491,7 +491,7 @@ void mepack_double_gesylv2_refine(const char * TRANSA, const char * TRANSB, cons
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Dezember 2022
+ \date Januar 2023
 */
 void mepack_single_gesylv2_refine(const char * TRANSA, const char * TRANSB, const char *GUESS, float SGN, int M , int N,  float * A, int LDA,
         float *B, int LDB, float *X, int LDX, float *Y, int LDY, float *AS, int LDAS, float *BS, int LDBS,

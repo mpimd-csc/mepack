@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) Martin Koehler, 2017-2022
+ * Copyright (C) Martin Koehler, 2017-2023
  */
 
 
@@ -125,7 +125,7 @@ void solver_name(int is) {
 
 void usage(char *prgmname) {
     int is;
-    printf("Solve a generalized Lyapunov equation with different solvers.\n"); 
+    printf("Solve a generalized Lyapunov equation with different solvers.\n");
     printf("\n");
     printf("Usage: %s <options>\n",prgmname);
     printf("\n");
@@ -180,7 +180,7 @@ int main(int argc, char **argv)
 
     double times,ts2, te2;
     double ctimes;
-    double ress;
+    double ress = 1.0;
 
     int choice;
     int reuse = 0;
@@ -379,7 +379,7 @@ optional_argument: "::" */
             Work = (double *) malloc(sizeof(double) * (mem));
 
             alpha = 1; beta = 1;
-            FC_GLOBAL_(dlaset,DLASET)("All", &M, &M, &alpha, &beta, Xorig, &M);
+            FC_GLOBAL_(dlaset,DLASET)("All", &M, &M, &alpha, &beta, Xorig, &M, 1);
 
 
             for (mat = 0; mat < nMAT; mat++) {
@@ -393,8 +393,8 @@ optional_argument: "::" */
                 N2 = M * M;
                 FC_GLOBAL(dlarnv,DLARNV)(&IDIST, iseed, &N2, A);
                 FC_GLOBAL(dlarnv,DLARNV)(&IDIST, iseed, &N2, B);
-                FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, A, &M, Aorig, &M);
-                FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, B, &M, Borig, &M);
+                FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, A, &M, Aorig, &M, 1);
+                FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, B, &M, Borig, &M, 1);
                 benchmark_rhs_glyap_double(TRANSA, M, A, M, B, M, Xorig, M, RHS, M );
 
 
@@ -408,10 +408,10 @@ optional_argument: "::" */
                 te = 0.0;
                 te2 = 0.0;
                 for (run = -1; run < RUNS; run++) {
-                    FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, RHS, &M, X, &M);
+                    FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, RHS, &M, X, &M, 1);
                     if ( run == -1 || !reuse ) {
-                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, Aorig, &M, A, &M);
-                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, Borig, &M, B, &M);
+                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, Aorig, &M, A, &M, 1);
+                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, Borig, &M, B, &M, 1);
                     }
 
                     ts = get_wtime();
@@ -422,7 +422,7 @@ optional_argument: "::" */
                             Int infox = 0 ;
                             FC_GLOBAL_(sg03ad,SG03AD)("Cont", "X", "NonFact", TRANSX, "Upper", &M,
                                     A, &M, B, &M, Q, &M, Z, &M, X, &M, &scale, &sep, &ferr,
-                                    &Work[0], &Work[M], &Work[2*M], NULL, &Work[3*M], &ldworkx,  &infox);
+                                    &Work[0], &Work[M], &Work[2*M], NULL, &Work[3*M], &ldworkx,  &infox, 1, 1, 1, 1, 1);
                         } else {
                             mepack_double_gglyap("N", TRANSA, M, A, M, B, M, Q, M, Z, M, X, M, &scale, Work, ldwork,  &info);
                         }
@@ -431,7 +431,7 @@ optional_argument: "::" */
                             Int infox  = 0;
                             FC_GLOBAL_(sg03ad,SG03AD)("Cont", "X", "Fact", TRANSX, "upper", &M,
                                     A, &M, B, &M, Q, &M, Z, &M, X, &M, &scale, &sep, &ferr,
-                                    &Work[0], &Work[M], &Work[2*M], NULL, &Work[3*M], &ldworkx,  &infox);
+                                    &Work[0], &Work[M], &Work[2*M], NULL, &Work[3*M], &ldworkx,  &infox, 1, 1, 1, 1, 1);
                         } else {
                             mepack_double_gglyap("F", TRANSA, M, A, M, B, M, Q, M, Z, M, X, M, &scale, Work, ldwork,  &info);
                         }

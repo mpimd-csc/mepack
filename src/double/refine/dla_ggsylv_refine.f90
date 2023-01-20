@@ -12,7 +12,7 @@
 ! You should have received a copy of the GNU General Public License
 ! along with this program; if not, see <http://www.gnu.org/licenses/>.
 !
-! Copyright (C) Martin Koehler, 2017-2022
+! Copyright (C) Martin Koehler, 2017-2023
 !
 
 !> \brief Iterative Refinement for the Generalized Sylvester Equations.
@@ -343,7 +343,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date Dezember 2022
+!> \date Januar 2023
 !> \ingroup dblggsylv
 !
 SUBROUTINE DLA_GGSYLV_REFINE(TRANSA, TRANSB, GUESS, SGN, M , N,  &
@@ -582,6 +582,7 @@ SUBROUTINE DLA_GGSYLV_REFINE(TRANSA, TRANSB, GUESS, SGN, M , N,  &
     NRMB = DLANGE("F", N, N, B, LDB, WORK(WS))
     NRMD = DLANGE("F", N, N, D, LDD, WORK(WS))
     NRMRHS = DLANGE("F", M, N, Y(1,1), LDY, WORK(WS))
+    NRMR = ONE
 
     TOL = DSQRT(DBLE(M*N)) * ( NRMA * NRMB + NRMC * NRMD) * EPS * TAU
 

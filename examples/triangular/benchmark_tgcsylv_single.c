@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) Martin Koehler, 2017-2022
+ * Copyright (C) Martin Koehler, 2017-2023
  */
 
 
@@ -185,7 +185,7 @@ int main(int argc, char **argv)
     double te, ts;
     double times,ts2, te2;
     double ctimes;
-    float ress;
+    float ress = 1.0;
     float eps;
     int choice;
     ssize_t mem;
@@ -491,8 +491,8 @@ int main(int argc, char **argv)
             Work = (float *) malloc(sizeof(float) * (mem));
 
             alpha = 1; beta = 1;
-            FC_GLOBAL_(slaset,SLASET)("All", &M, &N, &alpha, &beta, Rorig, &M);
-            FC_GLOBAL_(slaset,SLASET)("All", &M, &N, &alpha, &beta, Lorig, &M);
+            FC_GLOBAL_(slaset,SLASET)("All", &M, &N, &alpha, &beta, Rorig, &M, 1);
+            FC_GLOBAL_(slaset,SLASET)("All", &M, &N, &alpha, &beta, Lorig, &M, 1);
 
 
 
@@ -518,8 +518,8 @@ int main(int argc, char **argv)
                     te = 0.0;
                     te2 = 0.0;
                     for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &N, RHS_R, &M, R, &M);
-                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &N, RHS_L, &M, L, &M);
+                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &N, RHS_R, &M, R, &M, 1);
+                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &N, RHS_L, &M, L, &M, 1);
 
                         ts = get_wtime();
                         ts2 = get_ctime();
@@ -554,8 +554,8 @@ int main(int argc, char **argv)
                     te2 = 0.0;
 
                     for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &N, RHS_R, &M, R, &M);
-                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &N, RHS_L, &M, L, &M);
+                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &N, RHS_R, &M, R, &M, 1);
+                        FC_GLOBAL_(slacpy,SLACPY)("All", &M, &N, RHS_L, &M, L, &M, 1);
 
                         ts = get_wtime();
                         ts2 = get_ctime();

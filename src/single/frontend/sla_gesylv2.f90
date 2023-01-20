@@ -12,7 +12,7 @@
 ! You should have received a copy of the GNU General Public License
 ! along with this program; if not, see <http://www.gnu.org/licenses/>.
 !
-! Copyright (C) Martin Koehler, 2017-2022
+! Copyright (C) Martin Koehler, 2017-2023
 !
 
 !> \brief Frontend for the solution of Standard Sylvester Equations.
@@ -232,7 +232,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date Dezember 2022
+!> \date Januar 2023
 !> \ingroup sglgesylv
 !
 SUBROUTINE SLA_GESYLV2(FACTA, FACTB, TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, QA, LDQA, QB, LDQB, &

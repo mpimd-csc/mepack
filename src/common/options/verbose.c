@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) Martin Koehler, 2017-2022
+ * Copyright (C) Martin Koehler, 2017-2023
  */
 
 
@@ -49,7 +49,7 @@ void mepack_verbose_init() {
  */
 void mepack_verbose_set(int level) {
     Int _l = level;
-    FC_MODULE_(mepack_options_verbose,verbose_set,MEPACK_OPTIONS_VERBOSE,VERBOSE_SET)(_l);
+    FC_MODULE_(mepack_options_verbose,verbose_set,MEPACK_OPTIONS_VERBOSE,VERBOSE_SET)(&_l);
 }
 
 /**

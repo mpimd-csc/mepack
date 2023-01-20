@@ -14,22 +14,22 @@ cd "$d"
 echo "Update Fortran"
 grep -lRi "\![[:space:]]*copyright" | \
     xargs -n 1 \
-    sed -i -e 's/![ \t]*Copyright.*$/! Copyright (C) Martin Koehler, 2017-2022/g'
+    sed -i -e 's/![ \t]*Copyright.*$/! Copyright (C) Martin Koehler, 2017-2023/g'
 echo "Update C"
 grep -lRi " \* copyright" | \
     xargs -n 1 \
-    sed -i -e 's/ \* Copyright.*$/ * Copyright (C) Martin Koehler, 2017-2022/g'
+    sed -i -e 's/ \* Copyright.*$/ * Copyright (C) Martin Koehler, 2017-2023/g'
 echo "Update Lua"
 grep -lRi "\-- copyright"| \
     xargs -n 1  \
-    sed -i -e 's/^-- Copyright.*$/-- Copyright (C) Martin Koehler, 2017-2022/g'
+    sed -i -e 's/^-- Copyright.*$/-- Copyright (C) Martin Koehler, 2017-2023/g'
 echo "Update MATLAB"
 grep -lRi "% copyright"| \
     xargs -n 1  \
-    sed -i -e 's/^% Copyright.*$/% Copyright (C) Martin Koehler, 2017-2022/g'
+    sed -i -e 's/^% Copyright.*$/% Copyright (C) Martin Koehler, 2017-2023/g'
 
 
 cd "$X"
 done
 
-sed -i -e 's/^Copyright [0-9-]* by/Copyright 2017-2022 by/g' README.md
+sed -i -e 's/^Copyright [0-9-]* by/Copyright 2017-2023 by/g' README.md
