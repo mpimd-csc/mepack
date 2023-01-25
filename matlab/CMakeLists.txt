@@ -46,6 +46,40 @@ IF ( NOT DEFINED MEXOCT_SKIP_RPATH )
     SET(MEXOCT_SKIP_RPATH false)
 ENDIF()
 
+# Link Library
+IF (MEXOCT_LINK_STATIC STREQUAL OFF)
+    ADD_LIBRARY(mepackmexoct SHARED $<TARGET_OBJECTS:mepack_shared_object> $<TARGET_OBJECTS:lapack_missing> $<TARGET_OBJECTS:cscutils_lua_src> $<TARGET_OBJECTS:lua_src>)
+    TARGET_LINK_LIBRARIES(
+        mepackmexoct
+        PUBLIC
+        OpenMP::OpenMP_Fortran
+        )
+    TARGET_INCLUDE_DIRECTORIES(
+        mepackmexoct
+        PUBLIC
+        $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
+        $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/src/>
+        )
+
+    #
+    # Default LUA Config
+    #
+    INCLUDE(${PROJECT_SOURCE_DIR}/libcscutils/src/lua/LuaInterface.cmake)
+    IF ( NOT MEPACK_LUA_CONFIG )
+        CSC_LUA_ADD_INLINE_CODE(mepackmexoct ${PROJECT_SOURCE_DIR}/src/default_config.lua VARNAME mepack_default_config_code FUNCTIONNAME mepack_default_config)
+    ELSE()
+        CSC_LUA_ADD_INLINE_CODE(mepackmexoct ${MEPACK_LUA_CONFIG} VARNAME mepack_default_config_code FUNCTIONNAME mepack_default_config)
+    ENDIF()
+
+    FILE(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/matlab/matlab")
+    FILE(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/matlab/octave")
+
+    ADD_CUSTOM_COMMAND(TARGET mepackmexoct POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_SONAME_FILE:mepackmexoct>" "${PROJECT_BINARY_DIR}/matlab/matlab"
+        COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_SONAME_FILE:mepackmexoct>" "${PROJECT_BINARY_DIR}/matlab/octave")
+
+ENDIF()
+
 
 SET(MEPACK_MATLAB_TARGETS )
 SET(MEPACK_OCTAVE_TARGETS )
@@ -55,7 +89,7 @@ FOREACH(MO IN LISTS MO_INTERFACES)
     IF(MEXOCT_LINK_STATIC STREQUAL ON )
         mexoct_target_link_libraries(mepack_${MO} mepack_static)
     ELSE()
-        mexoct_target_link_libraries(mepack_${MO} mepack)
+        mexoct_target_link_libraries(mepack_${MO} mepackmexoct)
     ENDIF()
 
     mexoct_target_link_blas(mepack_${MO})

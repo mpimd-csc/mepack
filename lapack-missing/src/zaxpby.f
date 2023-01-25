@@ -1,4 +1,4 @@
-*> \brief \b ZAXPY
+*> \brief \b ZAXPBY
 *
 *  =========== DOCUMENTATION ===========
 *
@@ -8,10 +8,10 @@
 *  Definition:
 *  ===========
 *
-*       SUBROUTINE ZAXPY(N,ZA,ZX,INCX,ZY,INCY)
+*       SUBROUTINE ZAXPBY(N,ZA,ZX,INCX,ZB,ZY,INCY)
 *
 *       .. Scalar Arguments ..
-*       COMPLEX*16 ZA
+*       COMPLEX*16 ZA, ZB
 *       INTEGER INCX,INCY,N
 *       ..
 *       .. Array Arguments ..
@@ -24,7 +24,7 @@
 *>
 *> \verbatim
 *>
-*>    ZAXPY constant times a vector plus a vector.
+*>    ZAXPBY constant times a vector plus a scaled vector.
 *> \endverbatim
 *
 *  Arguments:
@@ -51,6 +51,12 @@
 *> \verbatim
 *>          INCX is INTEGER
 *>         storage spacing between elements of ZX
+*> \endverbatim
+*>
+*> \param[in] ZB
+*> \verbatim
+*>          ZB is COMPLEX*16
+*>          On entry, ZB specifies the scalar beta.
 *> \endverbatim
 *>
 *> \param[in,out] ZY
@@ -106,12 +112,7 @@
 *     .. Local Scalars ..
       INTEGER I,IX,IY
 *     ..
-*     .. External Functions ..
-      DOUBLE PRECISION DCABS1
-      EXTERNAL DCABS1
-*     ..
       IF (N.LE.0) RETURN
-      IF (DCABS1(ZA).EQ.0.0d0) RETURN
       IF (INCX.EQ.1 .AND. INCY.EQ.1) THEN
 *
 *        code for both increments equal to 1

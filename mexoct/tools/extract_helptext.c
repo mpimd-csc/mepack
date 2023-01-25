@@ -58,9 +58,9 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
 
 
     dlerror();
-    typedef char * (*gethelpstring_t)();
+    typedef char * (*gethelpstring_t)(void);
     gethelpstring_t gethelpstring;
-    gethelpstring =  dlsym(handle, "mexoct_gethelptext");
+    *(void **) &gethelpstring =  dlsym(handle, "mexoct_gethelptext");
     if ( !gethelpstring){
         mexPrintf("No help string found in %s ( error = %s )\n", infi, dlerror());
         return;

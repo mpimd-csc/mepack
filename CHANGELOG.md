@@ -1,4 +1,10 @@
-Version 1.0.1 (January 12, 2023)
+Version 1.0.2 (January 25, 2023)
+================================
+
+- MATLAB and GNU Octave has wrong library dependencies inside their .so file.
+
+
+Version 1.0.1 (January 20, 2023)
 ================================
 
 - Disable building the static library by default (see BUILD_STATIC in
