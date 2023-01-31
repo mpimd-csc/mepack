@@ -1,7 +1,7 @@
 name: MEPACK: Matrix Equation PACKage
 shortname: mepack
-version: 1.0.2
-release-date: 2023-01-25
+version: 1.0.3
+release-date: 2023-01-31
 id: 10.5281/zenodo.7554327
 id-type: doi
 author: Martin Köhler

@@ -1,3 +1,8 @@
+Version 1.0.3 (January 31, 2023)
+================================
+
+- Wrong CMAKE setting for installing Fortran modules
+
 Version 1.0.2 (January 25, 2023)
 ================================
 
