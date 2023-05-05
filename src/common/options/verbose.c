@@ -33,7 +33,7 @@
  *
  * @see mepack_options_verbose::verbose_init
  */
-void mepack_verbose_init() {
+void mepack_verbose_init(void) {
 
    FC_MODULE_(mepack_options_verbose,verbose_init,MEPACK_OPTIONS_VERBOSE,VERBOSE_INIT)();
 }
@@ -61,7 +61,7 @@ void mepack_verbose_set(int level) {
  *
  * @see mepack_options_verbose::verbose_get
  */
-int mepack_verbose_get() {
+int mepack_verbose_get(void) {
     return FC_MODULE_(mepack_options_verbose,verbose_get,MEPACK_OPTIONS_VERBOSE,VERBOSE_GET)();
 }
 /**

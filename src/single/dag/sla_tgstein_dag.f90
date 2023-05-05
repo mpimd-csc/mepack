@@ -376,33 +376,11 @@ SUBROUTINE SLA_TGSTEIN_DAG ( TRANS, M, A, LDA, B, LDB,  X, LDX, SCALE, WORK, INF
                 KE = K - 1
 
 
-                IF ( KH.EQ.M .AND. LH.EQ.M) THEN
-                    !$omp task firstprivate(TRANSA,TRANSB,M,K,KB,KH,L,LB,LH,INFO1,SCAL) depend(out:X(K,L)) default(shared)
-                    CALL ISLA_TGSTEIN_SOLVE_BLOCK_N(TRANSA, TRANSB, M, MB, K, KB, KH, L, LB, LH, A, LDA, B, LDB, X, LDX, WORK, &
-                        & SCAL, INFO)
+                !$omp task firstprivate(TRANSA,TRANSB,M,K,KB,KH,L,LB,LH,INFO1,SCAL) depend(inout:X(K,L)) default(shared)
+                CALL ISLA_TGSTEIN_SOLVE_BLOCK_N(TRANSA, TRANSB, M, MB, K, KB, KH, L, LB, LH, A, LDA, B, LDB, X, LDX, WORK, &
+                    & SCAL, INFO)
 
-                    !$omp end task
-                ELSE IF ( KH.NE.M .AND. LH.EQ.M ) THEN
-                    !$omp task firstprivate(TRANSA,TRANSB,M,K,KB,KH,L,LB,LH) default(shared) &
-                    !$omp& depend(in:X(KOLD,L)) depend(out:X(K,L))
-                    CALL ISLA_TGSTEIN_SOLVE_BLOCK_N(TRANSA, TRANSB, M,MB,  K, KB, KH, L, LB, LH, A, LDA, B, LDB, X, LDX, WORK, &
-                        & SCAL, INFO)
-
-                    !$omp end task
-                ELSE IF ( KH.EQ.LH ) THEN
-                    !$omp task firstprivate(TRANSA,TRANSB,M,K,KB,KH,L,LB,LH) default(shared) &
-                    !$omp& depend(in:X(K,LOLD)) depend(out:X(K,L))
-                    CALL ISLA_TGSTEIN_SOLVE_BLOCK_N(TRANSA, TRANSB, M, MB, K, KB, KH, L, LB, LH, A, LDA, B, LDB, X, LDX, WORK, &
-                        & SCAL, INFO)
-                    !$omp end task
-                ELSE
-                    !$omp task firstprivate(TRANSA,TRANSB,M,K,KB,KH,L,LB,LH) default(shared) &
-                    !$omp& depend(in:X(K,LOLD),X(KOLD,L)) depend(out:X(K,L))
-                    CALL ISLA_TGSTEIN_SOLVE_BLOCK_N(TRANSA, TRANSB, M, MB, K, KB, KH, L, LB, LH, A, LDA, B, LDB, X, LDX, WORK, &
-                        & SCAL, INFO)
-
-                    !$omp end task
-                END IF
+                !$omp end task
 
 
                 ! Prepare Update January 2021
@@ -592,30 +570,10 @@ SUBROUTINE SLA_TGSTEIN_DAG ( TRANS, M, A, LDA, B, LDB,  X, LDX, SCALE, WORK, INF
                     END IF
                 END IF
 
-                IF ( K.EQ.1 .AND. L.EQ. 1 ) THEN
-                    !$omp task firstprivate(TRANSA,TRANSB,M,K,KB,KH,L,LB,LH,INFO1,SCAL) depend(out:X(K,L)) default(shared)
-                    CALL ISLA_TGSTEIN_SOLVE_BLOCK_T(TRANSA, TRANSB, M, MB, K, KB, KH, L, LB, LH, A, LDA, B, LDB, X, LDX, &
-                        & WORK, SCAL, INFO)
-                    !$omp end task
-                ELSE IF (K.GT.1 .AND. L.EQ.1 ) THEN
-                    !$omp task firstprivate(TRANSA,TRANSB,M,K,KB,KH,L,LB,LH) default(shared) &
-                    !$omp& depend(in:X(KOLD,L)) depend(out:X(K,L))
-                    CALL ISLA_TGSTEIN_SOLVE_BLOCK_T(TRANSA, TRANSB, M, MB, K, KB, KH, L, LB, LH, A, LDA, B, LDB, X, LDX, &
-                        & WORK, SCAL, INFO)
-                    !$omp end task
-                ELSE IF (K.EQ.L) THEN
-                    !$omp task firstprivate(TRANSA,TRANSB,M,K,KB,KH,L,LB,LH) default(shared) &
-                    !$omp& depend(in:X(K,LOLD)) depend(out:X(K,L))
-                    CALL ISLA_TGSTEIN_SOLVE_BLOCK_T(TRANSA, TRANSB, M, MB, K, KB, KH, L, LB, LH, A, LDA, B, LDB, X, LDX, &
-                        & WORK, SCAL, INFO)
-                    !$omp end task
-                ELSE
-                    !$omp task firstprivate(TRANSA,TRANSB,M,K,KB,KH,L,LB,LH) default(shared) &
-                    !$omp& depend(in:X(K,LOLD),X(KOLD,L)) depend(out:X(K,L))
-                    CALL ISLA_TGSTEIN_SOLVE_BLOCK_T(TRANSA, TRANSB, M, MB, K, KB, KH, L, LB, LH, A, LDA, B, LDB, X, LDX, &
-                        & WORK, SCAL, INFO)
-                    !$omp end task
-                END IF
+                !$omp task firstprivate(TRANSA,TRANSB,M,K,KB,KH,L,LB,LH,INFO1,SCAL) depend(inout:X(K,L)) default(shared)
+                CALL ISLA_TGSTEIN_SOLVE_BLOCK_T(TRANSA, TRANSB, M, MB, K, KB, KH, L, LB, LH, A, LDA, B, LDB, X, LDX, &
+                    & WORK, SCAL, INFO)
+                !$omp end task
 
                 ! Prepare update January 2021
                 IF ( KH  .LT. M ) THEN

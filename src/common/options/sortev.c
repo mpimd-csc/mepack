@@ -33,7 +33,7 @@
  * sorting is enabled. That means, frontend routines sort the eigenvalues
  * before calling a triangular solver in order to match the block structure.
  */
-int mepack_sortev_enabled()
+int mepack_sortev_enabled(void)
 {
     int ret;
     ret = (int)  FC_MODULE_(mepack_options_sortev,sortev_enabled,MEPACK_OPTIONS_SORTEV,SORTEV_ENABLED)();

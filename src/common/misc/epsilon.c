@@ -39,13 +39,13 @@ float  FC_GLOBAL(slamch,SLAMCH)(char *str, fortran_charlen_t len);
 
 
 
-double mepack_double_epsilon()
+double mepack_double_epsilon(void)
 {
     return FC_GLOBAL(dlamch,DLAMCH)("E", 1);
 }
 
 
-float mepack_single_epsilon()
+float mepack_single_epsilon(void)
 {
     return FC_GLOBAL(slamch,SLAMCH)("E",1);
 }

@@ -362,75 +362,20 @@ SUBROUTINE SLA_TRSYLV_DAG ( TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, X, LDX, S
                     END IF
                 END IF
 
-                IF ( KH .EQ. M .AND. L .EQ. IONE) THEN
-                    !$omp  task depend(out:X(K:KH,L:LH)) &
-                    !$omp& firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1) default(shared)
-                    CALL ISLA_TRSYLV_SOLVE_BLOCK(TRANSA, TRANSB, M,N,K,KH,KB,L,LH,LB, &
-                        & A, LDA, B, LDB, X, LDX, &
-                        & SGN, SCAL, INFO1)
-                    IF ( INFO1 .NE. 0 ) THEN
-                        !$omp atomic
-                        INFO = INFO + 1
-                    END IF
-                    IF ( SCAL .NE. ONE ) THEN
-                        !$omp atomic
-                        SCALE = SCALE * SCAL
-                    END IF
-
-                    !$omp end task
-                ELSE IF ( KH .EQ. M .AND. L .GT. IONE) THEN
-                    !$omp  task depend(out:X(K:KH,L:LH)) depend(in:X(K:KH,LOLD:LHOLD)) &
-                    !$omp& firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1) default(shared)
-                    CALL ISLA_TRSYLV_SOLVE_BLOCK(TRANSA, TRANSB, M,N,K,KH,KB,L,LH,LB, &
-                        & A, LDA, B, LDB, X, LDX, &
-                        & SGN, SCAL, INFO1 )
-                    IF ( INFO1 .NE. 0 ) THEN
-                        !$omp atomic
-                        INFO = INFO + 1
-                    END IF
-                    IF ( SCAL .NE. ONE ) THEN
-                        !$omp atomic
-                        SCALE = SCALE * SCAL
-                    END IF
-
-                    !$omp end task
-
-                ELSE IF ( KH .LT. M .AND. L .EQ. IONE) THEN
-                    !$omp  task depend(out:X(K:KH,L:LH)) depend(in:X(KOLD:KHOLD,L:LH))&
-                    !$omp& firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1) default(shared)
-
-                    CALL ISLA_TRSYLV_SOLVE_BLOCK(TRANSA, TRANSB, M,N,K,KH,KB,L,LH,LB, &
-                        & A, LDA, B, LDB, X, LDX, &
-                        & SGN, SCAL, INFO1)
-                    IF ( INFO1 .NE. 0 ) THEN
-                        !$omp atomic
-                        INFO = INFO + 1
-                    END IF
-                    IF ( SCAL .NE. ONE ) THEN
-                        !$omp atomic
-                        SCALE = SCALE * SCAL
-                    END IF
-
-                    !$omp end task
-
-                ELSE
-                    !$omp  task depend(out:X(K:KH,L:LH)) depend(in:X(KOLD:KHOLD,L:LH),X(K:KHOLD,LOLD:LHOLD)) &
-                    !$omp& firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1) default(shared)
-                    CALL ISLA_TRSYLV_SOLVE_BLOCK(TRANSA, TRANSB, M,N,K,KH,KB,L,LH,LB, &
-                        & A, LDA, B, LDB, X, LDX, &
-                        & SGN, SCAL, INFO1)
-                    IF ( INFO1 .NE. 0 ) THEN
-                        !$omp atomic
-                        INFO = INFO + 1
-                    END IF
-                    IF ( SCAL .NE. ONE ) THEN
-                        !$omp atomic
-                        SCALE = SCALE * SCAL
-                    END IF
-
-                    !$omp end task
-
+                !$omp  task depend(inout:X(K,L)) &
+                !$omp& firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1) default(shared)
+                CALL ISLA_TRSYLV_SOLVE_BLOCK(TRANSA, TRANSB, M,N,K,KH,KB,L,LH,LB, &
+                    & A, LDA, B, LDB, X, LDX, &
+                    & SGN, SCAL, INFO1)
+                IF ( INFO1 .NE. 0 ) THEN
+                    !$omp atomic
+                    INFO = INFO + 1
                 END IF
+                IF ( SCAL .NE. ONE ) THEN
+                    !$omp atomic
+                    SCALE = SCALE * SCAL
+                END IF
+                !$omp end task
 
                 !
                 ! Update January 2021
@@ -451,7 +396,7 @@ SUBROUTINE SLA_TRSYLV_DAG ( TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, X, LDX, S
                         ! DO J = 1, K-1, MB
                         !     JH = MIN(K-1, J + MB  - 1)
                         !     JB = JH - J + 1
-                        !$omp  task depend(in:X(K:KH,L:LH)) depend(out:X(J:JH,L:LH)) &
+                        !$omp  task depend(in:X(K,L)) depend(inout:X(J,L)) &
                         !$omp& firstprivate(JB, LB, KB, K, L, J,LH,KH,JH) default(shared)
                         CALL SGEMM('N', 'N', JB, LB, KB, -ONE, A(J,K), LDA, X(K,L), LDX, ONE, X(J,L), LDX)
                         !$omp end task
@@ -476,7 +421,7 @@ SUBROUTINE SLA_TRSYLV_DAG ( TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, X, LDX, S
                         ! DO J = LH+1, N, NB
                         !     JH = MIN(N, J + NB  - 1)
                         !     JB = JH - J + 1
-                        !$omp  task depend(in:X(K:KH,L:LH)) depend(out:X(K:KH,J:JH)) &
+                        !$omp  task depend(in:X(K,L)) depend(inout:X(K,J)) &
                         !$omp& firstprivate(JB, LB, KB, K, L, J) default(shared)
                         CALL SGEMM("N", "N", KB, JB, LB, -SGN*ONE, X(K,L), LDX, B(L,J), LDB, ONE, X(K,J), LDX)
                         !$omp end task
@@ -557,73 +502,21 @@ SUBROUTINE SLA_TRSYLV_DAG ( TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, X, LDX, S
 
                 END IF
 
-                IF ( KH .EQ. M .AND. LH .EQ. N) THEN
-                    !$omp task depend(out: X(K,L)) firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1)&
-                    !$omp& mergeable default(shared)
-                    CALL ISLA_TRSYLV_SOLVE_BLOCK(TRANSA, TRANSB, M,N,K,KH,KB,L,LH,LB, &
-                        & A, LDA, B, LDB, X, LDX, SGN, SCAL, &
-                        & INFO1)
-                    IF ( INFO1 .NE. 0 ) THEN
-                        !$omp atomic
-                        INFO = INFO + 1
-                    END IF
-                    IF ( SCAL .NE. ONE ) THEN
-                        !$omp atomic
-                        SCALE = SCALE * SCAL
-                    END IF
-
-                    !$omp end task
-                ELSE IF ( KH .EQ. M .AND. LH .LT. N) THEN
-                    !$omp task depend(in:X(K, LOLD)) depend(out: X(K,L)) firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1)&
-                    !$omp& mergeable default(shared)
-
-                    CALL ISLA_TRSYLV_SOLVE_BLOCK(TRANSA, TRANSB, M,N,K,KH,KB,L,LH,LB, &
-                        & A, LDA, B, LDB, X, LDX, SGN, SCAL, &
-                        & INFO1)
-                    IF ( INFO1 .NE. 0 ) THEN
-                        !$omp atomic
-                        INFO = INFO + 1
-                    END IF
-                    IF ( SCAL .NE. ONE ) THEN
-                        !$omp atomic
-                        SCALE = SCALE * SCAL
-                    END IF
-
-                    !$omp end task
-                ELSE IF ( KH .LT. M .AND. LH .EQ. N) THEN
-                    !$omp task depend(in:X(KOLD,L)) depend(out: X(K,L)) firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1)&
-                    !$omp& mergeable default(shared)
-
-                    CALL ISLA_TRSYLV_SOLVE_BLOCK(TRANSA, TRANSB, M,N,K,KH,KB,L,LH,LB, &
-                        & A, LDA, B, LDB, X, LDX, SGN, SCAL, &
-                        & INFO1)
-                    IF ( INFO1 .NE. 0 ) THEN
-                        !$omp atomic
-                        INFO = INFO + 1
-                    END IF
-                    IF ( SCAL .NE. ONE ) THEN
-                        !$omp atomic
-                        SCALE = SCALE * SCAL
-                    END IF
-
-                    !$omp end task
-                ELSE
-                    !$omp task depend(in:X(K, LOLD),X(KOLD,L)) depend(out: X(K,L)) firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1)&
-                    !$omp& mergeable default(shared)
-                    CALL ISLA_TRSYLV_SOLVE_BLOCK(TRANSA, TRANSB, M,N,K,KH,KB,L,LH,LB, &
-                        & A, LDA, B, LDB, X, LDX, SGN, SCAL, &
-                        & INFO1)
-                    IF ( INFO1 .NE. 0 ) THEN
-                        !$omp atomic
-                        INFO = INFO + 1
-                    END IF
-                    IF ( SCAL .NE. ONE ) THEN
-                        !$omp atomic
-                        SCALE = SCALE * SCAL
-                    END IF
-
-                    !$omp end task
+                !$omp task depend(inout: X(K,L)) firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1)&
+                !$omp& default(shared)
+                CALL ISLA_TRSYLV_SOLVE_BLOCK(TRANSA, TRANSB, M,N,K,KH,KB,L,LH,LB, &
+                    & A, LDA, B, LDB, X, LDX, SGN, SCAL, &
+                    & INFO1)
+                IF ( INFO1 .NE. 0 ) THEN
+                    !$omp atomic
+                    INFO = INFO + 1
                 END IF
+                IF ( SCAL .NE. ONE ) THEN
+                    !$omp atomic
+                    SCALE = SCALE * SCAL
+                END IF
+
+                !$omp end task
 
                 ! Update January 2021
                 IF ( K .GT. 1 ) THEN
@@ -639,10 +532,7 @@ SUBROUTINE SLA_TRSYLV_DAG ( TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, X, LDX, S
                             END IF
                         END IF
 
-                        ! DO J = 1, K-1, MB
-                        !     JH = MIN(K-1, J + MB  - 1)
-                        !     JB = JH - J + 1
-                        !$omp  task depend(in:X(K,L)) depend(out:X(J,L)) &
+                        !$omp  task depend(in:X(K,L)) depend(inout:X(J,L)) &
                         !$omp& firstprivate(JB, LB, KB, K, L, J,LH,KH,JH) default(shared)
                         CALL SGEMM('N', 'N', JB, LB, KB, -ONE, A(J,K), LDA, X(K,L), LDX, ONE, X(J,L), LDX)
                         !$omp end task
@@ -664,11 +554,7 @@ SUBROUTINE SLA_TRSYLV_DAG ( TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, X, LDX, S
                             END IF
                         END IF
 
-                        ! DO J = 1, L-1, NB
-                        !     JH = MIN(L-1, J + NB  - 1)
-                        !     JB = JH - J + 1
-
-                        !$omp  task depend(in:X(K,L)) depend(out:X(K,J)) &
+                        !$omp  task depend(in:X(K,L)) depend(inout:X(K,J)) &
                         !$omp& firstprivate(JB, LB, KB, K, L, J,LH,KH,JH) default(shared)
                         CALL SGEMM('N', 'T', KB, JB, LB, -SGN*ONE, X(K,L), LDX, B(J,L), LDB, ONE, X(K,J), LDX)
                         !$omp end task
@@ -704,7 +590,6 @@ SUBROUTINE SLA_TRSYLV_DAG ( TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, X, LDX, S
         LH = 1
 
         !$omp parallel default(shared)
-        !$omp taskgroup
         !$omp master
         DO WHILE ( LH .LE. N )
             L = LH
@@ -730,74 +615,21 @@ SUBROUTINE SLA_TRSYLV_DAG ( TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, X, LDX, S
                     END IF
                 END IF
 
-                IF ( K .EQ. IONE .AND. L .EQ. IONE) THEN
-                    !$omp task depend(out: X(K,L)) firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1)&
-                    !$omp& mergeable default(shared)
-                    CALL ISLA_TRSYLV_SOLVE_BLOCK(TRANSA, TRANSB, M,N,K,KH,KB,L,LH,LB, &
-                        & A, LDA, B, LDB, X, LDX, SGN, SCAL, &
-                        & INFO1 )
-                    IF ( INFO1 .NE. 0 ) THEN
-                        !$omp atomic
-                        INFO = INFO + 1
-                    END IF
-                    IF ( SCAL .NE. ONE ) THEN
-                        !$omp atomic
-                        SCALE = SCALE * SCAL
-                    END IF
-
-                    !$omp end task
-                ELSE IF ( K .EQ. IONE .AND. L .GT. IONE) THEN
-                    !$omp task depend(in:X(K, LOLD)) depend(out: X(K,L)) firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1)&
-                    !$omp& mergeable default(shared)
-
-                    CALL ISLA_TRSYLV_SOLVE_BLOCK(TRANSA, TRANSB, M,N,K,KH,KB,L,LH,LB, &
-                        & A, LDA, B, LDB, X, LDX, SGN, SCAL, &
-                        & INFO1)
-                    IF ( INFO1 .NE. 0 ) THEN
-                        !$omp atomic
-                        INFO = INFO + 1
-                    END IF
-                    IF ( SCAL .NE. ONE ) THEN
-                        !$omp atomic
-                        SCALE = SCALE * SCAL
-                    END IF
-
-                    !$omp end task
-                ELSE IF ( K  .GT. IONE .AND. L .EQ. IONE) THEN
-                    !$omp task depend(in:X(KOLD,L)) depend(out: X(K,L)) firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1)&
-                    !$omp& mergeable default(shared)
-
-                    CALL ISLA_TRSYLV_SOLVE_BLOCK(TRANSA, TRANSB, M,N,K,KH,KB,L,LH,LB, &
-                        & A, LDA, B, LDB, X, LDX, SGN, SCAL, &
-                        & INFO1)
-                    IF ( INFO1 .NE. 0 ) THEN
-                        !$omp atomic
-                        INFO = INFO + 1
-                    END IF
-                    IF ( SCAL .NE. ONE ) THEN
-                        !$omp atomic
-                        SCALE = SCALE * SCAL
-                    END IF
-
-                    !$omp end task
-                ELSE
-                    !$omp task depend(in:X(K, LOLD),X(KOLD,L)) depend(out: X(K,L)) firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1)&
-                    !$omp& mergeable default(shared)
-                    CALL ISLA_TRSYLV_SOLVE_BLOCK(TRANSA, TRANSB, M,N,K,KH,KB,L,LH,LB, &
-                        & A, LDA, B, LDB, X, LDX, SGN, SCAL, &
-                        & INFO1)
-                    IF ( INFO1 .NE. 0 ) THEN
-                        !$omp atomic
-                        INFO = INFO + 1
-                    END IF
-                    IF ( SCAL .NE. ONE ) THEN
-                        !$omp atomic
-                        SCALE = SCALE * SCAL
-                    END IF
-
-                    !$omp end task
+                !$omp task depend(inout: X(K,L)) firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1)&
+                !$omp& default(shared)
+                CALL ISLA_TRSYLV_SOLVE_BLOCK(TRANSA, TRANSB, M,N,K,KH,KB,L,LH,LB, &
+                    & A, LDA, B, LDB, X, LDX, SGN, SCAL, &
+                    & INFO1 )
+                IF ( INFO1 .NE. 0 ) THEN
+                    !$omp atomic
+                    INFO = INFO + 1
+                END IF
+                IF ( SCAL .NE. ONE ) THEN
+                    !$omp atomic
+                    SCALE = SCALE * SCAL
                 END IF
 
+                !$omp end task
                 IF ( KH  .LT. M ) THEN
                     J =  KH+1
                     JH = KH+1
@@ -811,7 +643,7 @@ SUBROUTINE SLA_TRSYLV_DAG ( TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, X, LDX, S
                                 JH = JH - 1
                             END IF
                         END IF
-                        !$omp  task depend(in:X(K,L)) depend(out:X(J,L)) &
+                        !$omp  task depend(in:X(K,L)) depend(inout:X(J,L)) &
                         !$omp& firstprivate(JB, LB, KB, K, L, J,LH,KH,JH) default(shared)
                         CALL SGEMM("T", "N", JB, LB, KB, -ONE, A(K,J), LDA, X(K,L), LDX, ONE, X(J, L), LDX)
                         !$omp end task
@@ -833,7 +665,7 @@ SUBROUTINE SLA_TRSYLV_DAG ( TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, X, LDX, S
                             END IF
                         END IF
 
-                        !$omp  task depend(in:X(K,L)) depend(out:X(K,J)) &
+                        !$omp  task depend(in:X(K,L)) depend(inout:X(K,J)) &
                         !$omp& firstprivate(JB, LB, KB, K, L, J,LH,KH,JH) default(shared)
                         CALL SGEMM("N", "N", KB, JB, LB, -SGN*ONE, X(K,L), LDX, B(L,J), LDB, ONE, X(K,J), LDX)
                         !$omp end task
@@ -853,7 +685,6 @@ SUBROUTINE SLA_TRSYLV_DAG ( TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, X, LDX, S
             LH = LH + 1
         END DO
         !$omp end master
-        !$omp end taskgroup
         !$omp taskwait
         !$omp end parallel
 
@@ -904,73 +735,21 @@ SUBROUTINE SLA_TRSYLV_DAG ( TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, X, LDX, S
                         KH = KH - 1
                     END IF
                 END IF
-                IF ( K .EQ. IONE .AND. LH .EQ. N ) THEN
-                    !$omp task depend(out: X(K,L)) firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1)&
-                    !$omp& mergeable default(shared)
-                    CALL ISLA_TRSYLV_SOLVE_BLOCK(TRANSA, TRANSB, M,N,K,KH,KB,L,LH,LB, &
-                        & A, LDA, B, LDB, X, LDX, SGN, SCAL, &
-                        & INFO1)
-                    IF ( INFO1 .NE. 0 ) THEN
-                        !$omp atomic
-                        INFO = INFO + 1
-                    END IF
-                    IF ( SCAL .NE. ONE ) THEN
-                        !$omp atomic
-                        SCALE = SCALE * SCAL
-                    END IF
-
-                    !$omp end task
-                ELSE IF ( K .EQ. IONE .AND. LH .LT. N) THEN
-                    !$omp task depend(in:X(K, LOLD)) depend(out: X(K,L)) firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1)&
-                    !$omp& mergeable default(shared)
-
-                    CALL ISLA_TRSYLV_SOLVE_BLOCK(TRANSA, TRANSB, M,N,K,KH,KB,L,LH,LB, &
-                        & A, LDA, B, LDB, X, LDX, SGN, SCAL, &
-                        & INFO1)
-                    IF ( INFO1 .NE. 0 ) THEN
-                        !$omp atomic
-                        INFO = INFO + 1
-                    END IF
-                    IF ( SCAL .NE. ONE ) THEN
-                        !$omp atomic
-                        SCALE = SCALE * SCAL
-                    END IF
-
-                    !$omp end task
-                ELSE IF ( K  .GT. IONE .AND. LH .EQ. N) THEN
-                    !$omp task depend(in:X(KOLD,L)) depend(out: X(K,L)) firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1)&
-                    !$omp& mergeable default(shared)
-
-                    CALL ISLA_TRSYLV_SOLVE_BLOCK(TRANSA, TRANSB, M,N,K,KH,KB,L,LH,LB, &
-                        & A, LDA, B, LDB, X, LDX, SGN, SCAL, &
-                        & INFO1)
-                    IF ( INFO1 .NE. 0 ) THEN
-                        !$omp atomic
-                        INFO = INFO + 1
-                    END IF
-                    IF ( SCAL .NE. ONE ) THEN
-                        !$omp atomic
-                        SCALE = SCALE * SCAL
-                    END IF
-
-                    !$omp end task
-                ELSE
-                    !$omp task depend(in:X(K, LOLD),X(KOLD,L)) depend(out: X(K,L)) firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1)&
-                    !$omp& mergeable default(shared)
-                    CALL ISLA_TRSYLV_SOLVE_BLOCK(TRANSA, TRANSB, M,N,K,KH,KB,L,LH,LB, &
-                        & A, LDA, B, LDB, X, LDX, SGN, SCAL, &
-                        & INFO1)
-                    IF ( INFO1 .NE. 0 ) THEN
-                        !$omp atomic
-                        INFO = INFO + 1
-                    END IF
-                    IF ( SCAL .NE. ONE ) THEN
-                        !$omp atomic
-                        SCALE = SCALE * SCAL
-                    END IF
-
-                    !$omp end task
+                !$omp task depend(inout: X(K,L)) firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1)&
+                !$omp& default(shared)
+                CALL ISLA_TRSYLV_SOLVE_BLOCK(TRANSA, TRANSB, M,N,K,KH,KB,L,LH,LB, &
+                    & A, LDA, B, LDB, X, LDX, SGN, SCAL, &
+                    & INFO1)
+                IF ( INFO1 .NE. 0 ) THEN
+                    !$omp atomic
+                    INFO = INFO + 1
                 END IF
+                IF ( SCAL .NE. ONE ) THEN
+                    !$omp atomic
+                    SCALE = SCALE * SCAL
+                END IF
+
+                !$omp end task
 
 
                 IF ( KH .LT. M  ) THEN
@@ -987,7 +766,7 @@ SUBROUTINE SLA_TRSYLV_DAG ( TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, X, LDX, S
                             END IF
                         END IF
 
-                        !$omp  task depend(in:X(K,L)) depend(out:X(J,L)) &
+                        !$omp  task depend(in:X(K,L)) depend(inout:X(J,L)) &
                         !$omp& firstprivate(JB, LB, KB, K, L, J,LH,KH,JH) default(shared)
                         CALL SGEMM("T", "N", JB, LB, KB, -ONE, A(K,J), LDA, X(K,L), LDX, ONE, X(J, L), LDX)
                         !$omp end task
@@ -1010,7 +789,7 @@ SUBROUTINE SLA_TRSYLV_DAG ( TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, X, LDX, S
                         END IF
 
 
-                        !$omp  task depend(in:X(K,L)) depend(out:X(K,J)) &
+                        !$omp  task depend(in:X(K,L)) depend(inout:X(K,J)) &
                         !$omp& firstprivate(JB, LB, KB, K, L, J,LH,KH,JH) default(shared)
                         CALL SGEMM('N', 'T', KB, JB, LB, -SGN*ONE, X(K,L), LDX, B(J,L), LDB, ONE, X(K,J), LDX)
                         !$omp end task

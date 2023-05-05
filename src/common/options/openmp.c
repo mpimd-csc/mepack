@@ -33,7 +33,7 @@
  * OpenMP accelerated subroutines are used.
  * This is beneficial in MATLAB if the OpenMP accelerated solvers cause MATLAB to crash.
  */
-int mepack_openmp_enabled()
+int mepack_openmp_enabled(void)
 {
     int ret;
     ret = (int)  FC_MODULE_(mepack_options_openmp,openmp_enabled,MEPACK_OPTIONS_OPENMP,OPENMP_ENABLED)();

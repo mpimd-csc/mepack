@@ -8,7 +8,8 @@ The *following* tools and libraries are required for installing MEPACK:
    IBM XLF, ...
  - A C99 compiler, e.g. GNU GCC, Intel icc, IBM XLC, ...
  - (*optional*) A C++14 compiler for MATLAB/GNU Octave interfaces
- - CMake 3.15 or newer
+ - CMake 3.15 or newer. If Intel's oneAPI icx and ifx are used, CMake >=3.20 is
+   required.
  - BLAS and LAPACK, at least version 3.4.2
  - (*optional*) HDF5, at least version 1.8.5 (only for tests and examples)
  - (*optional*) doxygen, at least version 1.8.16 with dot, if the HTML

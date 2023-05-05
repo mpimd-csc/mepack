@@ -184,10 +184,10 @@ int main(int argc, char **argv)
 
     float scale = 1.0;
     int info, run;
-    float te, ts;
+    double te, ts = 0;
     int reuse = 0 ;
 
-    double times,ts2, te2;
+    double times,ts2 = 0, te2;
     double ctimes;
     float ress = 1.0;
     size_t mem = 0;

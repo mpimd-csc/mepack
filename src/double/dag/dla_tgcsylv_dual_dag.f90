@@ -443,36 +443,12 @@ SUBROUTINE DLA_TGCSYLV_DUAL_DAG ( TRANSA, TRANSB, SGN1, SGN2,  M, N, A, LDA, B, 
                     END IF
                 END IF
 
-                IF ( K .EQ. IONE .AND. LH .EQ. N ) THEN
-                    !$omp task firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1) &
-                    !$omp& depend(out: F(K,L),E(K,L)) default(shared)
-                    CALL IDLA_TGCSYLV_DUAL_BLOCK(TRANSA, TRANSB, SGN1, SGN2, M, N, K, L, KB, LB, A, LDA, B, LDB, C, LDC, D, LDD, &
-                        & E, LDE, F, LDF, SCAL,  INFO1)
+                !$omp task firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1) &
+                !$omp& depend(inout: F(K,L),E(K,L)) default(shared)
+                CALL IDLA_TGCSYLV_DUAL_BLOCK(TRANSA, TRANSB, SGN1, SGN2, M, N, K, L, KB, LB, A, LDA, B, LDB, C, LDC, D, LDD, &
+                    & E, LDE, F, LDF, SCAL,  INFO1)
 
-                    !$omp end task
-                ELSE IF (K .EQ. IONE .AND. LH .LT. N ) THEN
-                    !$omp task firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1) &
-                    !$omp& depend(out: F(K,L),E(K,L)) depend(in: F(K,LOLD),E(K,LOLD)) default(shared)
-                    CALL IDLA_TGCSYLV_DUAL_BLOCK(TRANSA, TRANSB, SGN1, SGN2, M, N, K, L, KB, LB, A, LDA, B, LDB, C, LDC, D, LDD, &
-                        & E, LDE, F, LDF, SCAL,  INFO1)
-                    !$omp end task
-
-                ELSE IF (K .GT. IONE .AND. LH .EQ. N ) THEN
-                    !$omp task firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1) &
-                    !$omp& depend(out: E(K,L),F(K,L)) depend(in: E(KOLD,L),F(KOLD,L))  default(shared)
-                    CALL IDLA_TGCSYLV_DUAL_BLOCK(TRANSA, TRANSB, SGN1, SGN2, M, N, K, L, KB, LB, A, LDA, B, LDB, C, LDC, D, LDD, &
-                        & E, LDE, F, LDF, SCAL,  INFO1)
-                    !$omp end task
-
-                ELSE
-                    !$omp task firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1) &
-                    !$omp& depend(in: E(KOLD,L), E(K,LOLD),F(KOLD,L),F(K,LOLD)) depend(out: E(K,L),F(K,L))  default(shared)
-                    CALL IDLA_TGCSYLV_DUAL_BLOCK(TRANSA, TRANSB, SGN1, SGN2, M, N, K, L, KB, LB, A, LDA, B, LDB, C, LDC, D, LDD, &
-                        & E, LDE, F, LDF, SCAL,  INFO1)
-
-                    !$omp end task
-
-                END IF
+                !$omp end task
 
 
 
@@ -576,39 +552,13 @@ SUBROUTINE DLA_TGCSYLV_DUAL_DAG ( TRANSA, TRANSB, SGN1, SGN2,  M, N, A, LDA, B, 
                     END IF
                 END IF
 
-                IF ( K.EQ.IONE .AND. L.EQ.IONE) THEN
-                    !$omp task firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1) &
-                    !$omp& depend(out: F(K,L),E(K,L)) default(shared)
-                    CALL IDLA_TGCSYLV_DUAL_BLOCK(TRANSA, TRANSB, SGN1, SGN2, M, N, K, L, KB, LB, A, LDA, B, LDB, C, LDC, D, LDD, &
-                        & E, LDE, F, LDF, SCAL,  INFO1)
+                !$omp task firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1) &
+                !$omp& depend(inout: F(K,L),E(K,L)) default(shared)
+                CALL IDLA_TGCSYLV_DUAL_BLOCK(TRANSA, TRANSB, SGN1, SGN2, M, N, K, L, KB, LB, A, LDA, B, LDB, C, LDC, D, LDD, &
+                    & E, LDE, F, LDF, SCAL,  INFO1)
 
 
-                    !$omp end task
-                ELSE IF ( K.EQ.IONE .AND. L.GT.IONE) THEN
-                    !$omp task firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1) &
-                    !$omp& depend(out: F(K,L),E(K,L)) depend(in: F(K,LOLD),E(K,LOLD)) default(shared)
-                    CALL IDLA_TGCSYLV_DUAL_BLOCK(TRANSA, TRANSB, SGN1, SGN2, M, N, K, L, KB, LB, A, LDA, B, LDB, C, LDC, D, LDD, &
-                        & E, LDE, F, LDF, SCAL,  INFO1)
-
-
-                    !$omp end task
-
-                ELSE IF ( K.GT. IONE .AND. L.EQ.IONE) THEN
-                    !$omp task firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1) &
-                    !$omp& depend(out: E(K,L),F(K,L)) depend(in: E(KOLD,L),F(KOLD,L))  default(shared)
-                    CALL IDLA_TGCSYLV_DUAL_BLOCK(TRANSA, TRANSB, SGN1, SGN2, M, N, K, L, KB, LB, A, LDA, B, LDB, C, LDC, D, LDD, &
-                        & E, LDE, F, LDF, SCAL,  INFO1)
-
-                    !$omp end task
-
-                ELSE
-                    !$omp task firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1) &
-                    !$omp& depend(in: E(KOLD,L), E(K,LOLD),F(KOLD,L),F(K,LOLD)) depend(out: E(K,L),F(K,L))  default(shared)
-                    CALL IDLA_TGCSYLV_DUAL_BLOCK(TRANSA, TRANSB, SGN1, SGN2, M, N, K, L, KB, LB, A, LDA, B, LDB, C, LDC, D, LDD, &
-                        & E, LDE, F, LDF, SCAL,  INFO1)
-
-                    !$omp end task
-                END IF
+                !$omp end task
 
                 ! in current row
                 IF ( KH  .LT. M ) THEN
@@ -730,39 +680,12 @@ SUBROUTINE DLA_TGCSYLV_DUAL_DAG ( TRANSA, TRANSB, SGN1, SGN2,  M, N, A, LDA, B, 
                 END IF
 
 
-                IF ( KH.EQ.M .AND. LH.EQ.N) THEN
-                    !$omp task firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1) &
-                    !$omp& depend(out: F(K,L),E(K,L)) default(shared)
-                    CALL IDLA_TGCSYLV_DUAL_BLOCK(TRANSA, TRANSB, SGN1, SGN2, M, N, K, L, KB, LB, A, LDA, B, LDB, C, LDC, D, LDD, &
-                        & E, LDE, F, LDF, SCAL,  INFO1)
+                !$omp task firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1) &
+                !$omp& depend(inout: F(K,L),E(K,L)) default(shared)
+                CALL IDLA_TGCSYLV_DUAL_BLOCK(TRANSA, TRANSB, SGN1, SGN2, M, N, K, L, KB, LB, A, LDA, B, LDB, C, LDC, D, LDD, &
+                    & E, LDE, F, LDF, SCAL,  INFO1)
 
-                    !$omp end task
-                ELSE IF ( KH.EQ.M .AND. LH .LT. N) THEN
-                    !$omp task firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1) &
-                    !$omp& depend(out: F(K,L),E(K,L)) depend(in: F(K,LOLD),E(K,LOLD)) default(shared)
-                    CALL IDLA_TGCSYLV_DUAL_BLOCK(TRANSA, TRANSB, SGN1, SGN2, M, N, K, L, KB, LB, A, LDA, B, LDB, C, LDC, D, LDD, &
-                        & E, LDE, F, LDF, SCAL,  INFO1)
-
-                    !$omp end task
-
-                ELSE IF ( KH.LT.M .AND. LH .EQ. N) THEN
-                    !$omp task firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1) &
-                    !$omp& depend(out: E(K,L),F(K,L)) depend(in: E(KOLD,L),F(KOLD,L))  default(shared)
-                    CALL IDLA_TGCSYLV_DUAL_BLOCK(TRANSA, TRANSB, SGN1, SGN2, M, N, K, L, KB, LB, A, LDA, B, LDB, C, LDC, D, LDD, &
-                        & E, LDE, F, LDF, SCAL,  INFO1)
-
-                    !$omp end task
-
-                ELSE
-                    !$omp task firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1) &
-                    !$omp& depend(in: E(KOLD,L), E(K,LOLD),F(KOLD,L),F(K,LOLD)) depend(out: E(K,L),F(K,L))  default(shared)
-                    CALL IDLA_TGCSYLV_DUAL_BLOCK(TRANSA, TRANSB, SGN1, SGN2, M, N, K, L, KB, LB, A, LDA, B, LDB, C, LDC, D, LDD, &
-                        & E, LDE, F, LDF, SCAL,  INFO1)
-
-                    !$omp end task
-                END IF
-
-
+                !$omp end task
 
 
                 ! Update January 2021
@@ -876,35 +799,12 @@ SUBROUTINE DLA_TGCSYLV_DUAL_DAG ( TRANSA, TRANSB, SGN1, SGN2,  M, N, A, LDA, B, 
                     END IF
                 END IF
 
-                IF ( KH .EQ. M .AND. L .EQ. IONE ) THEN
-                    !$omp task firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1) &
-                    !$omp& depend(out: F(K,L),E(K,L)) default(shared)
-                    CALL IDLA_TGCSYLV_DUAL_BLOCK(TRANSA, TRANSB, SGN1, SGN2, M, N, K, L, KB, LB, A, LDA, B, LDB, C, LDC, D, LDD, &
-                        & E, LDE, F, LDF, SCAL,  INFO1 )
+                !$omp task firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1) &
+                !$omp& depend(inout: F(K,L),E(K,L)) default(shared)
+                CALL IDLA_TGCSYLV_DUAL_BLOCK(TRANSA, TRANSB, SGN1, SGN2, M, N, K, L, KB, LB, A, LDA, B, LDB, C, LDC, D, LDD, &
+                    & E, LDE, F, LDF, SCAL,  INFO1 )
 
-                    !$omp end task
-                ELSE IF ( KH .EQ. M .AND. L .GT. IONE) THEN
-                    !$omp task firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1) &
-                    !$omp& depend(out: F(K,L),E(K,L)) depend(in: F(K,LOLD),E(K,LOLD)) default(shared)
-                    CALL IDLA_TGCSYLV_DUAL_BLOCK(TRANSA, TRANSB, SGN1, SGN2, M, N, K, L, KB, LB, A, LDA, B, LDB, C, LDC, D, LDD, &
-                        & E, LDE, F, LDF, SCAL,  INFO1)
-
-                    !$omp end task
-                ELSE IF ( KH .LT. M .AND. L .EQ. IONE) THEN
-                    !$omp task firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1) &
-                    !$omp& depend(out: E(K,L),F(K,L)) depend(in: E(KOLD,L),F(KOLD,L))  default(shared)
-                    CALL IDLA_TGCSYLV_DUAL_BLOCK(TRANSA, TRANSB, SGN1, SGN2, M, N, K, L, KB, LB, A, LDA, B, LDB, C, LDC, D, LDD, &
-                        & E, LDE, F, LDF, SCAL,  INFO1)
-
-                    !$omp end task
-                ELSE
-                    !$omp task firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1) &
-                    !$omp& depend(in: E(KOLD,L), E(K,LOLD),F(KOLD,L),F(K,LOLD)) depend(out: E(K,L),F(K,L))  default(shared)
-                    CALL IDLA_TGCSYLV_DUAL_BLOCK(TRANSA, TRANSB, SGN1, SGN2, M, N, K, L, KB, LB, A, LDA, B, LDB, C, LDC, D, LDD, &
-                        & E, LDE, F, LDF, SCAL,  INFO1)
-
-                    !$omp end task
-                END IF
+                !$omp end task
 
                 ! Update January 2021
                 ! in current row

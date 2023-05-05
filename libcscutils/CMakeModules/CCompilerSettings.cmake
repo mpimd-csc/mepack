@@ -33,8 +33,13 @@ IF(CMAKE_C_COMPILER_ID STREQUAL "GNU")
         ADD_DEFINITIONS(-DINTEGER8)
     ENDIF()
 
+
     IF(HOSTOPT STREQUAL ON)
-        SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=native -mtune=native")
+        IF (CMAKE_SYSTEM_PROCESSOR STREQUAL "ppc64le")
+            SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mcpu=native -mtune=native")
+        ELSE ()
+            SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=native -mtune=native")
+        ENDIF()
     ENDIF()
 
 ELSEIF(CMAKE_C_COMPILER_ID STREQUAL "Clang")

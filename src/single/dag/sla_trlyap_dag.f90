@@ -307,65 +307,20 @@ SUBROUTINE SLA_TRLYAP_DAG ( TRANS, M, A, LDA, X, LDX, SCALE, WORK, INFO)
                     END IF
                 END IF
 
-                IF ( KH.EQ.M .AND. LH.EQ.M) THEN
-                    !$omp task firstprivate(TRANSA,TRANSB,M,K,KB,KH,L,LB,LH,INFO1,SCAL) depend(out:X(K,L)) default(shared)
-                    CALL ISLA_TRLYAP_SOLVE_BLOCK_N(TRANSA, TRANSB, M, K, KB, KH, L, LB, LH, A, LDA, X, LDX, SCAL, INFO1)
-                    IF ( INFO1 .NE. 0 ) THEN
-                        !$omp atomic
-                        INFO = INFO + 1
-                    END IF
-                    IF ( SCAL .NE. ONE ) THEN
-                        !$omp atomic
-                        SCALE = SCALE * SCAL
-                    END IF
-
-                    !$omp end task
-                ELSE IF ( KH.NE.M .AND. LH.EQ.M ) THEN
-                    !$omp task firstprivate(TRANSA,TRANSB,M,K,KB,KH,L,LB,LH) default(shared) &
-                    !$omp& depend(in:X(KOLD,L)) depend(out:X(K,L))
-                    CALL ISLA_TRLYAP_SOLVE_BLOCK_N(TRANSA, TRANSB, M, K, KB, KH, L, LB, LH, A, LDA, X, LDX, SCAL, INFO1)
-                    IF ( INFO1 .NE. 0 ) THEN
-                        !$omp atomic
-                        INFO = INFO + 1
-                    END IF
-                    IF ( SCAL .NE. ONE ) THEN
-                        !$omp atomic
-                        SCALE = SCALE * SCAL
-                    END IF
-
-                    !$omp end task
-                ELSE IF ( KH.EQ.LH ) THEN
-                    !$omp task firstprivate(TRANSA,TRANSB,M,K,KB,KH,L,LB,LH) default(shared) &
-                    !$omp& depend(in:X(K,LOLD)) depend(out:X(K,L))
-                    CALL ISLA_TRLYAP_SOLVE_BLOCK_N(TRANSA, TRANSB, M, K, KB, KH, L, LB, LH, A, LDA, X, LDX, SCAL, INFO1)
-                    IF ( INFO1 .NE. 0 ) THEN
-                        !$omp atomic
-                        INFO = INFO + 1
-                    END IF
-                    IF ( SCAL .NE. ONE ) THEN
-                        !$omp atomic
-                        SCALE = SCALE * SCAL
-                    END IF
-
-                    !$omp end task
-                ELSE
-                    !$omp task firstprivate(TRANSA,TRANSB,M,K,KB,KH,L,LB,LH) default(shared) &
-                    !$omp& depend(in:X(K,LOLD),X(KOLD,L)) depend(out:X(K,L))
-                    CALL ISLA_TRLYAP_SOLVE_BLOCK_N(TRANSA, TRANSB, M, K, KB, KH, L, LB, LH, A, LDA, X, LDX, SCAL, INFO1)
-                    IF ( INFO1 .NE. 0 ) THEN
-                        !$omp atomic
-                        INFO = INFO + 1
-                    END IF
-                    IF ( SCAL .NE. ONE ) THEN
-                        !$omp atomic
-                        SCALE = SCALE * SCAL
-                    END IF
-
-                    !$omp end task
+                !$omp task firstprivate(TRANSA,TRANSB,M,K,KB,KH,L,LB,LH,INFO1,SCAL) depend(inout:X(K,L)) default(shared)
+                CALL ISLA_TRLYAP_SOLVE_BLOCK_N(TRANSA, TRANSB, M, K, KB, KH, L, LB, LH, A, LDA, X, LDX, SCAL, INFO1)
+                IF ( INFO1 .NE. 0 ) THEN
+                    !$omp atomic
+                    INFO = INFO + 1
+                END IF
+                IF ( SCAL .NE. ONE ) THEN
+                    !$omp atomic
+                    SCALE = SCALE * SCAL
                 END IF
 
+                !$omp end task
 
-                ! Update January 2021
+                    ! Update January 2021
                 IF ( K .GT. 1 ) THEN
                     J = K-1
                     DO WHILE (J .GT. 0)
@@ -470,63 +425,18 @@ SUBROUTINE SLA_TRLYAP_DAG ( TRANS, M, A, LDA, X, LDX, SCALE, WORK, INFO)
                     END IF
                 END IF
 
-                IF ( K.EQ.1 .AND. L.EQ. 1 ) THEN
-                    !$omp task firstprivate(TRANSA,TRANSB,M,K,KB,KH,L,LB,LH,INFO1,SCAL) depend(out:X(K,L)) default(shared)
-                    CALL ISLA_TRLYAP_SOLVE_BLOCK_T(TRANSA,TRANSB,M,K,KH,KB,L,LH,LB,A,LDA,X,LDX,SCAL,INFO1)
-                    IF ( INFO1 .NE. 0 ) THEN
-                        !$omp atomic
-                        INFO = INFO + 1
-                    END IF
-                    IF ( SCAL .NE. ONE ) THEN
-                        !$omp atomic
-                        SCALE = SCALE * SCAL
-                    END IF
-
-                    !$omp end task
-                ELSE IF (K.EQ.1 .AND. L.GT.1 ) THEN
-                    !$omp task firstprivate(TRANSA,TRANSB,M,K,KB,KH,L,LB,LH) default(shared) &
-                    !$omp& depend(in:X(K,LOLD)) depend(out:X(K,L))
-                    CALL ISLA_TRLYAP_SOLVE_BLOCK_T(TRANSA,TRANSB,M,K,KH,KB,L,LH,LB,A,LDA,X,LDX,SCAL,INFO1)
-                    IF ( INFO1 .NE. 0 ) THEN
-                        !$omp atomic
-                        INFO = INFO + 1
-                    END IF
-                    IF ( SCAL .NE. ONE ) THEN
-                        !$omp atomic
-                        SCALE = SCALE * SCAL
-                    END IF
-
-                    !$omp end task
-                ELSE IF (K.EQ.L) THEN
-                    !$omp task firstprivate(TRANSA,TRANSB,M,K,KB,KH,L,LB,LH) default(shared) &
-                    !$omp& depend(in:X(KOLD,L)) depend(out:X(K,L))
-                    CALL ISLA_TRLYAP_SOLVE_BLOCK_T(TRANSA,TRANSB,M,K,KH,KB,L,LH,LB,A,LDA,X,LDX,SCAL,INFO1)
-                    IF ( INFO1 .NE. 0 ) THEN
-                        !$omp atomic
-                        INFO = INFO + 1
-                    END IF
-                    IF ( SCAL .NE. ONE ) THEN
-                        !$omp atomic
-                        SCALE = SCALE * SCAL
-                    END IF
-
-                    !$omp end task
-                ELSE
-                    !$omp task firstprivate(TRANSA,TRANSB,M,K,KB,KH,L,LB,LH) default(shared) &
-                    !$omp& depend(in:X(K,LOLD),X(KOLD,L)) depend(out:X(K,L))
-                    CALL ISLA_TRLYAP_SOLVE_BLOCK_T(TRANSA,TRANSB,M,K,KH,KB,L,LH,LB,A,LDA,X,LDX,SCAL,INFO1)
-                    IF ( INFO1 .NE. 0 ) THEN
-                        !$omp atomic
-                        INFO = INFO + 1
-                    END IF
-                    IF ( SCAL .NE. ONE ) THEN
-                        !$omp atomic
-                        SCALE = SCALE * SCAL
-                    END IF
-                    !$omp end task
+                !$omp task firstprivate(TRANSA,TRANSB,M,K,KB,KH,L,LB,LH,INFO1,SCAL) depend(inout:X(K,L)) default(shared)
+                CALL ISLA_TRLYAP_SOLVE_BLOCK_T(TRANSA,TRANSB,M,K,KH,KB,L,LH,LB,A,LDA,X,LDX,SCAL,INFO1)
+                IF ( INFO1 .NE. 0 ) THEN
+                    !$omp atomic
+                    INFO = INFO + 1
+                END IF
+                IF ( SCAL .NE. ONE ) THEN
+                    !$omp atomic
+                    SCALE = SCALE * SCAL
                 END IF
 
-
+                !$omp end task
 
                 ! in current row
                 IF ( LH .LT. M ) THEN

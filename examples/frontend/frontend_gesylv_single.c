@@ -121,7 +121,7 @@ void solver_name(int is) {
 
 void usage(char *prgmname) {
     int is;
-    printf("Solve a standard Lyapunov equation with different solvers in single precision.\n"); 
+    printf("Solve a standard Lyapunov equation with different solvers in single precision.\n");
     printf("\n");
     printf("Usage: %s <options>\n",prgmname);
     printf("\n");
@@ -184,12 +184,12 @@ int main(int argc, char **argv)
 
     float scale = 1.0;
     int info, run;
-    double te, ts;
+    double te, ts = 0;
     int reuse = 0 ;
 
-    double times,ts2, te2;
+    double times,ts2 = 0, te2;
     double ctimes;
-    float ress = 1.0;
+    float ress = 100;
     size_t mem = 0;
 
     int choice;

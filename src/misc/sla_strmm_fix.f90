@@ -51,8 +51,7 @@ SUBROUTINE SLA_STRMM_FIX(TRANS, M, N, ALPHA, A, LDA, B, LDB, BETA, C, LDC)
 
     IF ( OPENMP_ENABLED() .NE. 0 ) THEN
         IF ( LSAME(TRANS, "N") ) THEN
-            !$omp parallel
-            !$omp master
+            !$omp parallel do private(LH, LB, K, KB, KH)
             DO L=1, M, NB
                 LH = MIN(M, L + NB  - 1)
                 LB = LH - L + 1
@@ -60,37 +59,25 @@ SUBROUTINE SLA_STRMM_FIX(TRANS, M, N, ALPHA, A, LDA, B, LDB, BETA, C, LDC)
                 DO K = 1, N, NB
                     KB = MIN ( NB, N - K + 1)
                     KH = K + KB - 1
-                    !$omp task firstprivate(L, LH, K, KH) depend(inout:C(L,K))
                     IF ( BETA .EQ. ZERO ) THEN
                         C(L:LH, K:KH) = ZERO
                     ELSE
                         C(L:LH, K:KH) = BETA * C(L:LH, K:KH)
                     END IF
-                    !$omp end task
 
-
-                    DO J = L, M, NB
-                        JB = MIN(NB, M - J + 1)
-                        !$omp task firstprivate(LB, KB, L, K, KH, J, JB) depend(inout:C(L,K))
-                        CALL SGEMM("N", "N", LB, KB, JB, ALPHA, A(L,J), LDA, B(J,K), LDB, DONE, C(L,K), LDC)
-                        !$omp end task
-                    END DO
+                    CALL SGEMM("N", "N", LB, KB, M-L+1, ALPHA, A(L,L), LDA, B(L,K), LDB, DONE, C(L,K), LDC)
 
                     IF ( L.GT.1 ) THEN
                         IF (A(L,L-1) .NE. ZERO ) THEN
-                            !$omp task firstprivate(L,K,KH) depend(inout:C(L,K))
                             C(L,K:KH) = (ALPHA*A(L,L-1)) * B(L-1, K:KH) + C(L,K:KH)
-                            !$omp end task
                         END IF
                     END IF
                 END DO
             END DO
-            !$omp end master
-            !$omp taskwait
-            !$omp end parallel
+            !$omp end parallel do
+
         ELSE
-            !$omp parallel
-            !$omp master
+            !$omp parallel do private(LH,LB,K,KB,KH)
             DO L=1, M, NB
                 LH = MIN(M, L + NB  - 1)
                 LB = LH - L + 1
@@ -99,36 +86,104 @@ SUBROUTINE SLA_STRMM_FIX(TRANS, M, N, ALPHA, A, LDA, B, LDB, BETA, C, LDC)
                     KB = MIN ( NB, N - K + 1)
                     KH = K + KB - 1
 
-                    !$omp task firstprivate(L, LH, K, KH) depend(inout:C(L,K))
                     IF ( BETA .EQ. ZERO ) THEN
                         C(L:LH, K:KH) = ZERO
                     ELSE
                         C(L:LH, K:KH) = BETA * C(L:LH, K:KH)
                     END IF
 
-                    !$omp end task
-
-                    DO J = 1, LH, NB
-                        JB = MIN(NB, LH - J + 1)
-                        !$omp task firstprivate(LB, KB, L, K, KH, J, JB) depend(inout:C(L,K))
-                        CALL SGEMM("T", "N", LB, KB, JB, ALPHA, A(J,L), LDA, B(J,K), LDB, DONE, C(L,K), LDC)
-                        !$omp end task
-
-                    END DO
+                    CALL SGEMM("T", "N", LB, KB, LH, ALPHA, A(1,L), LDA, B(1,K), LDB, DONE, C(L,K), LDC)
 
                     IF ( LH.LT.M ) THEN
                         IF (A(LH+1,LH) .NE. ZERO ) THEN
-                            !$omp task firstprivate(L,LH,K,KH) depend(inout:C(L,K))
                             C(LH,K:KH) = (ALPHA*A(LH+1,LH)) * B(LH+1, K:KH) + C(LH,K:KH)
-                            !$omp end task
                         END IF
                     END IF
                 END DO
             END DO
-            !$omp end master
-            !$omp taskwait
-            !$omp end parallel
+            !$omp end parallel do
         END IF
+!   This code is faster but leads to random deadlocks using Intel's Compilers
+!
+!         IF ( LSAME(TRANS, "N") ) THEN
+!             !$omp parallel
+!             !$omp master
+!             DO L=1, M, NB
+!                 LH = MIN(M, L + NB  - 1)
+!                 LB = LH - L + 1
+!
+!                 DO K = 1, N, NB
+!                     KB = MIN ( NB, N - K + 1)
+!                     KH = K + KB - 1
+!                     !$omp task firstprivate(L, LH, K, KH) depend(inout:C(L,K))
+!                     IF ( BETA .EQ. ZERO ) THEN
+!                         C(L:LH, K:KH) = ZERO
+!                     ELSE
+!                         C(L:LH, K:KH) = BETA * C(L:LH, K:KH)
+!                     END IF
+!                     !$omp end task
+!
+!
+!                     DO J = L, M, NB
+!                         JB = MIN(NB, M - J + 1)
+!                         !$omp task firstprivate(LB, KB, L, K, KH, J, JB) depend(inout:C(L,K))
+!                         CALL SGEMM("N", "N", LB, KB, JB, ALPHA, A(L,J), LDA, B(J,K), LDB, DONE, C(L,K), LDC)
+!                         !$omp end task
+!                     END DO
+!
+!                     IF ( L.GT.1 ) THEN
+!                         IF (A(L,L-1) .NE. ZERO ) THEN
+!                             !$omp task firstprivate(L,K,KH) depend(inout:C(L,K))
+!                             C(L,K:KH) = (ALPHA*A(L,L-1)) * B(L-1, K:KH) + C(L,K:KH)
+!                             !$omp end task
+!                         END IF
+!                     END IF
+!                 END DO
+!             END DO
+!             !$omp end master
+!             !$omp taskwait
+!             !$omp end parallel
+!         ELSE
+!             !$omp parallel
+!             !$omp master
+!             DO L=1, M, NB
+!                 LH = MIN(M, L + NB  - 1)
+!                 LB = LH - L + 1
+!
+!                 DO K = 1, N, NB
+!                     KB = MIN ( NB, N - K + 1)
+!                     KH = K + KB - 1
+!
+!                     !$omp task firstprivate(L, LH, K, KH) depend(inout:C(L,K))
+!                     IF ( BETA .EQ. ZERO ) THEN
+!                         C(L:LH, K:KH) = ZERO
+!                     ELSE
+!                         C(L:LH, K:KH) = BETA * C(L:LH, K:KH)
+!                     END IF
+!
+!                     !$omp end task
+!
+!                     DO J = 1, LH, NB
+!                         JB = MIN(NB, LH - J + 1)
+!                         !$omp task firstprivate(LB, KB, L, K, KH, J, JB) depend(inout:C(L,K))
+!                         CALL SGEMM("T", "N", LB, KB, JB, ALPHA, A(J,L), LDA, B(J,K), LDB, DONE, C(L,K), LDC)
+!                         !$omp end task
+!
+!                     END DO
+!
+!                     IF ( LH.LT.M ) THEN
+!                         IF (A(LH+1,LH) .NE. ZERO ) THEN
+!                             !$omp task firstprivate(L,LH,K,KH) depend(inout:C(L,K))
+!                             C(LH,K:KH) = (ALPHA*A(LH+1,LH)) * B(LH+1, K:KH) + C(LH,K:KH)
+!                             !$omp end task
+!                         END IF
+!                     END IF
+!                 END DO
+!             END DO
+!             !$omp end master
+!             !$omp taskwait
+!             !$omp end parallel
+!         END IF
 
     ELSE
         IF ( LSAME(TRANS, "N") ) THEN

@@ -48,6 +48,17 @@
         paths:
             - build/mepack-*.tar.gz
 
+octave-8.2:
+    <<: *octave_job
+    variables:
+        OCTAVE_VERSION: "8.2"
+
+octave-8.1:
+    <<: *octave_job
+    variables:
+        OCTAVE_VERSION: "8.1"
+
+
 octave-7.3:
     <<: *octave_job
     variables:

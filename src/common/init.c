@@ -31,7 +31,7 @@
  *
  * @see mepack_initialize
  */
-void mepack_init()
+void mepack_init(void)
 {
 
     FC_GLOBAL_(mepack_initialize,MEPACK_INITIALIZE) ();

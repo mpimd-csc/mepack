@@ -190,9 +190,9 @@ int main(int argc, char **argv)
 #endif
     double scale = 1.0;
     int info, run;
-    double te, ts;
+    double te, ts = 0;
 
-    double times,ts2, te2;
+    double times,ts2 = 0, te2;
     double ctimes;
     double ress = 1.0;
     ssize_t mem = 0;

@@ -1,3 +1,11 @@
+Version 1.0.4 (May 5, 2023)
+===========================
+
+- Fix mepack.pc package config file
+- Fix OpenMP settings while configuring
+- Fix: Error in computing workspace for D/SLA_TRSYLV_LEVEL3_2S
+- Fix: Working with Intel ifx / OneAPI
+
 Version 1.0.3 (January 31, 2023)
 ================================
 

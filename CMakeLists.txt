@@ -10,7 +10,7 @@ CheckPolicy(CMP0075 NEW)
 CheckPolicy(CMP0115 NEW)
 
 # General Project Setup
-SET(VERSION 1.0.3)
+SET(VERSION 1.0.4)
 PROJECT(MEPACK
         VERSION ${VERSION}
 	    LANGUAGES C Fortran
@@ -86,6 +86,7 @@ INCLUDE(cmake/OpenMP.cmake)
 # Fortran Module Support
 SET(Fortran_MODULE_NAME ${MEPACK_NAME})
 INCLUDE(cmake/FortranModuleDir.cmake)
+INCLUDE(cmake/version-script.cmake)
 
 IF (OPENMP_FOUND)
 	MESSAGE(STATUS "OpenMP : ${OpenMP_Fortran_VERSION}")

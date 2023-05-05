@@ -2,7 +2,8 @@ IF ( CMAKE_Fortran_COMPILER_LOADED )
     INCLUDE(CheckFortranCompilerFlag)
 
     IF ( CMAKE_Fortran_FLAGS MATCHES "-Wconversion")
-        STRING(REPLACE "-Wconversion" "" CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}")
+        STRING(REPLACE "-Wconversion" "" CMAKE_Fortran_FLAGS_X "${CMAKE_Fortran_FLAGS}")
+        SET(CMAKE_Fortran_FLAGS "{CMAKE_Fortran_FLAGS_X}" CACHE INTERNAL "")
         SET (Fortran_W_CONVERSION 1)
     ENDIF()
 
@@ -11,10 +12,10 @@ IF ( CMAKE_Fortran_COMPILER_LOADED )
     ENDIF()
 
     IF ( Fortran_W_CONVERSION)
-        SET (CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} -Wconversion")
-        SET (CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} -Wconversion")
-        SET (CMAKE_Fortran_FLAGS_RELWITHDEBINFO "${CMAKE_Fortran_FLAGS_RELWITHDEBINFO} -Wconversion")
-        SET (CMAKE_Fortran_FLAGS_MINSIZEREL "${CMAKE_Fortran_FLAGS_MINSIZEREL} -Wconversion")
+        SET (CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} -Wconversion" CACHE INTERNAL "")
+        SET (CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} -Wconversion" CACHE INTERNAL "")
+        SET (CMAKE_Fortran_FLAGS_RELWITHDEBINFO "${CMAKE_Fortran_FLAGS_RELWITHDEBINFO} -Wconversion" CACHE INTERNAL "")
+        SET (CMAKE_Fortran_FLAGS_MINSIZEREL "${CMAKE_Fortran_FLAGS_MINSIZEREL} -Wconversion" CACHE INTERNAL "")
     ENDIF()
 ENDIF() # CMAKE_Fortran_COMPILER_LOADED
 

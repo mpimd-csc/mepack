@@ -380,31 +380,11 @@ SUBROUTINE SLA_TRSYLV2_DAG ( TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, X, LDX, 
 
                 END IF
 
-                IF ( KH .EQ. M .AND. L .EQ. IONE ) THEN
-                    !$omp task firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1) &
-                    !$omp& depend(inout: X(K,L)) default(shared)
-                    CALL ISLA_TRSYLV2_SOLVE_BLOCK(TRANSA, TRANSB, M,N,BLO,K,KH,KB,L,LH,LB,A,LDA,B,LDB,&
-                        & X,LDX,SGN,SCAL, WORK, INFO1 )
-                    !$omp end task
-                ELSE IF ( KH .EQ. M .AND. L .GT. IONE) THEN
-                    !$omp task firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1) &
-                    !$omp& depend(inout: X(K,L)) depend(in: X(K,LOLD)) default(shared)
-                    CALL ISLA_TRSYLV2_SOLVE_BLOCK(TRANSA, TRANSB, M,N,BLO,K,KH,KB,L,LH,LB,A,LDA,B,LDB,&
-                        & X,LDX,SGN,SCAL, WORK, INFO1 )
-                    !$omp end task
-                ELSE IF ( KH .LT. M .AND. L .EQ. IONE) THEN
-                    !$omp task firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1) &
-                    !$omp& depend(inout: X(K,L)) depend(in: X(KOLD,L))  default(shared)
-                    CALL ISLA_TRSYLV2_SOLVE_BLOCK(TRANSA, TRANSB, M,N,BLO,K,KH,KB,L,LH,LB,A,LDA,B,LDB,&
-                        & X,LDX,SGN,SCAL, WORK, INFO1 )
-                    !$omp end task
-                ELSE
-                    !$omp task firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1) &
-                    !$omp& depend(in: X(KOLD,L), X(K,LOLD)) depend(inout: X(K,L))  default(shared)
-                    CALL ISLA_TRSYLV2_SOLVE_BLOCK(TRANSA, TRANSB, M,N,BLO,K,KH,KB,L,LH,LB,A,LDA,B,LDB,&
-                        & X,LDX,SGN,SCAL, WORK, INFO1 )
-                    !$omp end task
-                END IF
+                !$omp task firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1) &
+                !$omp& depend(inout: X(K,L)) default(shared)
+                CALL ISLA_TRSYLV2_SOLVE_BLOCK(TRANSA, TRANSB, M,N,BLO,K,KH,KB,L,LH,LB,A,LDA,B,LDB,&
+                    & X,LDX,SGN,SCAL, WORK, INFO1 )
+                !$omp end task
 
 
 
@@ -544,39 +524,12 @@ SUBROUTINE SLA_TRSYLV2_DAG ( TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, X, LDX, 
 
                 END IF
 
-                IF ( KH.EQ.M .AND. LH.EQ.N) THEN
-                    !$omp task depend(inout: X(K,L)) firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1)&
-                    !$omp& default(shared)
-                    CALL ISLA_TRSYLV2_SOLVE_BLOCK(TRANSA, TRANSB, M,N,BLO,K,KH,KB,L,LH,LB,A,LDA,B,LDB,&
-                        & X,LDX,SGN,SCAL, WORK, INFO1 )
+                !$omp task depend(inout: X(K,L)) firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1)&
+                !$omp& default(shared)
+                CALL ISLA_TRSYLV2_SOLVE_BLOCK(TRANSA, TRANSB, M,N,BLO,K,KH,KB,L,LH,LB,A,LDA,B,LDB,&
+                    & X,LDX,SGN,SCAL, WORK, INFO1 )
 
-                    !$omp end task
-                ELSE IF ( KH.EQ.M .AND. LH .LT. N) THEN
-                    !$omp task depend(in:X(K, LOLD)) depend(inout: X(K,L)) firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1)&
-                    !$omp& default(shared)
-                    CALL ISLA_TRSYLV2_SOLVE_BLOCK(TRANSA, TRANSB, M,N,BLO,K,KH,KB,L,LH,LB,A,LDA,B,LDB,&
-                        & X,LDX,SGN,SCAL, WORK, INFO1 )
-
-                    !$omp end task
-
-                ELSE IF ( KH.LT.M .AND. LH .EQ. N) THEN
-                    !$omp task depend(in:X(KOLD,L)) depend(inout: X(K,L)) firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1)&
-                    !$omp& default(shared)
-                    CALL ISLA_TRSYLV2_SOLVE_BLOCK(TRANSA, TRANSB, M,N,BLO,K,KH,KB,L,LH,LB,A,LDA,B,LDB,&
-                        & X,LDX,SGN,SCAL, WORK, INFO1 )
-
-                    !$omp end task
-
-                ELSE
-                    !$omp task depend(in:X(K, LOLD),X(KOLD,L)) depend(inout: X(K,L)) firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1)&
-                    !$omp& default(shared)
-                    CALL ISLA_TRSYLV2_SOLVE_BLOCK(TRANSA, TRANSB, M,N,BLO,K,KH,KB,L,LH,LB,A,LDA,B,LDB,&
-                        & X,LDX,SGN,SCAL, WORK, INFO1 )
-
-                    !$omp end task
-
-                END IF
-
+                !$omp end task
 
                 IF ( K .GT. 1 ) THEN
                     WORKOFFSET = (L-1)*M+(K-1)*LB+1
@@ -691,38 +644,12 @@ SUBROUTINE SLA_TRSYLV2_DAG ( TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, X, LDX, 
                     END IF
                 END IF
 
-                IF ( K.EQ.IONE .AND. L.EQ.IONE) THEN
-                    !$omp task depend(inout: X(K,L)) firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1)&
-                    !$omp& default(shared)
-                    CALL ISLA_TRSYLV2_SOLVE_BLOCK(TRANSA, TRANSB, M,N,BLO,K,KH,KB,L,LH,LB,A,LDA,B,LDB,&
-                        & X,LDX,SGN,SCAL, WORK, INFO1 )
+                !$omp task depend(inout: X(K,L)) firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1)&
+                !$omp& default(shared)
+                CALL ISLA_TRSYLV2_SOLVE_BLOCK(TRANSA, TRANSB, M,N,BLO,K,KH,KB,L,LH,LB,A,LDA,B,LDB,&
+                    & X,LDX,SGN,SCAL, WORK, INFO1 )
 
-                    !$omp end task
-                ELSE IF ( K.EQ.IONE .AND. L.GT.IONE) THEN
-                    !$omp task depend(in:X(K, LOLD)) depend(inout: X(K,L)) firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1)&
-                    !$omp& default(shared)
-                    CALL ISLA_TRSYLV2_SOLVE_BLOCK(TRANSA, TRANSB, M,N,BLO,K,KH,KB,L,LH,LB,A,LDA,B,LDB,&
-                        & X,LDX,SGN,SCAL, WORK, INFO1 )
-
-                    !$omp end task
-
-                ELSE IF ( K.GT. IONE .AND. L.EQ.IONE) THEN
-                    !$omp task depend(in:X(KOLD,L)) depend(inout: X(K,L)) firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1)&
-                    !$omp& default(shared)
-                    CALL ISLA_TRSYLV2_SOLVE_BLOCK(TRANSA, TRANSB, M,N,BLO,K,KH,KB,L,LH,LB,A,LDA,B,LDB,&
-                        & X,LDX,SGN,SCAL, WORK, INFO1 )
-
-                    !$omp end task
-
-                ELSE
-                    !$omp task depend(in:X(K, LOLD),X(KOLD,L)) depend(inout: X(K,L)) firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1)&
-                    !$omp& default(shared)
-                    CALL ISLA_TRSYLV2_SOLVE_BLOCK(TRANSA, TRANSB, M,N,BLO,K,KH,KB,L,LH,LB,A,LDA,B,LDB,&
-                        & X,LDX,SGN,SCAL, WORK, INFO1)
-
-                    !$omp end task
-                END IF
-
+                !$omp end task
 
                 IF ( KH  .LT. M ) THEN
                     WORKOFFSET = (L-1)*M+(K-1)*LB+1
@@ -848,35 +775,11 @@ SUBROUTINE SLA_TRSYLV2_DAG ( TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, X, LDX, 
                     END IF
                 END IF
 
-                IF ( K .EQ. IONE .AND. LH .EQ. N ) THEN
-                    !$omp task depend(inout: X(K,L)) firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1)&
-                    !$omp& default(shared)
-                    CALL ISLA_TRSYLV2_SOLVE_BLOCK(TRANSA, TRANSB, M,N,BLO,K,KH,KB,L,LH,LB,A,LDA,B,LDB,&
-                        & X,LDX,SGN,SCAL, WORK, INFO1 )
-                    !$omp end task
-                ELSE IF (K .EQ. IONE .AND. LH .LT. N ) THEN
-                    !$omp task depend(in:X(K, LOLD)) depend(inout: X(K,L)) firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1)&
-                    !$omp& default(shared)
-                    CALL ISLA_TRSYLV2_SOLVE_BLOCK(TRANSA, TRANSB, M,N,BLO,K,KH,KB,L,LH,LB,A,LDA,B,LDB,&
-                        & X,LDX,SGN,SCAL, WORK, INFO1 )
-                    !$omp end task
-
-                ELSE IF (K .GT. IONE .AND. LH .EQ. N ) THEN
-                    !$omp task depend(in:X(KOLD,L)) depend(inout: X(K,L)) firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1)&
-                    !$omp& default(shared)
-                    CALL ISLA_TRSYLV2_SOLVE_BLOCK(TRANSA, TRANSB, M,N,BLO,K,KH,KB,L,LH,LB,A,LDA,B,LDB,&
-                        & X,LDX,SGN,SCAL, WORK, INFO1 )
-                    !$omp end task
-
-                ELSE
-                    !$omp task depend(in:X(K, LOLD),X(KOLD,L)) depend(inout: X(K,L)) firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1)&
-                    !$omp& default(shared)
-                    CALL ISLA_TRSYLV2_SOLVE_BLOCK(TRANSA, TRANSB, M,N,BLO,K,KH,KB,L,LH,LB,A,LDA,B,LDB,&
-                        & X,LDX,SGN,SCAL, WORK, INFO1 )
-                    !$omp end task
-
-                END IF
-
+                !$omp task depend(inout: X(K,L)) firstprivate(K,KH,KB,L,LH,LB,SCAL,INFO1)&
+                !$omp& default(shared)
+                CALL ISLA_TRSYLV2_SOLVE_BLOCK(TRANSA, TRANSB, M,N,BLO,K,KH,KB,L,LH,LB,A,LDA,B,LDB,&
+                    & X,LDX,SGN,SCAL, WORK, INFO1 )
+                !$omp end task
 
 
                 IF ( KH .LT. M  ) THEN

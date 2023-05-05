@@ -4,7 +4,7 @@
 sed -f cmake/convert_double_single.sed src/misc/dla_small_solve8.f90 > src/misc/sla_small_solve8.f90
 sed -f cmake/convert_double_single.sed src/misc/dla_small_solve4.f90 > src/misc/sla_small_solve4.f90
 sed -f cmake/convert_double_single.sed src/misc/dla_dtrmm_fix.f90 > src/misc/sla_strmm_fix.f90
-sed -f cmake/convert_double_single.sed src/misc/dla_geaxb.f90 > src/misc/sla_geaxb.f90
+# sed -f cmake/convert_double_single.sed src/misc/dla_geaxb.f90 > src/misc/sla_geaxb.f90
 sed -f cmake/convert_double_single.sed src/misc/dla_qtrmm2.f90 > src/misc/sla_qtrmm2.f90
 sed -f cmake/convert_double_single.sed src/misc/dla_sort_ev.f90 > src/misc/sla_sort_ev.f90
 sed -f cmake/convert_double_single.sed src/misc/dla_sort_gev.f90 > src/misc/sla_sort_gev.f90
