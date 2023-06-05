@@ -190,7 +190,7 @@
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Januar 2023
+ \date June 2023
 */
 void mepack_double_tgsylv_recursive(const char *TRANSA, const char*TRANSB, double SGN,
         int M, int N, double * A, int LDA, double * B, int LDB,
@@ -384,7 +384,7 @@ void mepack_double_tgsylv_recursive(const char *TRANSA, const char*TRANSB, doubl
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Januar 2023
+ \date June 2023
 */
 void mepack_single_tgsylv_recursive(const char *TRANSA, const char*TRANSB, float SGN,
         int M, int N, float * A, int LDA, float * B, int LDB,

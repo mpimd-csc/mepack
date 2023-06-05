@@ -176,7 +176,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date Januar 2023
+!> \date June 2023
 !> \ingroup sgltrsylv
 !
 SUBROUTINE SLA_TRSYLV_L2_REORDER ( TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, X, LDX, SCALE, WORK, INFO)

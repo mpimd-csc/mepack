@@ -307,7 +307,7 @@
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Januar 2023
+ \date June 2023
 */
 
 void mepack_double_ggcsylv_dual(const char *FACTA, const char *FACTB, const char *TRANSA, const char*TRANSB, double SGN1, double SGN2,  int M, int N,
@@ -626,7 +626,7 @@ void mepack_double_ggcsylv_dual(const char *FACTA, const char *FACTB, const char
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Januar 2023
+ \date June 2023
 */
 
 

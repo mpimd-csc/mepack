@@ -190,7 +190,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date Januar 2023
+!> \date June 2023
 !> \ingroup dbltghelp
 !
 SUBROUTINE DLA_TGSYLV_KRON_KERNEL(TRANSA, TRANSB, SGN, M, N, FA, LDA, FB, LDB, FC, LDC, FD, LDD, X, LDX, SCAL, INFO)

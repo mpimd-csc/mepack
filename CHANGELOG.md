@@ -1,3 +1,8 @@
+Version 1.0.5 (June 5, 2023)
+============================
+
+- Fix: CMAKE_INSTALL_MODULEDIR handling
+
 Version 1.0.4 (May 5, 2023)
 ===========================
 

@@ -136,7 +136,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date Januar 2023
+!> \date June 2023
 !> \ingroup dbltrlyap
 !
 SUBROUTINE DLA_TRSTEIN_DAG ( TRANS, M, A, LDA, X, LDX, SCALE, WORK, INFO)

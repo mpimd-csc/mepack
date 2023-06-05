@@ -156,7 +156,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date Januar 2023
+!> \date June 2023
 !> \ingroup dbltghelp
 !
 SUBROUTINE DLA_TGSYLV_KERNEL_44TT (SGN, M, N, A, LDA, B, LDB, C, LDC, D, LDD, X, LDX, SCALE, INFO)

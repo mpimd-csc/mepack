@@ -320,7 +320,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date Januar 2023
+!> \date June 2023
 !> \ingroup dblggsylv
 !
 SUBROUTINE DLA_GGCSYLV_DUAL(FACTA, FACTB, TRANSA, TRANSB, SGN1, SGN2, M, N, A, LDA, B, LDB, C, LDC, D, LDD, &

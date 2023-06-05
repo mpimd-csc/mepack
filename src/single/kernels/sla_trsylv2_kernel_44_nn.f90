@@ -129,7 +129,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date Januar 2023
+!> \date June 2023
 !> \ingroup sgltrsylv
 !
 SUBROUTINE SLA_TRSYLV2_KERNEL_44NN (SGN, M, N, A, LDA, B, LDB, X, LDX, SCALE, INFO)

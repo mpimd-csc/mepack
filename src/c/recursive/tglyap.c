@@ -141,7 +141,7 @@
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Januar 2023
+ \date June 2023
  */
 void mepack_double_tglyap_recursive(const char *TRANS, int M, double * A, int LDA, double * B, int LDB, double *X, int LDX,
                               double * SCALE, double *WORK, int *INFO)
@@ -276,7 +276,7 @@ void mepack_double_tglyap_recursive(const char *TRANS, int M, double * A, int LD
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Januar 2023
+ \date June 2023
  */
 void mepack_single_tglyap_recursive(const char *TRANS, int M, float * A, int LDA, float * B, int LDB, float *X, int LDX,
                               float * SCALE, float *WORK, int *INFO)

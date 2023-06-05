@@ -163,7 +163,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date Januar 2023
+!> \date June 2023
 !> \ingroup sglgelyap
 !
 SUBROUTINE SLA_GESTEIN(FACT, TRANS, M , A, LDA, Q, LDQ, X, LDX, SCALE, WORK, LDWORK, INFO)

@@ -196,7 +196,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date Januar 2023
+!> \date June 2023
 !> \ingroup dblgelyap
 !
 SUBROUTINE DLA_GESTEIN_REFINE(TRANS, GUESS, M, A, LDA, X, LDX, Y, LDY, &

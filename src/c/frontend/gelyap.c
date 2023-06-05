@@ -155,7 +155,7 @@
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Januar 2023
+ \date June 2023
  */
 void mepack_double_gelyap(const char * FACT, const char *TRANS, int M, double * A,  int LDA, double * Q, int LDQ, double *X, int LDX,
         double * SCALE, double *WORK, size_t LDWORK, int *INFO)
@@ -310,7 +310,7 @@ void mepack_double_gelyap(const char * FACT, const char *TRANS, int M, double * 
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Januar 2023
+ \date June 2023
  */
 void mepack_single_gelyap(const char * FACT, const char *TRANS, int M, float * A,  int LDA, float * Q, int LDQ, float *X, int LDX,
         float * SCALE, float *WORK, size_t LDWORK, int *INFO)

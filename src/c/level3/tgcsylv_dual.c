@@ -225,7 +225,7 @@
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Januar 2023
+ \date June 2023
 */
 
 void mepack_double_tgcsylv_dual_level3(const char *TRANSA, const char*TRANSB, double SGN1, double SGN2,  int M, int N,
@@ -454,7 +454,7 @@ void mepack_double_tgcsylv_dual_level3(const char *TRANSA, const char*TRANSB, do
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Januar 2023
+ \date June 2023
 */
 void mepack_single_tgcsylv_dual_level3(const char *TRANSA, const char*TRANSB, float SGN1, float SGN2,  int M, int N,
         float * A, int LDA,float * B, int LDB, float *C, int LDC, float *D, int LDD,
@@ -681,7 +681,7 @@ mepack_double_tgcsylv_dual_level3_2stage solves a generalized coupled  Sylvester
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Januar 2023
+ \date June 2023
 */
 
 void mepack_double_tgcsylv_dual_level3_2stage(const char *TRANSA, const char*TRANSB, double SGN1, double SGN2,  int M, int N,
@@ -910,7 +910,7 @@ void mepack_double_tgcsylv_dual_level3_2stage(const char *TRANSA, const char*TRA
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Januar 2023
+ \date June 2023
 */
 void mepack_single_tgcsylv_dual_level3_2stage(const char *TRANSA, const char*TRANSB, float SGN1, float SGN2,  int M, int N,
         float * A, int LDA,float * B, int LDB, float *C, int LDC, float *D, int LDD,

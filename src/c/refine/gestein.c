@@ -187,7 +187,7 @@
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Januar 2023
+ \date June 2023
 */
 void mepack_double_gestein_refine(const char * TRANS, const char *GUESS,  int M , double * A, int LDA,
         double *X, int LDX, double *Y, int LDY, double *AS, int LDAS, double * Q, int LDQ,
@@ -374,7 +374,7 @@ void mepack_double_gestein_refine(const char * TRANS, const char *GUESS,  int M 
 
  \author Martin Koehler, MPI Magdeburg
 
- \date Januar 2023
+ \date June 2023
 */
 
 void mepack_single_gestein_refine(const char * TRANS, const char *GUESS, int M , float * A, int LDA,

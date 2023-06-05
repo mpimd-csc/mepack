@@ -1,7 +1,7 @@
 Matrix Equations PACKage (MEPACK)
 =================================
 
-**Version:** 1.0.4
+**Version:** 1.0.5
 
 Copyright 2017-2023 by Martin Köhler, MPI-Magdeburg
 

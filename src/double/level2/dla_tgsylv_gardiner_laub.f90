@@ -198,7 +198,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date Januar 2023
+!> \date June 2023
 !> \ingroup dbltgsylv
 !
 SUBROUTINE DLA_TGSYLV_GARDINER_LAUB ( TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, C, LDC, &

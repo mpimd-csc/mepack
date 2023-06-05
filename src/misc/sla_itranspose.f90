@@ -80,7 +80,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date Januar 2023
+!> \date June 2023
 !> \ingroup sglaux
 !
 SUBROUTINE SLA_ITRANSPOSE(K,KH,L,LH, X,LDX)

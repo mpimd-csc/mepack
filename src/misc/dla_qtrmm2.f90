@@ -147,7 +147,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg 
 !
-!> \date Januar 2023
+!> \date June 2023
 !> \ingroup dblaux 
 !
 SUBROUTINE DLA_QTRMM2(SIDE, TRANS, M, N, ALPHA, A, LDA, B, LDB, C, LDC)
