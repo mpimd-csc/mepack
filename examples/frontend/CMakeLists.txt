@@ -50,135 +50,121 @@ SET(NMAT 1)
 # Test with M = N for LYAP and stein
 #
 # GELYAP
-FOREACH(SOLVER 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 24)
-	ADD_TEST(FRONTEND_DGELYAP_N_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gelyap   --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=N  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_DGELYAP_T_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gelyap   --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=T  --solver=${SOLVER} --alignoff)
+FOREACH(TRANS "N" "T")
+    FOREACH(SOLVER 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 24)
+        ADD_TEST(FRONTEND_DGELYAP_${TRANS}_HESS_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gelyap --hess --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=${TRANS}  --solver=${SOLVER} --alignoff)
+        ADD_TEST(FRONTEND_DGELYAP_${TRANS}_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gelyap   --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=${TRANS}  --solver=${SOLVER} --alignoff)
+    ENDFOREACH()
+
+    FOREACH(SOLVER 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 24)
+        ADD_TEST(FRONTEND_SGELYAP_${TRANS}_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gelyap_single   --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=${TRANS}  --solver=${SOLVER} --alignoff)
+        ADD_TEST(FRONTEND_SGELYAP_${TRANS}_HESS_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gelyap_single  --hess --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=${TRANS}  --solver=${SOLVER} --alignoff)
+    ENDFOREACH()
+
+
+    # GESTEIN
+    FOREACH(SOLVER 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 24)
+        ADD_TEST(FRONTEND_DGESTEIN_${TRANS}_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gestein   --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=${TRANS}  --solver=${SOLVER} --alignoff)
+        ADD_TEST(FRONTEND_DGESTEIN_${TRANS}_HESS_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gestein --hess  --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=${TRANS}  --solver=${SOLVER} --alignoff)
+    ENDFOREACH()
+
+    FOREACH(SOLVER 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 24)
+        ADD_TEST(FRONTEND_SGESTEIN_${TRANS}_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gestein_single   --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=${TRANS}  --solver=${SOLVER} --alignoff)
+        ADD_TEST(FRONTEND_SGESTEIN_${TRANS}_HESS_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gestein_single  --hess --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=${TRANS}  --solver=${SOLVER} --alignoff)
+    ENDFOREACH()
+
+    # GGLYAP
+    FOREACH(SOLVER 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 24)
+        ADD_TEST(FRONTEND_DGGLYAP_${TRANS}_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gglyap   --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=${TRANS}  --solver=${SOLVER} --alignoff)
+        ADD_TEST(FRONTEND_DGGLYAP_${TRANS}_HESS_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gglyap --hess  --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=${TRANS}  --solver=${SOLVER} --alignoff)
+    ENDFOREACH()
+
+    FOREACH(SOLVER 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 24)
+        ADD_TEST(FRONTEND_SGGLYAP_${TRANS}_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gglyap_single   --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=${TRANS}  --solver=${SOLVER} --alignoff)
+        ADD_TEST(FRONTEND_SGGLYAP_${TRANS}_HESS_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gglyap_single  --hess  --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=${TRANS}  --solver=${SOLVER} --alignoff)
+
+    ENDFOREACH()
+
+    # GGSTEIN
+    FOREACH(SOLVER 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 24)
+        ADD_TEST(FRONTEND_DGGSTEIN_${TRANS}_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggstein   --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=${TRANS}  --solver=${SOLVER} --alignoff)
+        ADD_TEST(FRONTEND_DGGSTEIN_${TRANS}_HESS_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggstein --hess  --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=${TRANS}  --solver=${SOLVER} --alignoff)
+
+    ENDFOREACH()
+
+    FOREACH(SOLVER 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 24)
+        ADD_TEST(FRONTEND_SGGSTEIN_${TRANS}_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggstein_single   --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=${TRANS}  --solver=${SOLVER} --alignoff)
+        ADD_TEST(FRONTEND_SGGSTEIN_${TRANS}_HESS_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggstein_single --hess  --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=${TRANS}  --solver=${SOLVER} --alignoff)
+    ENDFOREACH()
 ENDFOREACH()
-
-FOREACH(SOLVER 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 24)
-	ADD_TEST(FRONTEND_SGELYAP_N_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gelyap_single   --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=N  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_SGELYAP_T_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gelyap_single   --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=T  --solver=${SOLVER} --alignoff)
-ENDFOREACH()
-
-
-# GESTEIN
-FOREACH(SOLVER 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 24)
-	ADD_TEST(FRONTEND_DGESTEIN_N_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gestein   --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=N  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_DGESTEIN_T_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gestein   --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=T  --solver=${SOLVER} --alignoff)
-ENDFOREACH()
-
-FOREACH(SOLVER 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 24)
-	ADD_TEST(FRONTEND_SGESTEIN_N_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gestein_single   --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=N  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_SGESTEIN_T_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gestein_single   --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=T  --solver=${SOLVER} --alignoff)
-ENDFOREACH()
-
-# GGLYAP
-FOREACH(SOLVER 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 24)
-	ADD_TEST(FRONTEND_DGGLYAP_N_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gglyap   --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=N  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_DGGLYAP_T_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gglyap   --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=T  --solver=${SOLVER} --alignoff)
-ENDFOREACH()
-
-FOREACH(SOLVER 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 24)
-	ADD_TEST(FRONTEND_SGGLYAP_N_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gglyap_single   --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=N  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_SGGLYAP_T_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gglyap_single   --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=T  --solver=${SOLVER} --alignoff)
-ENDFOREACH()
-
-# GGSTEIN
-FOREACH(SOLVER 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 24)
-	ADD_TEST(FRONTEND_DGGSTEIN_N_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggstein   --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=N  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_DGGSTEIN_T_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggstein   --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=T  --solver=${SOLVER} --alignoff)
-ENDFOREACH()
-
-FOREACH(SOLVER 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 24)
-	ADD_TEST(FRONTEND_SGGSTEIN_N_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggstein_single   --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=N  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_SGGSTEIN_T_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggstein_single   --nmat=${NMAT} --rows=${ROWS}  --mb=${MB}  --runs=1 --trans=T  --solver=${SOLVER} --alignoff)
-ENDFOREACH()
-
 
 #
 # test with m!=n for sylv
 #
-SET(COLS 169)
-# GESYLV
-FOREACH(SOLVER 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 27)
-	ADD_TEST(FRONTEND_DGESYLV_N_N_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gesylv   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=N --transb=N  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_DGESYLV_T_N_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gesylv   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=T --transb=N  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_DGESYLV_N_T_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gesylv   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=N --transb=T  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_DGESYLV_T_T_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gesylv   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=T --transb=T  --solver=${SOLVER} --alignoff)
+FOREACH(TRANSA "N" "T")
+    FOREACH(TRANSB "N" "T")
+        SET(COLS 169)
+        # GESYLV
+        FOREACH(SOLVER 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 )
+            ADD_TEST(FRONTEND_DGESYLV_${TRANSA}_${TRANSB}_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gesylv   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=${TRANSA} --transb=${TRANSB}  --solver=${SOLVER} --alignoff)
+            ADD_TEST(FRONTEND_DGESYLV_${TRANSA}_${TRANSB}_HESS_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gesylv   --nmat=${NMAT} --hess --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=${TRANSA} --transb=${TRANSB}  --solver=${SOLVER} --alignoff)
+
+        ENDFOREACH()
+
+        FOREACH(SOLVER 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 )
+            ADD_TEST(FRONTEND_SGESYLV_${TRANSA}_${TRANSB}_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gesylv_single   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=${TRANSA} --transb=${TRANSB}  --solver=${SOLVER} --alignoff)
+            ADD_TEST(FRONTEND_SGESYLV_${TRANSA}_${TRANSB}_HESS_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gesylv_single   --nmat=${NMAT} --hess --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=${TRANSA} --transb=${TRANSB}  --solver=${SOLVER} --alignoff)
 
 
-ENDFOREACH()
-
-FOREACH(SOLVER 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 27)
-	ADD_TEST(FRONTEND_SGESYLV_N_N_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gesylv_single   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=N --transb=N  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_SGESYLV_T_N_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gesylv_single   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=T --transb=N  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_SGESYLV_N_T_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gesylv_single   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=N --transb=T  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_SGESYLV_T_T_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gesylv_single   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=T --transb=T  --solver=${SOLVER} --alignoff)
+        ENDFOREACH()
 
 
-ENDFOREACH()
+        # GESYLV2
+        FOREACH(SOLVER 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24)
+            ADD_TEST(FRONTEND_DGESYLV2_${TRANSA}_${TRANSB}_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gesylv2   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=${TRANSA} --transb=${TRANSB}  --solver=${SOLVER} --alignoff)
+            ADD_TEST(FRONTEND_DGESYLV2_${TRANSA}_${TRANSB}_HESS_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gesylv2   --hess --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=${TRANSA} --transb=${TRANSB}  --solver=${SOLVER} --alignoff)
 
 
-# GESYLV2
-FOREACH(SOLVER 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24)
-	ADD_TEST(FRONTEND_DGESYLV2_N_N_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gesylv2   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=N --transb=N  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_DGESYLV2_T_N_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gesylv2   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=T --transb=N  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_DGESYLV2_N_T_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gesylv2   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=N --transb=T  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_DGESYLV2_T_T_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gesylv2   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=T --transb=T  --solver=${SOLVER} --alignoff)
+        ENDFOREACH()
+
+        FOREACH(SOLVER 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24)
+            ADD_TEST(FRONTEND_SGESYLV2_${TRANSA}_${TRANSB}_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gesylv2_single   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=${TRANSA} --transb=${TRANSB}  --solver=${SOLVER} --alignoff)
+            ADD_TEST(FRONTEND_SGESYLV2_${TRANSA}_${TRANSB}_HESS_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gesylv2_single --hess  --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=${TRANSA} --transb=${TRANSB}  --solver=${SOLVER} --alignoff)
 
 
-ENDFOREACH()
+        ENDFOREACH()
 
-FOREACH(SOLVER 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24)
-	ADD_TEST(FRONTEND_SGESYLV2_N_N_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gesylv2_single   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=N --transb=N  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_SGESYLV2_T_N_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gesylv2_single   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=T --transb=N  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_SGESYLV2_N_T_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gesylv2_single   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=N --transb=T  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_SGESYLV2_T_T_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_gesylv2_single   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=T --transb=T  --solver=${SOLVER} --alignoff)
-
-
-ENDFOREACH()
-
-# GGSYLV
-FOREACH(SOLVER 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 27)
-	ADD_TEST(FRONTEND_DGGSYLV_N_N_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggsylv   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=N --transb=N  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_DGGSYLV_T_N_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggsylv   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=T --transb=N  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_DGGSYLV_N_T_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggsylv   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=N --transb=T  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_DGGSYLV_T_T_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggsylv   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=T --transb=T  --solver=${SOLVER} --alignoff)
+        # GGSYLV
+        FOREACH(SOLVER 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 27)
+            ADD_TEST(FRONTEND_DGGSYLV_${TRANSA}_${TRANSB}_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggsylv   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=${TRANSA} --transb=${TRANSB}  --solver=${SOLVER} --alignoff)
+            ADD_TEST(FRONTEND_DGGSYLV_${TRANSA}_${TRANSA}_HESS_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggsylv  --hess --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=${TRANSA} --transb=${TRANSB}  --solver=${SOLVER} --alignoff)
 
 
-ENDFOREACH()
+        ENDFOREACH()
 
-FOREACH(SOLVER 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 27)
-	ADD_TEST(FRONTEND_SGGSYLV_N_N_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggsylv_single   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=N --transb=N  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_SGGSYLV_T_N_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggsylv_single   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=T --transb=N  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_SGGSYLV_N_T_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggsylv_single   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=N --transb=T  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_SGGSYLV_T_T_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggsylv_single   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=T --transb=T  --solver=${SOLVER} --alignoff)
+        FOREACH(SOLVER 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 27)
+            ADD_TEST(FRONTEND_SGGSYLV_${TRANSA}_${TRANSB}_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggsylv_single   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=${TRANSA} --transb=${TRANSB}  --solver=${SOLVER} --alignoff)
+            ADD_TEST(FRONTEND_SGGSYLV_${TRANSA}_${TRANSB}__HESS_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggsylv_single --hess  --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=${TRANSA} --transb=${TRANSB}  --solver=${SOLVER} --alignoff)
 
 
-ENDFOREACH()
-# GCSYLV
-FOREACH(SOLVER 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24)
-	ADD_TEST(FRONTEND_DGCSYLV_N_N_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggcsylv   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=N --transb=N  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_DGCSYLV_T_N_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggcsylv   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=T --transb=N  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_DGCSYLV_N_T_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggcsylv   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=N --transb=T  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_DGCSYLV_T_T_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggcsylv   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=T --transb=T  --solver=${SOLVER} --alignoff)
+        ENDFOREACH()
+        # GCSYLV
+        FOREACH(SOLVER 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24)
+            ADD_TEST(FRONTEND_DGCSYLV_${TRANSA}_${TRANSB}_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggcsylv   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=${TRANSA} --transb=${TRANSB}  --solver=${SOLVER} --alignoff)
+            ADD_TEST(FRONTEND_DGCSYLV_${TRANSA}_${TRANSB}_HESS_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggcsylv  --hess  --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=${TRANSA} --transb=${TRANSB}  --solver=${SOLVER} --alignoff)
 
-	ADD_TEST(FRONTEND_SGCSYLV_N_N_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggcsylv_single   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=N --transb=N  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_SGCSYLV_T_N_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggcsylv_single   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=T --transb=N  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_SGCSYLV_N_T_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggcsylv_single   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=N --transb=T  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_SGCSYLV_T_T_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggcsylv_single   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=T --transb=T  --solver=${SOLVER} --alignoff)
+            ADD_TEST(FRONTEND_SGCSYLV_${TRANSA}_${TRANSB}_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggcsylv_single   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=${TRANSA} --transb=${TRANSB}  --solver=${SOLVER} --alignoff)
+            ADD_TEST(FRONTEND_SGCSYLV_${TRANSA}_${TRANSB}_HESS_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggcsylv_single  --hess --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=${TRANSA} --transb=${TRANSB}  --solver=${SOLVER} --alignoff)
 
-    ADD_TEST(FRONTEND_DGCSYLV_DUAL_N_N_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggcsylv_dual   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=N --transb=N  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_DGCSYLV_DUAL_T_N_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggcsylv_dual   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=T --transb=N  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_DGCSYLV_DUAL_N_T_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggcsylv_dual   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=N --transb=T  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_DGCSYLV_DUAL_T_T_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggcsylv_dual   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=T --transb=T  --solver=${SOLVER} --alignoff)
+            ADD_TEST(FRONTEND_DGCSYLV_DUAL_${TRANSA}_${TRANSB}_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggcsylv_dual   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=${TRANSA} --transb=${TRANSB}  --solver=${SOLVER} --alignoff)
+            ADD_TEST(FRONTEND_DGCSYLV_DUAL_${TRANSA}_${TRANSB}_HESS_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggcsylv_dual --hess  --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=${TRANSA} --transb=${TRANSB}  --solver=${SOLVER} --alignoff)
 
-	ADD_TEST(FRONTEND_SGCSYLV_DUAL_N_N_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggcsylv_dual_single   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=N --transb=N  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_SGCSYLV_DUAL_T_N_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggcsylv_dual_single   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=T --transb=N  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_SGCSYLV_DUAL_N_T_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggcsylv_dual_single   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=N --transb=T  --solver=${SOLVER} --alignoff)
-	ADD_TEST(FRONTEND_SGCSYLV_DUAL_T_T_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggcsylv_dual_single   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=T --transb=T  --solver=${SOLVER} --alignoff)
+            ADD_TEST(FRONTEND_SGCSYLV_DUAL_${TRANSA}_${TRANSB}_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggcsylv_dual_single   --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=${TRANSA} --transb=${TRANSB}  --solver=${SOLVER} --alignoff)
+            ADD_TEST(FRONTEND_SGCSYLV_DUAL_${TRANSA}_${TRANSB}_HESS_${SOLVER} ${CMAKE_CURRENT_BINARY_DIR}/frontend_ggcsylv_dual_single --hess  --nmat=${NMAT} --rows=${ROWS} --cols=${COLS} --mb=${MB} --nb=${NB} --runs=1 --transa=${TRANSA} --transb=${TRANSB}  --solver=${SOLVER} --alignoff)
 
 
+        ENDFOREACH()
+    ENDFOREACH()
 ENDFOREACH()
 
 

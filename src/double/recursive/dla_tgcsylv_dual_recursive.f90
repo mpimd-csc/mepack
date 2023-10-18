@@ -234,7 +234,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date June 2023
+!> \date October 2023
 !> \ingroup dbltgsylv
 !
 RECURSIVE SUBROUTINE DLA_TGCSYLV_DUAL_RECURSIVE(TRANSA, TRANSB, SGN1, SGN2, M, N, A, LDA, B, LDB, C, LDC, D, LDD,&

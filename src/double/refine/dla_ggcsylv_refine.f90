@@ -375,7 +375,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date June 2023
+!> \date October 2023
 !> \ingroup dblggsylv
 !
 SUBROUTINE DLA_GGCSYLV_REFINE(TRANSA, TRANSB, GUESS, SGN1, SGN2, M , N,  &

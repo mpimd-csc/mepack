@@ -137,6 +137,7 @@ int main(int argc, char **argv)
 
             for (mat = 0; mat < nMAT; mat++) {
                 /* Setup the Problem  */
+                printf("Generate M = %d, number = %d\n",(int) M, (int)mat); 
                 benchmark_random_evp_double(M, iseed, A, NULL, NULL, 0);
             }
             fflush(stdout);

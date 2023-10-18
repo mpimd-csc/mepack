@@ -29,7 +29,7 @@
 #include "benchmark.h"
 #include "mepack.h"
 #include "mepack_internal.h"
-
+#include "cscutils/table.h"
 
 
 void usage(char *prgmname) {
@@ -48,6 +48,8 @@ void usage(char *prgmname) {
     printf("--res                    Compute and print the residual instead of the run time. \n");
     printf("--mb=START:STEP:STOP     Iterate over an interval of row blocks sizes.\n");
     printf("--mb=MB                  Set the row block size.  \n");
+    printf("--output=path, -o path   Write the final result table to csv-like file.\n");
+
 
     return;
 }
@@ -63,7 +65,7 @@ int main(int argc, char **argv)
     Int M_MIN=1024,M_MAX=1024,M_STEP=128;
     Int MB_MIN=64,MB_MAX=64,MB_STEP=32;
     Int MB;
-
+    char * output_file = NULL;
     Int RUNS = 5;
     Int is = 0;
     Int nMAT = 1;
@@ -102,13 +104,14 @@ int main(int argc, char **argv)
             {"nmat",    required_argument, 0, 't'},
             {"runs",    required_argument, 0, 'r'},
             {"res",     no_argument, 0, 'R'},
+            {"output",   required_argument, 0, 'o'},
             {0,0,0,0}
         };
 
         int option_index = 0;
 
 
-        choice = getopt_long( argc, argv, "hm:M:A:t:r:R",
+        choice = getopt_long( argc, argv, "hm:M:A:t:r:Ro:",
                 long_options, &option_index);
 
         if (choice == -1)
@@ -172,6 +175,11 @@ int main(int argc, char **argv)
                 print_res =1;
                 RUNS = 1;
                 break;
+            case 'o':
+                output_file = strdup(optarg);
+                break;
+
+
             default:
                 /* Not sure how to get here... */
                 return EXIT_FAILURE;
@@ -183,16 +191,45 @@ int main(int argc, char **argv)
     /*-----------------------------------------------------------------------------
      *  Output Configuration
      *-----------------------------------------------------------------------------*/
-    printf("# Command Line: ");
-    for (i = 1; i < argc; i++) {
-        printf("%s ", argv[i]);
-    }
-    printf("\n");
-    printf("# RUNS:  %d\n", (int) RUNS);
-    printf("# Number of Matrices: %d\n", (int) nMAT);
-    printf("# Rows: %d (%d:%d:%d)\n",(int)  M , (int) M_MIN, (int) M_STEP, (int) M_MAX);
-    printf("# TRANSA: %s\n", TRANSA);
-    if (print_res )  printf("# Print Residual\n");
+    csc_table_t *tab;
+    tab = csc_table_new(0);
+    int col_what = csc_table_add_column(tab, "What", CSC_TABLE_STRING, CSC_TABLE_LEFT);
+    int col_m = csc_table_add_column(tab, "M", CSC_TABLE_INTEGER, CSC_TABLE_RIGHT);
+    int col_mb = csc_table_add_column(tab, "MB", CSC_TABLE_INTEGER, CSC_TABLE_RIGHT);
+    int col_recsy   = csc_table_add_column(tab, "RECSY", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+    int col_lcalign = csc_table_add_column(tab, "LC-ALIGN", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+    int col_lc      = csc_table_add_column(tab, "LOCAL-COPY", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+    int col_reorder = csc_table_add_column(tab, "REORDER", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+    int col_l2opt   = csc_table_add_column(tab, "L2-Optimized", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+    int col_unopt   = csc_table_add_column(tab, "Unoptimized", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+    int col_rec     = csc_table_add_column(tab, "Recursive", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+    int col_omp     = csc_table_add_column(tab, "OpenMP-DAG", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+    int col_l32s    = csc_table_add_column(tab, "Level3-2Stage", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+
+    csc_table_comment_cmd(tab, argc, argv);
+    csc_table_comment_allinfo(tab);
+    csc_table_comment_printf(tab, "RUNS:  %d", (int) RUNS);
+    csc_table_comment_printf(tab, "Number of Matrices: %d", (int) nMAT);
+    csc_table_comment_printf(tab, "Rows: %d (%d:%d:%d)", (int) M , (int) M_MIN, (int) M_STEP, (int) M_MAX);
+    csc_table_comment_printf(tab, "TRANSA: %s", TRANSA);
+    csc_table_comment_printf(tab, "Solution of the Generalized Lyapunov");
+
+    csc_table_column_minwidth(tab, col_what, 10);
+    csc_table_column_minwidth(tab, col_m, 5);
+    csc_table_column_minwidth(tab, col_mb, 5);
+    csc_table_column_minwidth(tab, col_recsy, 12);
+    csc_table_column_minwidth(tab, col_lcalign, 12);
+    csc_table_column_minwidth(tab, col_lc, 12);
+    csc_table_column_minwidth(tab, col_reorder, 12);
+    csc_table_column_minwidth(tab, col_l2opt, 12);
+    csc_table_column_minwidth(tab, col_unopt, 12);
+    csc_table_column_minwidth(tab, col_rec, 12);
+    csc_table_column_minwidth(tab, col_omp, 12);
+    csc_table_column_minwidth(tab, col_l32s, 12);
+    csc_table_print_current_row(tab);
+
+
+
 
     mepack_tglyap_isolver_set(1);
     if ( getenv("MEPACK_LUA_CONFIG")) {
@@ -202,8 +239,7 @@ int main(int argc, char **argv)
     }
 
 
-    printf("#\n");
-    printf("#  M   MB       RECSY     LC_ALIGN   LOCAL_COPY      REORDER       L2-OPT        UNOPT    RECURSIVE     OpenMP-DAG    L3-2Stage\n");
+    /** printf("#  M   MB       RECSY     LC_ALIGN   LOCAL_COPY      REORDER       L2-OPT        UNOPT    RECURSIVE     OpenMP-DAG    L3-2Stage\n"); */
     for (M = M_MIN ;  M <= M_MAX ; M = M + M_STEP ) {
         for (MB = MB_MIN; MB <= MB_MAX ; MB += MB_STEP) {
             iseed[0] = 1;
@@ -269,7 +305,7 @@ int main(int argc, char **argv)
                 }
                 te = te / RUNS;
                 times[0] += te;
-                ress[0] += benchmark_check_X_double(M,M,X,M,Xorig,M);
+                ress[0] += mepack_double_residual_glyap(TRANSA, M, A, M, B, M, X, M, RHS, M, scale);
 
 #else
                 times[0] = 0;
@@ -302,7 +338,8 @@ int main(int argc, char **argv)
                     }
                     te = te / RUNS;
                     times[is] += te;
-                    ress[is] += benchmark_check_X_double(M,M,X,M,Xorig,M);
+                    ress[is] += mepack_double_residual_glyap(TRANSA, M, A, M, B, M, X, M, RHS, M, scale);
+
                 }
             }
             for (i = 0; i < 8; i++) {
@@ -312,16 +349,39 @@ int main(int argc, char **argv)
             }
 
             /* Print  */
+            csc_table_new_row(tab);
+            csc_table_set_entry_string(tab, col_what, "Wall-Time");
+            csc_table_set_entry(tab, col_m, (int)M);
+            csc_table_set_entry(tab, col_mb, (int)MB);
+            csc_table_set_entry(tab, col_recsy, times[0]);
+            csc_table_set_entry(tab, col_lcalign, times[1]);
+            csc_table_set_entry(tab, col_lc, times[2]);
+            csc_table_set_entry(tab, col_reorder, times[3]);
+            csc_table_set_entry(tab, col_l2opt, times[4]);
+            csc_table_set_entry(tab, col_unopt, times[5]);
+            csc_table_set_entry(tab, col_rec, times[6]);
+            csc_table_set_entry(tab, col_omp, times[7]);
+            csc_table_set_entry(tab, col_l32s, times[8]);
+            csc_table_print_current_row(tab);
 
-            if (print_res ) {
-                printf("%5d %3d  %10.5e  %10.5e  %10.5e  %10.5e  %10.5e  %10.5e  %10.5e  %10.5e  %10.5e\n",
-                        (int) M, (int) MB, ress[0], ress[1], ress[2], ress[3], ress[4], ress[5], ress[6],  ress[7], ress[8] );
-
-            } else {
-                printf("%5d %3d  %10.5e  %10.5e  %10.5e  %10.5e  %10.5e  %10.5e  %10.5e  %10.5e  %10.5e\n",
-                        (int) M,(int) MB, times[0], times[1], times[2], times[3], times[4], times[5], times[6], times[7], times[8] );
+            if ( print_res )
+            {
+                csc_table_new_row(tab);
+                csc_table_set_entry_string(tab, col_what, "Residual");
+                csc_table_set_entry(tab, col_m, (int)M);
+                csc_table_set_entry(tab, col_mb, (int)MB);
+                csc_table_set_entry(tab, col_recsy, ress[0]);
+                csc_table_set_entry(tab, col_lcalign, ress[1]);
+                csc_table_set_entry(tab, col_lc, ress[2]);
+                csc_table_set_entry(tab, col_reorder, ress[3]);
+                csc_table_set_entry(tab, col_l2opt, ress[4]);
+                csc_table_set_entry(tab, col_unopt, ress[5]);
+                csc_table_set_entry(tab, col_rec, ress[6]);
+                csc_table_set_entry(tab, col_omp, ress[7]);
+                csc_table_set_entry(tab, col_l32s, ress[8]);
+                csc_table_print_current_row(tab);
             }
-            fflush(stdout);
+
             free(A);
             free(B);
             free(X);
@@ -331,6 +391,15 @@ int main(int argc, char **argv)
 
         }
     }
+
+    if ( output_file) {
+        FILE *fp = fopen(output_file, "w");
+        csc_table_print_ascii(fp, tab, " ");
+        fclose(fp);
+        free(output_file);
+    }
+    csc_table_destroy(tab);
+
 
     benchmark_exit();
     return 0;

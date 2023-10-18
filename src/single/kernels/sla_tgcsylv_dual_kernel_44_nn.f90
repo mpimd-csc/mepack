@@ -200,7 +200,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date June 2023
+!> \date October 2023
 !> \ingroup sgltgsylv
 !
 SUBROUTINE SLA_TGCSYLV_DUAL_KERNEL_44NN (SGN1, SGN2, M, N, A, LDA, B, LDB, C, LDC, D, LDD, E, LDE, F, LDF, SCALE, INFO)

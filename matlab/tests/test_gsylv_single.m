@@ -40,52 +40,78 @@ function test_gsylv_single()
     tol = sqrt(eps('single')) * max(m,n);
     ierr = 0;
 
-    A = single(rand( m , m ));
-    C = single(rand( m,  m ));
-    B = single(rand( n,  n ));
-    D = single(rand( n,  n ));
+    hess_comp = { 'NN', 'NH', 'HN', 'HH'};
 
-    X = single(ones ( m , n ));
+    Ao = single(rand( m , m ));
+    Co = single(rand( m , m ));
+    Bo = single(rand( n , n ));
+    Do = single(rand( n , n ));
 
-    Y1 = A*X*B   + C*X*D;
-    Y2 = A*X*B'  + C*X*D';
-    Y3 = A'*X*B  + C'*X*D;
-    Y4 = A'*X*B' + C'*X*D';
+    X  = single(ones ( m , n ));
 
-    Y5 = A*X*B   - C*X*D;
-    Y6 = A*X*B'  - C*X*D';
-    Y7 = A'*X*B  - C'*X*D;
-    Y8 = A'*X*B' - C'*X*D';
+    for h = 1:4
+        current_hess = hess_comp{h};
 
-    X1 = mepack_gsylv(A, B, C, D, Y1);
-    X2 = mepack_gsylv(A, B, C, D, Y2, 'N', 'T');
-    X3 = mepack_gsylv(A, B, C, D, Y3, 'T', 'N');
-    X4 = mepack_gsylv(A, B, C, D, Y4, 'T', 'T');
+        fprintf(1,"Tesing Hessenberg Setup %s\n", current_hess);
 
-    assert(norm(A * X1 * B   + C * X1 * D   - Y1, 'fro')/norm(Y1, 'fro') < tol,   '[ 1 ] A * X1 *B + C * X1 * D = Y1' );
-    assert(norm(A * X2 * B'  + C * X2 * D'  - Y2, 'fro')/norm(Y1, 'fro') < tol,   '[ 1 ] A * X2 *B**T + C * X2 * D**T = Y2' );
-    assert(norm(A' * X3 * B  + C' * X3 * D  - Y3, 'fro')/norm(Y1, 'fro') < tol,   '[ 1 ] A**T * X3 *B + C**T * X3 * D = Y3' );
-    assert(norm(A' * X4 * B' + C' * X4 * D' - Y4, 'fro')/norm(Y1, 'fro') < tol,   '[ 1 ] A**T * X4 *B**T + C**T * X4 * D**T = Y4' );
+        if ( is_octave )
+            hess_fun = @qzhess;
+        else
+            hess_fun = @hess;
+        end
+
+        if ( current_hess(1) == 'N')
+            A = Ao;
+            C = Co;
+        else
+            [A, C, ~, ~ ] = hess_fun(Ao, Co);
+        end
+        if ( current_hess(2) == 'N')
+            B = Bo;
+            D = Do;
+        else
+            [B, D, ~, ~ ] = hess_fun(Bo, Do);
+        end
+
+        Y1 = A*X*B   + C*X*D;
+        Y2 = A*X*B'  + C*X*D';
+        Y3 = A'*X*B  + C'*X*D;
+        Y4 = A'*X*B' + C'*X*D';
+
+        Y5 = A*X*B   - C*X*D;
+        Y6 = A*X*B'  - C*X*D';
+        Y7 = A'*X*B  - C'*X*D;
+        Y8 = A'*X*B' - C'*X*D';
+
+        X1 = mepack_gsylv(A, B, C, D, Y1);
+        X2 = mepack_gsylv(A, B, C, D, Y2, 'N', 'T');
+        X3 = mepack_gsylv(A, B, C, D, Y3, 'T', 'N');
+        X4 = mepack_gsylv(A, B, C, D, Y4, 'T', 'T');
+
+        assert(norm(A * X1 * B   + C * X1 * D   - Y1, 'fro')/norm(Y1, 'fro') < tol,   '[ 1 ] A * X1 *B + C * X1 * D = Y1' );
+        assert(norm(A * X2 * B'  + C * X2 * D'  - Y2, 'fro')/norm(Y1, 'fro') < tol,   '[ 1 ] A * X2 *B**T + C * X2 * D**T = Y2' );
+        assert(norm(A' * X3 * B  + C' * X3 * D  - Y3, 'fro')/norm(Y1, 'fro') < tol,   '[ 1 ] A**T * X3 *B + C**T * X3 * D = Y3' );
+        assert(norm(A' * X4 * B' + C' * X4 * D' - Y4, 'fro')/norm(Y1, 'fro') < tol,   '[ 1 ] A**T * X4 *B**T + C**T * X4 * D**T = Y4' );
 
 
-    [X1, AS, BS, CS, DS, QA, ZA, QB, ZB ] = mepack_gsylv(A, B, C, D, Y5, optset);
-    [X2, AS, BS, CS, DS, QA, ZA, QB, ZB ] = mepack_gsylv(A, B, C, D, Y6, 'N', 'T', optset);
-    [X3, AS, BS, CS, DS, QA, ZA, QB, ZB ] = mepack_gsylv(A, B, C, D, Y7, 'T', 'N', optset);
-    [X4, AS, BS, CS, DS, QA, ZA, QB, ZB ] = mepack_gsylv(A, B, C, D, Y8, 'T', 'T', optset);
+        [X1, AS, BS, CS, DS, QA, ZA, QB, ZB ] = mepack_gsylv(A, B, C, D, Y5, optset);
+        [X2, AS, BS, CS, DS, QA, ZA, QB, ZB ] = mepack_gsylv(A, B, C, D, Y6, 'N', 'T', optset);
+        [X3, AS, BS, CS, DS, QA, ZA, QB, ZB ] = mepack_gsylv(A, B, C, D, Y7, 'T', 'N', optset);
+        [X4, AS, BS, CS, DS, QA, ZA, QB, ZB ] = mepack_gsylv(A, B, C, D, Y8, 'T', 'T', optset);
 
-    assert(norm(A * X1 * B   - C * X1 * D   - Y5, 'fro')/norm(Y1, 'fro') < tol,   '[ 2 ] A * X1 *B + C * X1 * D = Y5' );
-    assert(norm(A * X2 * B'  - C * X2 * D'  - Y6, 'fro')/norm(Y1, 'fro') < tol,   '[ 2 ] A * X2 *B**T + C * X2 * D**T = Y6' );
-    assert(norm(A' * X3 * B  - C' * X3 * D  - Y7, 'fro')/norm(Y1, 'fro') < tol,   '[ 2 ] A**T * X3 *B + C**T * X3 * D = Y7' );
-    assert(norm(A' * X4 * B' - C' * X4 * D' - Y8, 'fro')/norm(Y1, 'fro') < tol,   '[ 2 ] A**T * X4 *B**T + C**T * X4 * D**T = Y8' );
+        assert(norm(A * X1 * B   - C * X1 * D   - Y5, 'fro')/norm(Y1, 'fro') < tol,   '[ 2 ] A * X1 *B + C * X1 * D = Y5' );
+        assert(norm(A * X2 * B'  - C * X2 * D'  - Y6, 'fro')/norm(Y1, 'fro') < tol,   '[ 2 ] A * X2 *B**T + C * X2 * D**T = Y6' );
+        assert(norm(A' * X3 * B  - C' * X3 * D  - Y7, 'fro')/norm(Y1, 'fro') < tol,   '[ 2 ] A**T * X3 *B + C**T * X3 * D = Y7' );
+        assert(norm(A' * X4 * B' - C' * X4 * D' - Y8, 'fro')/norm(Y1, 'fro') < tol,   '[ 2 ] A**T * X4 *B**T + C**T * X4 * D**T = Y8' );
 
-    X1 = mepack_gsylv(AS, BS, CS, DS, QA, ZA, QB, ZB, Y5, optset);
-    X2 = mepack_gsylv(AS, BS, CS, DS, QA, ZA, QB, ZB, Y6, 'N', 'T', optset);
-    X3 = mepack_gsylv(AS, BS, CS, DS, QA, ZA, QB, ZB, Y7, 'T', 'N', optset);
-    X4 = mepack_gsylv(AS, BS, CS, DS, QA, ZA, QB, ZB, Y8, 'T', 'T', optset);
+        X1 = mepack_gsylv(AS, BS, CS, DS, QA, ZA, QB, ZB, Y5, optset);
+        X2 = mepack_gsylv(AS, BS, CS, DS, QA, ZA, QB, ZB, Y6, 'N', 'T', optset);
+        X3 = mepack_gsylv(AS, BS, CS, DS, QA, ZA, QB, ZB, Y7, 'T', 'N', optset);
+        X4 = mepack_gsylv(AS, BS, CS, DS, QA, ZA, QB, ZB, Y8, 'T', 'T', optset);
 
-    assert(norm(A * X1 * B   - C * X1 * D   - Y5, 'fro')/norm(Y1, 'fro') < tol,   '[ 3 ] A * X1 *B + C * X1 * D = Y5' );
-    assert(norm(A * X2 * B'  - C * X2 * D'  - Y6, 'fro')/norm(Y1, 'fro') < tol,   '[ 3 ] A * X2 *B**T + C * X2 * D**T = Y6' );
-    assert(norm(A' * X3 * B  - C' * X3 * D  - Y7, 'fro')/norm(Y1, 'fro') < tol,   '[ 3 ] A**T * X3 *B + C**T * X3 * D = Y7' );
-    assert(norm(A' * X4 * B' - C' * X4 * D' - Y8, 'fro')/norm(Y1, 'fro') < tol,   '[ 3 ] A**T * X4 *B**T + C**T * X4 * D**T = Y8' );
-
+        assert(norm(A * X1 * B   - C * X1 * D   - Y5, 'fro')/norm(Y1, 'fro') < tol,   '[ 3 ] A * X1 *B + C * X1 * D = Y5' );
+        assert(norm(A * X2 * B'  - C * X2 * D'  - Y6, 'fro')/norm(Y1, 'fro') < tol,   '[ 3 ] A * X2 *B**T + C * X2 * D**T = Y6' );
+        assert(norm(A' * X3 * B  - C' * X3 * D  - Y7, 'fro')/norm(Y1, 'fro') < tol,   '[ 3 ] A**T * X3 *B + C**T * X3 * D = Y7' );
+        assert(norm(A' * X4 * B' - C' * X4 * D' - Y8, 'fro')/norm(Y1, 'fro') < tol,   '[ 3 ] A**T * X4 *B**T + C**T * X4 * D**T = Y8' );
+    end
 end

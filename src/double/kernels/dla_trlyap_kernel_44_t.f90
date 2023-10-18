@@ -103,7 +103,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date June 2023
+!> \date October 2023
 !> \ingroup dbltrlyap
 !
 SUBROUTINE DLA_TRLYAP_KERNEL_44T (M, A, LDA, X, LDX, SCALE, INFO)

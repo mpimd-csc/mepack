@@ -39,8 +39,9 @@
 
  where (A,C) is a M-by-M matrix pencil and (B,D) is a N-by-N matrix pencil.
  The right hand side Y and the solution X M-by-N matrices. The matrix pencils (A,C)
- and (B,D) can be either given as general unreduced matrices or in terms of
- their generalized Schur decomposition. If they are given as general matrices
+ and (B,D) can be either given as general unreduced matrices, as generalized
+ Hessenberg form, or in terms of their generalized Schur decomposition. 
+ If they are given as general matrices or as a generalized Hessenberg form
  their generalized Schur decomposition will be computed.
 
  \endverbatim
@@ -57,6 +58,8 @@
                   A = QA*S*ZA**T, C = QA*R*ZA**T will be computed.
           == 'F':  The matrix pencil (A,C) is already in generalized Schur form and S, R, QA, and ZA
                   are given.
+          == 'H': The matrix pencil (A,C) is given in generalized Hessenberg form and its Schur decomposition
+                  A = QA*S*ZA**T, C = QA*R*ZA**T will be computed.
  \endverbatim
 
  \param[in] FACTB
@@ -67,6 +70,8 @@
                   B = QB*U*ZB**T, D = QB*V*ZB**T will be computed.
           == 'F':  The matrix pencil (B,D) is already in generalized Schur form and U, V, QB, and ZB
                   are given.
+          == 'H': The matrix pencil (B,D) is given in generalized Hessenberg form and its Schur decomposition
+                  B = QB*U*ZB**T, D = QB*V*ZB**T will be computed.
  \endverbatim
 
  \param[in] TRANSA
@@ -112,6 +117,9 @@
           (quasi-) upper triangular factor S of the Schur decomposition of (A,C).
           If FACT == "F", the matrix A contains its (quasi-) upper triangular matrix S of
           the Schur decomposition of (A,C).
+          If FACT == "H", the matrix A is an upper Hessenberg matrix of the generalized
+          Hessenberg form (A,C) and it is overwritten with the (quasi-) upper triangular
+          factor S of the Schur decomposition of (A,C).
  \endverbatim
 
  \param[in] LDA
@@ -128,6 +136,9 @@
           (quasi-) upper triangular factor U of the Schur decomposition of (B,D).
           If FACT == "F", the matrix B contains its (quasi-) upper triangular matrix U of
           the Schur decomposition of (B,D).
+          If FACT == "H", the matrix B is an upper Hessenberg matrix of the generalized
+          Hessenberg form (B,D) and it is overwritten with the (quasi-) upper triangular
+          factor U of the Schur decomposition of (B,D).
  \endverbatim
 
  \param[in] LDB
@@ -143,6 +154,8 @@
           upper triangular factor R of the Schur decomposition of (A,C).
           If FACT == "F", the matrix C contains its upper triangular matrix R of
           the Schur decomposition of (A,C).
+          If FACT == "H", the matrix C is the upper triangular matrix of the generalized Hessenberg form
+          (A,C) and it is overwritten with the upper triangular factor R of the Schur decomposition of (A,C).
  \endverbatim
 
  \param[in] LDC
@@ -159,6 +172,8 @@
           upper triangular factor V of the Schur decomposition of (B,D).
           If FACT == "F", the matrix D contains its upper triangular matrix V of
           the Schur decomposition of (B,D).
+          If FACT == "H", the matrix D is the upper triangular matrix of the generalized Hessenberg form
+          (B,D) and it is overwritten with the upper triangular factor V of the Schur decomposition of (B,D).
  \endverbatim
 
  \param[in] LDD
@@ -173,6 +188,8 @@
           If FACT == "N", the matrix QA is an empty M-by-M matrix on input and contains the
           left Schur vectors of (A,C) on output.
           If FACT == "F", the matrix QA contains the left Schur vectors of (A,C).
+          If FACT == "H", the matrix QA is an empty M-by-M matrix on input and contains the
+          left Schur vectors of (A,C) on output.
  \endverbatim
 
  \param[in] LDQA
@@ -187,6 +204,8 @@
           If FACT == "N", the matrix ZA is an empty M-by-M matrix on input and contains the
           right Schur vectors of (A,C) on output.
           If FACT == "F", the matrix ZA contains the right Schur vectors of (A,C).
+          If FACT == "H", the matrix ZA is an empty M-by-M matrix on input and contains the
+          right Schur vectors of (A,C) on output.
  \endverbatim
 
  \param[in] LDZA
@@ -201,6 +220,8 @@
           If FACT == "N", the matrix QB is an empty N-by-N matrix on input and contains the
           left Schur vectors of (B,D) on output.
           If FACT == "F", the matrix QB contains the left Schur vectors of (B,D).
+          If FACT == "H", the matrix QB is an empty M-by-M matrix on input and contains the
+          left Schur vectors of (B,D) on output.
  \endverbatim
 
  \param[in] LDQB
@@ -215,6 +236,8 @@
           If FACT == "N", the matrix ZB is an empty N-by-N matrix on input and contains the
           right Schur vectors of (B,D) on output.
           If FACT == "F", the matrix ZB contains the right Schur vectors of (B,D).
+          If FACT == "H", the matrix ZB is an empty M-by-M matrix on input and contains the
+          right Schur vectors of (B,D) on output.
  \endverbatim
 
  \param[in] LDZB
@@ -264,7 +287,7 @@
  \verbatim
           INFO is INTEGER
           == 0:  successful exit
-          = 1:  DGGES failed
+          = 1:  DHGGES failed
           = 2:  DLA_SORT_GEV failed
           = 3:  Inner solver failed
           < 0:  if INFO == -i, the i-Th argument had an illegal value
@@ -275,7 +298,7 @@
 
  \author Martin Koehler, MPI Magdeburg
 
- \date June 2023
+ \date October 2023
 */
 void mepack_double_ggsylv(const char *FACTA, const char *FACTB, const char *TRANSA, const char*TRANSB, double SGN,  int M, int N,
         double * A, int LDA,double * B, int LDB, double *C, int LDC, double *D, int LDD,
@@ -327,8 +350,9 @@ void mepack_double_ggsylv(const char *FACTA, const char *FACTB, const char *TRAN
 
  where (A,C) is a M-by-M matrix pencil and (B,D) is a N-by-N matrix pencil.
  The right hand side Y and the solution X M-by-N matrices. The matrix pencils (A,C)
- and (B,D) can be either given as general unreduced matrices or in terms of
- their generalized Schur decomposition. If they are given as general matrices
+ and (B,D) can be either given as general unreduced matrices, as generalized
+ Hessenberg form, or in terms of their generalized Schur decomposition. 
+ If they are given as general matrices or as a generalized Hessenberg form
  their generalized Schur decomposition will be computed.
 
  \endverbatim
@@ -345,6 +369,8 @@ void mepack_double_ggsylv(const char *FACTA, const char *FACTB, const char *TRAN
                   A = QA*S*ZA**T, C = QA*R*ZA**T will be computed.
           == 'F':  The matrix pencil (A,C) is already in generalized Schur form and S, R, QA, and ZA
                   are given.
+          == 'H': The matrix pencil (A,C) is given in generalized Hessenberg form and its Schur decomposition
+                  A = QA*S*ZA**T, C = QA*R*ZA**T will be computed.
  \endverbatim
 
  \param[in] FACTB
@@ -355,6 +381,8 @@ void mepack_double_ggsylv(const char *FACTA, const char *FACTB, const char *TRAN
                   B = QB*U*ZB**T, D = QB*V*ZB**T will be computed.
           == 'F':  The matrix pencil (B,D) is already in generalized Schur form and U, V, QB, and ZB
                   are given.
+          == 'H': The matrix pencil (B,D) is given in generalized Hessenberg form and its Schur decomposition
+                  B = QB*U*ZB**T, D = QB*V*ZB**T will be computed.
  \endverbatim
 
  \param[in] TRANSA
@@ -400,6 +428,9 @@ void mepack_double_ggsylv(const char *FACTA, const char *FACTB, const char *TRAN
           (quasi-) upper triangular factor S of the Schur decomposition of (A,C).
           If FACT == "F", the matrix A contains its (quasi-) upper triangular matrix S of
           the Schur decomposition of (A,C).
+          If FACT == "H", the matrix A is an upper Hessenberg matrix of the generalized
+          Hessenberg form (A,C) and it is overwritten with the (quasi-) upper triangular
+          factor S of the Schur decomposition of (A,C).
  \endverbatim
 
  \param[in] LDA
@@ -416,6 +447,9 @@ void mepack_double_ggsylv(const char *FACTA, const char *FACTB, const char *TRAN
           (quasi-) upper triangular factor U of the Schur decomposition of (B,D).
           If FACT == "F", the matrix B contains its (quasi-) upper triangular matrix U of
           the Schur decomposition of (B,D).
+          If FACT == "H", the matrix B is an upper Hessenberg matrix of the generalized
+          Hessenberg form (B,D) and it is overwritten with the (quasi-) upper triangular
+          factor U of the Schur decomposition of (B,D).
  \endverbatim
 
  \param[in] LDB
@@ -431,6 +465,8 @@ void mepack_double_ggsylv(const char *FACTA, const char *FACTB, const char *TRAN
           upper triangular factor R of the Schur decomposition of (A,C).
           If FACT == "F", the matrix C contains its upper triangular matrix R of
           the Schur decomposition of (A,C).
+          If FACT == "H", the matrix C is the upper triangular matrix of the generalized Hessenberg form
+          (A,C) and it is overwritten with the upper triangular factor R of the Schur decomposition of (A,C).
  \endverbatim
 
  \param[in] LDC
@@ -447,6 +483,8 @@ void mepack_double_ggsylv(const char *FACTA, const char *FACTB, const char *TRAN
           upper triangular factor V of the Schur decomposition of (B,D).
           If FACT == "F", the matrix D contains its upper triangular matrix V of
           the Schur decomposition of (B,D).
+          If FACT == "H", the matrix D is the upper triangular matrix of the generalized Hessenberg form
+          (B,D) and it is overwritten with the upper triangular factor V of the Schur decomposition of (B,D).
  \endverbatim
 
  \param[in] LDD
@@ -461,6 +499,8 @@ void mepack_double_ggsylv(const char *FACTA, const char *FACTB, const char *TRAN
           If FACT == "N", the matrix QA is an empty M-by-M matrix on input and contains the
           left Schur vectors of (A,C) on output.
           If FACT == "F", the matrix QA contains the left Schur vectors of (A,C).
+          If FACT == "H", the matrix QA is an empty M-by-M matrix on input and contains the
+          left Schur vectors of (A,C) on output.
  \endverbatim
 
  \param[in] LDQA
@@ -475,6 +515,8 @@ void mepack_double_ggsylv(const char *FACTA, const char *FACTB, const char *TRAN
           If FACT == "N", the matrix ZA is an empty M-by-M matrix on input and contains the
           right Schur vectors of (A,C) on output.
           If FACT == "F", the matrix ZA contains the right Schur vectors of (A,C).
+          If FACT == "H", the matrix ZA is an empty M-by-M matrix on input and contains the
+          right Schur vectors of (A,C) on output.
  \endverbatim
 
  \param[in] LDZA
@@ -489,6 +531,8 @@ void mepack_double_ggsylv(const char *FACTA, const char *FACTB, const char *TRAN
           If FACT == "N", the matrix QB is an empty M-by-M matrix on input and contains the
           left Schur vectors of (B,D) on output.
           If FACT == "F", the matrix QB contains the left Schur vectors of (B,D).
+          If FACT == "H", the matrix QB is an empty M-by-M matrix on input and contains the
+          left Schur vectors of (B,D) on output.
  \endverbatim
 
  \param[in] LDQB
@@ -503,6 +547,8 @@ void mepack_double_ggsylv(const char *FACTA, const char *FACTB, const char *TRAN
           If FACT == "N", the matrix ZB is an empty M-by-M matrix on input and contains the
           right Schur vectors of (B,D) on output.
           If FACT == "F", the matrix ZB contains the right Schur vectors of (B,D).
+          If FACT == "H", the matrix ZB is an empty M-by-M matrix on input and contains the
+          right Schur vectors of (B,D) on output.
  \endverbatim
 
  \param[in] LDZB
@@ -552,7 +598,7 @@ void mepack_double_ggsylv(const char *FACTA, const char *FACTB, const char *TRAN
  \verbatim
           INFO is INTEGER
           == 0:  successful exit
-          = 1:  DGGES failed
+          = 1:  DHGGES failed
           = 2:  DLA_SORT_GEV failed
           = 3:  Inner solver failed
           < 0:  if INFO == -i, the i-Th argument had an illegal value
@@ -563,7 +609,7 @@ void mepack_double_ggsylv(const char *FACTA, const char *FACTB, const char *TRAN
 
  \author Martin Koehler, MPI Magdeburg
 
- \date June 2023
+ \date October 2023
 */
 void mepack_single_ggsylv(const char *FACTA, const char *FACTB, const char *TRANSA, const char*TRANSB, float SGN,  int M, int N,
         float * A, int LDA,float * B, int LDB, float *C, int LDC, float *D, int LDD,

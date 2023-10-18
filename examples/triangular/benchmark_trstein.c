@@ -30,536 +30,277 @@
 #include "mepack.h"
 #include "mepack_internal.h"
 
-#ifdef RECSY
-#define MAX_SOLVER 26
+#include "cscutils/table.h"
+
+#ifdef SINGLE_PRECISION
+#define STRINGIFY(x) #x
+#define MEPACK_PRECISION_PREFIX(X) STRINGIFY( SLA_ ## X)
+#define MEPACK_PREFIX(x) mepack_single_ ## x
+#define FLOAT float
 #else
-#define MAX_SOLVER 24
+#define MEPACK_PREFIX(x) mepack_double_ ## x
+#define FLOAT double
+#define STRINGIFY(x) #x
+#define MEPACK_PRECISION_PREFIX(X) STRINGIFY( DLA_ ## X)
 #endif
 
 
-void solver_name(int is) {
-    switch(is) {
-        case 1:
-            printf("LEVEL3 - LEVEL2: LOCAL COPY fixed maximum size with alignment\n");
-            break;
-        case 2:
-            printf("LEVEL3 - LEVEL2: LOCAL COPY fixed maximum size\n");
-            break;
-        case 3:
-            printf("LEVEL3 - LEVEL2: REORDERED (column first solution)\n");
-            break;
-        case 4:
-            printf("LEVEL3 - LEVEL2: BLAS LEVEL-2 call\n");
-            break;
-        case 5:
-            printf("LEVEL3 - LEVEL2: Unoptimized\n");
-            break;
-        case 6:
-            printf("LEVEL3 - LEVEL2: RECURSIVE BLOCKING\n");
-            break;
-        case 7:
-            printf("DAG - LEVEL2: LOCAL COPY fixed maximum size with alignment\n");
-            break;
-        case 8:
-            printf("DAG - LEVEL2: LOCAL COPY fixed maximum size\n");
-            break;
-        case 9:
-            printf("DAG - LEVEL2: REORDERED (column first solution)\n");
-            break;
-        case 10:
-            printf("DAG - LEVEL2: BLAS LEVEL-2 call\n");
-            break;
-        case 11:
-            printf("DAG - LEVEL2: Unoptimized\n");
-            break;
-        case 12:
-            printf("DAG - LEVEL2: RECURSIVE BLOCKING\n");
-            break;
-        case 13:
-            printf("LEVEL3 - DAG - LEVEL2: LOCAL COPY fixed maximum size with alignment\n");
-            break;
-        case 14:
-            printf("LEVEL3 - DAG - LEVEL2: LOCAL COPY fixed maximum size\n");
-            break;
-        case 15:
-            printf("LEVEL3 - DAG - LEVEL2: REORDERED (column first solution)\n");
-            break;
-        case 16:
-            printf("LEVEL3 - DAG - LEVEL2: BLAS LEVEL-2 call\n");
-            break;
-        case 17:
-            printf("LEVEL3 - DAG - LEVEL2: Unoptimized\n");
-            break;
-        case 18:
-            printf("LEVEL3 - DAG - LEVEL2: RECURSIVE BLOCKING\n");
-            break;
-        case 19:
-            printf("LEVEL2: BLAS2 with DSYR2 optimizations\n");
-            break;
-        case 20:
-            printf("LEVEL2: BLAS2 unoptimized\n");
-            break;
-        case 21:
-            printf("Not Implemented\n");
-            break;
-        case 22:
-            printf("Not Implemented\n");
-            break;
-        case 23:
-            printf("Not Implemented\n");
-            break;
-        case 24:
-            printf("RECURSIVE BLOCKING\n");
-            break;
-        case 25:
-            printf("RECSY\n");
-            break;
-        case 26:
-            printf("RECSY Parallel\n");
-            break;
-        case 27:
-            printf("SLICOT\n");
-
-            break;
-    }
-
-}
-
-void usage(char *prgmname) {
-    int is;
-    printf("Solve a standard Stein equation with triangular coefficient matrices.\n");
-    printf("\n");
-    printf("Usage: %s <options>\n", prgmname);
-    printf("\n");
-    printf("--help, -h        Display this help\n");
-    printf("--rows=M , -m M   Set the number of rows to M. \n");
-    printf("--rows=START:STEP:STOP   Iterate the number of rows from START to STOP with step size STEP.\n");
-    printf("--mb=START:STEP:STOP     Iterate the row block size form START to STOP with step size STEP.\n");
-    printf("--mb=MB                  Set the row block size.  \n");
-    printf("--trans=N,T              Transpose on the matrix A \n");
-    printf("--nmat=NUM               Number of different equations.\n");
-    printf("--runs=R                 Number of runs per equation.\n");
-    printf("--solver=S, -s S         Select the solver \n");
-    printf("--alignoff, -a           Turn off the blocksize alignment.\n");
-
-    printf("\nPossible Solvers\n");
-
-    for (is = 0; is <= 27; is++) {
-        printf("%2d : ", is); solver_name(is);
-    }
-    return;
-}
-
-
-int main(int argc, char **argv)
-{
-    Int iseed[4]={1,1,1,9};
-    Int i,mat ;
-    double *A;
-    double *X, *Xorig,*Work, *RHS;
-    Int M = 1024;
-    Int M_MIN=1024,M_MAX=1024,M_STEP=128;
-    Int MB_MIN=64,MB_MAX=64,MB_STEP=32;
-    Int MB;
-
-    Int RUNS = 5;
-    Int is = 0;
-    Int nMAT = 1;
-
-    double alpha, beta;
-    char TRANSA[20]="N";
-    Int align_on = 1;
+typedef struct _context_stein_t {
+    Int M ;
+    Int MB, BIGMB;
+    FLOAT sgn;
+    FLOAT scale;
+    FLOAT *A;  Int LDA;
+    FLOAT *X;  Int LDX;
+    FLOAT *Xorig; Int LDXorig;
+    FLOAT *RHS_X; Int LDRHS_X;
+    ssize_t mem;
+    FLOAT *work;
+    char * TRANSA;
+    int isolver;
 #ifdef RECSY
     double MACHINE_RECSY[12];
-    Int type, j, N2;
+    Int type;
 #endif
+} context_stein_t;
 
-    double scale = 1.0;
-    int info;
-    Int run;
-    double te, ts = 0;
 
-    double times,ts2 = 0, te2;
-    double ctimes;
-    double ress = 1.0;
-    double eps;
-    size_t mem ;
-
-    int choice;
-
-    MB = 64;
-
-    while (1)
-    {
-        static struct option long_options[] =
-        {
-            /* Use flags like so:
-               {"verbose",    no_argument,    &verbose_flag, 'V'}*/
-            /* Argument styles: no_argument, required_argument, optional_argument */
-            {"help",    no_argument,    0,    'h'},
-            {"rows",    required_argument, 0, 'm'},
-            {"mb",      required_argument, 0, 'M'},
-            {"trans",  required_argument, 0, 'A'},
-            {"nmat",    required_argument, 0, 't'},
-            {"runs",    required_argument, 0, 'r'},
-            {"solver",  required_argument, 0, 's'},
-            {"alignoff", no_argument, 0, 'a'},
-
-            {0,0,0,0}
-        };
-
-        int option_index = 0;
-
-        /* Argument parameters:
-no_argument: " "
-required_argument: ":"
-optional_argument: "::" */
-
-        choice = getopt_long( argc, argv, "hm:M:A:t:r:s:",
-                long_options, &option_index);
-
-        if (choice == -1)
-            break;
-
-        switch( choice )
-        {
-            case 'h':
-                usage(argv[0]);
-                exit(-1);
-                break;
-            case 'm':
-                if ( strstr(optarg, ":") != NULL ) {
-                    int f1,f2,f3;
-                    if ( sscanf(optarg, "%d:%d:%d", &f1, &f2, &f3) != 3 ) {
-                        fprintf(stderr, "The loop argument must have the format MIN:STEP:MAX\n");
-                    }
-                    M_MIN = f1;
-                    M_STEP = f2;
-                    M_MAX = f3;
-                    M = f1;
-                } else {
-                    M = atoi(optarg);
-                    M_MIN = M;
-                    M_MAX = M;
-                    M_STEP = M;
-                }
-                break;
-            case 'M':
-                if ( strstr(optarg, ":") != NULL ) {
-                    int f1,f2,f3;
-                    if ( sscanf(optarg, "%d:%d:%d", &f1, &f2, &f3) != 3 ) {
-                        fprintf(stderr, "The loop argument must have the format MIN:STEP:MAX\n");
-                    }
-                    MB = f1;
-                    MB_MIN = f1;
-                    MB_STEP = f2;
-                    MB_MAX = f3;
-                } else {
-                    MB_MIN = atoi(optarg);
-                    MB_MAX = MB_MIN;
-                    MB_STEP = MB_MIN;
-                    MB = MB_MIN;
-                }
-                break;
-            case 'A':
-                strncpy(TRANSA, optarg,2);
-                TRANSA[0] = toupper(TRANSA[0]);
-                if (TRANSA[0] != 'N' && TRANSA[0] != 'T') {
-                    printf("Invalid transpose option for (A,C).\n");
-                    return -1;
-                }
-                break;
-            case 't':
-                nMAT = atoi(optarg);
-                break;
-            case 'r':
-                RUNS = atoi(optarg);
-                break;
-            case 's':
-                is = atoi(optarg);
-                break;
-            case 'a':
-                align_on = 0;
-                break;
-
-            default:
-                /* Not sure how to get here... */
-                return EXIT_FAILURE;
-        }
-    }
-
-    if ( is < 1 || is > 27 ) {
-        fprintf(stderr, "Solver not known. \n");
-        exit(-1);
-    }
-
-    benchmark_init();
-
-    mepack_init();
-
-    /*-----------------------------------------------------------------------------
-     *  Output Configuration
-     *-----------------------------------------------------------------------------*/
-    printf("# Command Line: ");
-    for (i = 1; i < argc; i++) {
-        printf("%s ", argv[i]);
-    }
-    printf("\n");
-    printf("# RUNS:  %d\n", (int) RUNS);
-    printf("# Number of Matrices: %d\n",(int)  nMAT);
-    printf("# Rows: %d (%d:%d:%d)\n",(int)  M , (int) M_MIN, (int) M_STEP, (int) M_MAX);
-    printf("# TRANSA: %s\n", TRANSA);
-    printf("# Block Alignment: %s\n", (align_on == 1)?"YES":"NO");
-
-    mepack_trstein_isolver_set(1);
-
-    printf("# MACHINE DEFAULT Configuration:\n");
-    eps = mepack_double_epsilon();
-    printf("# Solver: "); solver_name(is);
-
-    mepack_double_trstein_blocksize_2stage_set(256);
-
-
-    printf("#\n");
-    printf("#  M   MB  Wall-Time     CPU-Time       Ratio    Forward-Err\n");
-
-    for (M = M_MIN ;  M <= M_MAX ; M = M + M_STEP ) {
-        for (MB = MB_MIN; MB <= MB_MAX ; MB += MB_STEP) {
-
-            /* Reset the Seed  */
-            iseed[0] = 1;
-            iseed[1] = 1;
-            iseed[2] = 1;
-            iseed[3] = 3;
-
-            /* Set the Block size   */
-            mepack_double_trstein_blocksize_set(MB);
-
-            /* Prepare  */
-            times = 0;
-            ctimes = 0;
-            ress = 0.0;
-
-            A = (double *) malloc(sizeof(double) * (M*M));
-            X = (double *) malloc(sizeof(double) * (M*M));
-#pragma omp parallel for schedule(static,1)
-            for (i = 0; i < M*M; i+=512) { A[i] = 0.0; }
-#pragma omp parallel for schedule(static,1)
-            for (i = 0; i < M*M; i+=512) { X[i] = 0.0; }
-
-            Xorig = (double *) malloc(sizeof(double) * (M*M));
-            RHS = (double *) malloc(sizeof(double) * (M*M));
-
-            if ( is < 7 ){
-                mepack_trstein_isolver_set(is);
-                mem = mepack_memory("DLA_TRSTEIN_L3", M, 0);
-            } else if ( is > 6 && is < 13 ){
-                mepack_trstein_isolver_set(is-6);
-                mem = mepack_memory("DLA_TRSTEIN_DAG", M, 0);
-            } else if ( is > 12 && is < 19 ){
-                mepack_trstein_isolver_set(is-12);
-                mem = mepack_memory("DLA_TRSTEIN_L3_2S", M, 0);
-            } else if ( is == 19)
-                mem = mepack_memory("DLA_TRSTEIN_L2", M, 0);
-            else if ( is == 24)
-                mem = mepack_memory("DLA_TRSTEIN_RECURSIVE", M, 0);
-            else
-                mem = 2*M*M;
-
-            Work = (double *) malloc(sizeof(double) * (mem));
-            alpha = 1; beta = 1;
-            FC_GLOBAL_(dlaset,DLASET)("All", &M, &M, &alpha, &beta, Xorig, &M, 1);
-
-
-            for (mat = 0; mat < nMAT; mat++) {
-                /* Setup the Problem  */
-                benchmark_random_evp_double(M, iseed, A, NULL, NULL, align_on*MB);
-                benchmark_rhs_stein_double(TRANSA, M, A, M, Xorig, M, RHS, M );
-
-                info = 0;
-
-                /*-----------------------------------------------------------------------------
-                 *  LEVEL 3
-                 *-----------------------------------------------------------------------------*/
-                if ( is < 19 ) {
-                    if ( is < 7 )  {
-                        mepack_trstein_isolver_set(is);
-                    } else if ( is > 6 && is < 13 )  {
-                        mepack_trstein_isolver_set(is-6);
-                    } else if ( is > 12 && is < 19 )  {
-                        mepack_trstein_isolver_set(is-12);
-                    }
-
-                    te = 0.0;
-                    te2 = 0.0;
-                    for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, RHS, &M, X, &M, 1);
-                        if ( run >= 0 ) {
-                            ts = get_wtime();
-                            ts2 = get_ctime();
-                        }
-                        if ( is < 7 )
-                            mepack_double_trstein_level3(TRANSA, M, A, M, X, M, &scale, Work, &info);
-                        else if ( is < 12 )
-                            mepack_double_trstein_dag(TRANSA, M, A, M, X, M, &scale, Work, &info);
-                        else if ( is < 19 )
-                            mepack_double_trstein_level3_2stage(TRANSA, M, A, M, X, M, &scale, Work, &info);
-
-                        if (run >= 0 ) {
-                            te2 += (get_ctime()-ts2);
-                            te += (get_wtime()-ts);
-                        }
-
-                    }
-                    te = te / RUNS;
-                    te2 = te2/RUNS;
-                    times += te;
-                    ctimes += te2;
-
-                    ress += benchmark_check_X_double(M,M,X, M, Xorig, M);
-                }
-
-#ifdef RECSY
-                /*-----------------------------------------------------------------------------
-                 *  RECSY
-                 *-----------------------------------------------------------------------------*/
-                type = benchmark_gstein_setup_to_type(TRANSA);
-                FC_GLOBAL_(recsy_machine,RECSY_MACHINE)(MACHINE_RECSY);
-
-                if ( is == 25 )  {
-                    Int infox = 0;
-                    te = 0.0;
-                    te2= 0.0;
-                    N2 = M *M;
-                    for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, RHS, &M, X, &M, 1);
-                        if ( run >= 0 ) {
-                            ts = get_wtime();
-                            ts2 = get_ctime();
-                        }
-                        FC_GLOBAL_(reclydt,RECLYDT)(&type, &scale, &M, A, &M, X,  &M, &infox, MACHINE_RECSY, Work, &N2 );
-
-                        for (j = 0; j < M; j++) {
-                            for (i = 0; i < j; i++) {
-                                X[i*M+j] = X[j*M+i];
-                            }
-                        }
-
-                        if (run >= 0 ) {
-                            te2 += (get_ctime()-ts2);
-                            te += (get_wtime()-ts);
-                        }
-
-                    }
-                    te = te / RUNS;
-                    te2 = te2/RUNS;
-                    times += te;
-                    ctimes += te2;
-
-
-                    ress += benchmark_check_X_double(M,M,X, M, Xorig, M);
-                }
-
-                /*-----------------------------------------------------------------------------
-                 *  RECSY Parallel
-                 *-----------------------------------------------------------------------------*/
-                type = benchmark_gstein_setup_to_type(TRANSA);
-                FC_GLOBAL_(recsy_machine,RECSY_MACHINE)(MACHINE_RECSY);
-
-                if ( is == 26 )  {
-                    Int infox = 0;
-                    Int proc =omp_get_num_procs();
-                    te = 0.0;
-                    te2= 0.0;
-                    N2 = M *M;
-                    for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, RHS, &M, X, &M, 1);
-                        if ( run >= 0 ) {
-                            ts = get_wtime();
-                            ts2 = get_ctime();
-                        }
-                        FC_GLOBAL_(reclydt_p,RECLYDT_P)(&proc, &type, &scale, &M, A, &M, X,  &M, &infox, MACHINE_RECSY, Work, &N2 );
-
-                        for (j = 0; j < M; j++) {
-                            for (i = 0; i < j; i++) {
-                                X[i*M+j] = X[j*M+i];
-                            }
-                        }
-
-                        if (run >= 0 ) {
-                            te2 += (get_ctime()-ts2);
-                            te += (get_wtime()-ts);
-                        }
-
-                    }
-                    te = te / RUNS;
-                    te2 = te2/RUNS;
-                    times += te;
-                    ctimes += te2;
-
-
-                    ress += benchmark_check_X_double(M,M,X, M, Xorig, M);
-                }
-#endif
-
-                /*-----------------------------------------------------------------------------
-                 *  SLICOT
-                 *-----------------------------------------------------------------------------*/
-                if ( is == 27 )  {
-                    Int infox = 0;
-                    char TRANSX[2]={0,0};
-                    te = 0.0;
-                    te2 = 0.0;
-                    if ( tolower(TRANSA[0]) == 'n') {
-                        TRANSX[0]='T';
-                    } else {
-                        TRANSX[0]='N';
-                    }
-
-                    for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, RHS, &M, X, &M, 1);
-
-                        ts = get_wtime();
-                        ts2 = get_ctime();
-
-                        FC_GLOBAL_(sb03mx,SB03MX)(TRANSX, &M, A, &M, X, &M, &scale, Work, &infox, 1);
-
-                        if (run >= 0 ) {
-                            te2 += (get_ctime()-ts2);
-                            te += (get_wtime()-ts);
-                        }
-
-                    }
-                    te = te / RUNS;
-                    te2 = te2/RUNS;
-                    times += te;
-                    ctimes += te2;
-
-
-                    ress += benchmark_check_X_double(M,M,X, M, Xorig, M);
-                }
-
-            }
-            times /= (double) nMAT;
-            ctimes /= (double) nMAT;
-            ress /= (double) nMAT;
-
-            /* Print  */
-
-            printf("%5d %3d  %10.5e  %10.5e  %10.5e  %10.5e \n",
-                    (int) M, (int) MB, times, ctimes, ctimes/times, ress);
-            fflush(stdout);
-            free(A);
-            free(X);
-            free(Xorig);
-            free(Work);
-            free(RHS);
-
-        }
-    }
-
-    benchmark_exit();
-    return (ress < sqrt(eps)*100)? 0 : -1 ;
+int is_sym(void) {
+    return 1;
 }
 
 
+static void context_stein_init(void *_ctx, Int M, Int N, Int ISolver, Int MB, Int NB, Int BIGMB, const char *TA, const char *TB, double sgn1, double sgn2){
+    context_stein_t *ctx = _ctx;
+    Int i;
+    (void) sgn1;
+    (void) sgn2;
+    (void) TB;
+    (void) N;
+    (void) NB;
+
+    MEPACK_PREFIX(trstein_blocksize_2stage_set)(BIGMB);
+    MEPACK_PREFIX(trstein_blocksize_set)(MB);
+
+    if ( ISolver < 19 ) {
+        if ( ISolver < 7 )  {
+            mepack_trstein_isolver_set(ISolver);
+        } else if ( ISolver > 6 && ISolver < 13 )  {
+            mepack_trstein_isolver_set(ISolver-6);
+        } else if ( ISolver > 12 && ISolver < 19 )  {
+            mepack_trstein_isolver_set(ISolver-12);
+        } else {
+            mepack_trstein_isolver_set(1);
+        }
+    } else {
+        mepack_trstein_isolver_set(1);
+    }
+
+    ctx->A = (FLOAT *) malloc(sizeof(FLOAT) * (M*M));
+    ctx->X = (FLOAT *) malloc(sizeof(FLOAT) * (M*M));
+
+
+#pragma omp parallel for schedule(static,1)
+    for (i = 0; i < M*M; i+=512) { ctx->A[i] = 0.0; }
+#pragma omp parallel for schedule(static,1)
+    for (i = 0; i < M*M; i+=512) { ctx->X[i] = 0.0; }
+
+    ctx->Xorig = (FLOAT *) malloc(sizeof(FLOAT) * (M*M));
+    ctx->RHS_X = (FLOAT *) malloc(sizeof(FLOAT) * (M*M));
+
+    if ( ISolver < 7 ) {
+        ctx->mem = mepack_memory(MEPACK_PRECISION_PREFIX(TRSTEIN_L3), M, M);
+    } else if ( ISolver > 6 && ISolver < 13 ) {
+        ctx->mem = mepack_memory(MEPACK_PRECISION_PREFIX(TRSTEIN_DAG), M, M);
+    } else if ( ISolver > 12 && ISolver < 19 ) {
+        ctx->mem = mepack_memory(MEPACK_PRECISION_PREFIX(TRSTEIN_L3_2S), M, M);
+    } else if ( ISolver == 19 ) {
+        ctx->mem = mepack_memory(MEPACK_PRECISION_PREFIX(TRSTEIN_L2), M, M);
+    } else if ( ISolver == 20 ) {
+        ctx->mem = mepack_memory(MEPACK_PRECISION_PREFIX(TRSTEIN_L2), M, M);
+    } else if ( ISolver == 21)
+        ctx->mem = mepack_memory(MEPACK_PRECISION_PREFIX(TRSTEIN_L2), M, M);
+    else if ( ISolver == 22)
+        ctx->mem = mepack_memory(MEPACK_PRECISION_PREFIX(TRSTEIN_L2), M, M);
+    else if ( ISolver == 23)
+        ctx->mem = mepack_memory(MEPACK_PRECISION_PREFIX(TRSTEIN_L2), M, M);
+    else if ( ISolver == 24)
+        ctx->mem = mepack_memory(MEPACK_PRECISION_PREFIX(TRSTEIN_RECURSIVE), M, M);
+    else
+        ctx->mem = 3*M*M;
+
+    ctx->work = (FLOAT *) malloc(sizeof(FLOAT) * (ctx->mem));
+
+    ctx->M = M;
+    ctx->MB = MB;
+    ctx->BIGMB = BIGMB;
+    ctx->scale = 1;
+    ctx->LDA = M;
+    ctx->LDX = M;
+    ctx->LDXorig = M;
+    ctx->LDRHS_X = M;
+    ctx->isolver = ISolver;
+
+    ctx->TRANSA=strdup(TA);
+#ifdef RECSY
+    ctx->type = benchmark_gstein_setup_to_type(TA);
+    FC_GLOBAL_(recsy_machine,RECSY_MACHINE)(ctx->MACHINE_RECSY);
+
+#endif
+
+}
+
+static void context_stein_setup_rhs(void *_ctx){
+    context_stein_t * ctx = _ctx;
+
+    FLOAT alpha = 1;
+    FLOAT beta = 1;
+
+#ifdef SINGLE_PRECISION
+    FC_GLOBAL_(slaset,SLASET)("All", &ctx->M, &ctx->M, &alpha, &beta, ctx->Xorig, &ctx->LDXorig, 1);
+#else
+    FC_GLOBAL_(dlaset,DLASET)("All", &ctx->M, &ctx->M, &alpha, &beta, ctx->Xorig, &ctx->LDXorig, 1);
+#endif
+}
+
+static void context_stein_setup_problem(void *_ctx, Int iseed[4], Int align, Int changerole)
+{
+    context_stein_t * ctx = _ctx;
+    (void) changerole;
+#ifdef SINGLE_PRECISION
+
+    benchmark_random_evp_float(ctx->M, iseed, ctx->A, NULL, NULL, align);
+
+    benchmark_rhs_stein_float(ctx->TRANSA, ctx->M,
+            ctx->A, ctx->LDA,
+            ctx->Xorig, ctx->LDXorig, ctx->RHS_X, ctx->LDRHS_X);
+#else
+    benchmark_random_evp_double(ctx->M, iseed, ctx->A, NULL, NULL, align);
+
+    benchmark_rhs_stein_double(ctx->TRANSA, ctx->M,
+            ctx->A, ctx->LDA,
+            ctx->Xorig, ctx->LDXorig, ctx->RHS_X, ctx->LDRHS_X);
+
+#endif
+}
+
+static void context_stein_iter_prepare(void * _ctx) {
+    context_stein_t * ctx = _ctx;
+#ifdef SINGLE_PRECISION
+    FC_GLOBAL_(slacpy,SLACPY)("All", &ctx->M, &ctx->M, ctx->RHS_X, &ctx->LDRHS_X, ctx->X, &ctx->LDX, 1);
+#else
+    FC_GLOBAL_(dlacpy,DLACPY)("All", &ctx->M, &ctx->M, ctx->RHS_X, &ctx->LDRHS_X, ctx->X, &ctx->LDX, 1);
+#endif
+}
+
+static void context_stein_iter_solve(void *_ctx){
+    context_stein_t * ctx = _ctx;
+    int info= 0;
+
+    if ( ctx->isolver < 7 ) {
+        MEPACK_PREFIX(trstein_level3)(ctx->TRANSA, ctx->M,
+                ctx->A, ctx->LDA, ctx->X, ctx->LDX,  &ctx->scale, ctx->work, &info);
+    } else if ( ctx->isolver < 12 ) {
+        MEPACK_PREFIX(trstein_dag)(ctx->TRANSA, ctx->M,
+                ctx->A, ctx->LDA, ctx->X, ctx->LDX,  &ctx->scale, ctx->work, &info);
+    } else if ( ctx->isolver < 19 ) {
+        MEPACK_PREFIX(trstein_level3_2stage)(ctx->TRANSA, ctx->M,
+                ctx->A, ctx->LDA, ctx->X, ctx->LDX,  &ctx->scale, ctx->work, &info);
+    } else if ( ctx->isolver == 19 ){
+            MEPACK_PREFIX(trstein_level2)(ctx->TRANSA,  ctx->M,
+                ctx->A, ctx->LDA, ctx->X, ctx->LDX,  &ctx->scale, ctx->work, &info);
+    } else if ( ctx->isolver == 20 ) {
+            MEPACK_PREFIX(trstein_level2)(ctx->TRANSA, ctx->M,
+                ctx->A, ctx->LDA, ctx->X, ctx->LDX,  &ctx->scale, ctx->work, &info);
+    } else if ( ctx->isolver == 24){
+        MEPACK_PREFIX(trstein_recursive)(ctx->TRANSA, ctx->M,
+                ctx->A, ctx->LDA, ctx->X, ctx->LDX,  &ctx->scale, ctx->work, &info);
+    }
+#if defined(RECSY) && !defined (SINGLE_PRECISION)
+    else if ( ctx->isolver == 25 ) {
+        Int M2 = ctx->M  * ctx->M;
+        FC_GLOBAL_(reclydt,RECLYDT)(&ctx->type, &ctx->scale, &ctx->M, ctx->A, &ctx->LDA, ctx->X, &ctx->LDX,  &info, ctx->MACHINE_RECSY, ctx->work, &M2);
+    } else if ( ctx->isolver == 26 ) {
+        Int proc = omp_get_num_procs();
+        Int M2 = ctx->M * ctx->M;
+        FC_GLOBAL_(reclydt_p,RECLYDT_P)(&proc, &ctx->type, &ctx->scale, &ctx->M, ctx->A, &ctx->LDA, ctx->X, &ctx->LDX, &info, ctx->MACHINE_RECSY, ctx->work, &M2);
+    }
+#endif
+#ifndef SINGLE_PRECISION
+    else if ( ctx->isolver == 30) {
+        char TRANSX[2]={0,0};
+        if ( tolower(ctx->TRANSA[0]) == 'n') {
+            TRANSX[0]='T';
+        } else {
+            TRANSX[0]='N';
+        }
+
+
+        FC_GLOBAL_(sb03mx,SB03MX)(TRANSX, &ctx->M, ctx->A, &ctx->LDA, ctx->X, &ctx->LDX, &ctx->scale, ctx->work, &info, 1);
+    }
+#endif
+}
+
+static void context_stein_check(void *_ctx, double *forward, double *rel)
+{
+    context_stein_t * ctx = _ctx;
+    *rel += MEPACK_PREFIX(residual_stein)(ctx->TRANSA, ctx->M,
+            ctx->A, ctx->LDA,
+            ctx->X, ctx->LDX, ctx->RHS_X, ctx->LDRHS_X, ctx->scale);
+#ifdef SINGLE_PRECISION
+    *forward += benchmark_check_X_float(ctx->M,ctx->M,ctx->X, ctx->LDX, ctx->Xorig, ctx->LDXorig);
+#else
+    *forward += benchmark_check_X_double(ctx->M,ctx->M,ctx->X, ctx->LDX, ctx->Xorig, ctx->LDXorig);
+#endif
+}
+
+
+static void context_stein_clean(void *_ctx)
+{
+    context_stein_t * ctx = _ctx;
+
+    free(ctx->A);
+    free(ctx->X);
+    free(ctx->Xorig);
+    free(ctx->RHS_X);
+    free(ctx->work);
+    free(ctx->TRANSA);
+}
+
+benchmark_context_t *benchmark_create(void)
+{
+    benchmark_context_t *bctx = malloc(sizeof(benchmark_context_t));
+    context_stein_t * ctx = malloc(sizeof(context_stein_t));
+    memset(ctx, 0, sizeof(context_stein_t));
+    bctx->ctx = ctx;
+    bctx->init = context_stein_init;
+    bctx->setup_rhs = context_stein_setup_rhs;
+    bctx->setup_problem = context_stein_setup_problem;
+    bctx->iter_prepare = context_stein_iter_prepare;
+    bctx->iter_solve = context_stein_iter_solve;
+    bctx->check = context_stein_check;
+    bctx->clean = context_stein_clean;
+    return bctx;
+}
+
+const char *equation_name(void) {
+    return "Triangular Stein Equation";
+}
+
+int have_solver(int is){
+    if ( is > 0 && is <=26){
+#ifndef RECSY
+        if(is == 25 || is == 26 ) return 0;
+#endif
+#ifdef SINGLE_PRECISION
+        if(is == 25 || is == 26 ) return 0;
+#endif
+        if (is == 21 || is == 22 || is == 23) return 0;
+        return 1;
+    }
+#ifndef SINGLE_PRECISION
+    if ( is == 30) return 1;
+#endif
+    return 0;
+
+}

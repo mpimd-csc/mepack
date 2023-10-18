@@ -29,6 +29,7 @@
 #include "benchmark.h"
 #include "mepack.h"
 #include "mepack_internal.h"
+#include "cscutils/table.h"
 
 void usage(char * prgmname) {
     printf("Benchmark the different level 2 inside the level 3 solver for the generalized coupled Sylvester equation.\n");
@@ -51,6 +52,9 @@ void usage(char * prgmname) {
     printf("--nmat=NUM               Number of different equations.\n");
     printf("--runs=R                 Number of runs per equation.\n");
     printf("--res                    Compute and print the residual instead of the run time. \n");
+    printf("--output=path, -o path   Write the final result table to csv-like file.\n");
+
+
     return;
 }
 
@@ -74,6 +78,7 @@ int main(int argc, char **argv)
     Int mbnb_same = 0;
     Int nMAT = 1;
 
+    char *output_file = NULL;
     double alpha, beta;
     double sign = 1;
     char TRANSA[20]="N";
@@ -112,6 +117,7 @@ int main(int argc, char **argv)
             {"nmat",    required_argument, 0, 't'},
             {"runs",    required_argument, 0, 'r'},
             {"res",     no_argument, 0, 'R'},
+            {"output",  required_argument, 0, 'o'},
             {0,0,0,0}
         };
 
@@ -122,7 +128,7 @@ int main(int argc, char **argv)
             required_argument: ":"
             optional_argument: "::" */
 
-        choice = getopt_long( argc, argv, "hm:n:M:N:A:B:t:r:R",
+        choice = getopt_long( argc, argv, "hm:n:M:N:A:B:t:r:Ro:",
                     long_options, &option_index);
 
         if (choice == -1)
@@ -248,6 +254,9 @@ int main(int argc, char **argv)
                 print_res =1;
                 RUNS = 1;
                 break;
+            case 'o':
+                output_file = strdup(optarg);
+                break;
             default:
                 /* Not sure how to get here... */
                 return EXIT_FAILURE;
@@ -259,21 +268,53 @@ int main(int argc, char **argv)
     /*-----------------------------------------------------------------------------
      *  Output Configuration
      *-----------------------------------------------------------------------------*/
-    printf("# Command Line: ");
-    for (i = 1; i < argc; i++) {
-        printf("%s ", argv[i]);
-    }
-    printf("\n");
-    printf("# RUNS:  %d\n", (int) RUNS);
-    printf("# Number of Matrices: %d\n", (int) nMAT);
-    printf("# Rows: %d (%d:%d:%d)\n", (int) M , (int) M_MIN, (int) M_STEP, (int) M_MAX);
+    csc_table_t *tab;
+    tab = csc_table_new(0);
+    int col_what = csc_table_add_column(tab, "What", CSC_TABLE_STRING, CSC_TABLE_LEFT);
+    int col_m = csc_table_add_column(tab, "M", CSC_TABLE_INTEGER, CSC_TABLE_RIGHT);
+    int col_n = csc_table_add_column(tab, "N", CSC_TABLE_INTEGER, CSC_TABLE_RIGHT);
+    int col_mb = csc_table_add_column(tab, "MB", CSC_TABLE_INTEGER, CSC_TABLE_RIGHT);
+    int col_nb = csc_table_add_column(tab, "NB", CSC_TABLE_INTEGER, CSC_TABLE_RIGHT);
+    int col_recsy   = csc_table_add_column(tab, "RECSY", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+    int col_lcalign = csc_table_add_column(tab, "LC-ALIGN", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+    int col_lc      = csc_table_add_column(tab, "LOCAL-COPY", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+    int col_reorder = csc_table_add_column(tab, "REORDER", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+    int col_l2opt   = csc_table_add_column(tab, "L2-Optimized", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+    int col_unopt   = csc_table_add_column(tab, "Unoptimized", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+    int col_rec     = csc_table_add_column(tab, "Recursive", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+    int col_omp     = csc_table_add_column(tab, "OpenMP-DAG", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+    int col_l32s    = csc_table_add_column(tab, "Level3-2Stage", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+
+    csc_table_comment_cmd(tab, argc, argv);
+    csc_table_comment_allinfo(tab);
+    csc_table_comment_printf(tab, "RUNS:  %d", (int) RUNS);
+    csc_table_comment_printf(tab, "Number of Matrices: %d", (int) nMAT);
+    csc_table_comment_printf(tab, "Rows: %d (%d:%d:%d)", (int) M , (int) M_MIN, (int) M_STEP, (int) M_MAX);
     if ( mn_same )
-        printf("# Cols: same as rows.\n");
+        csc_table_comment_printf(tab, "Cols: same as rows. %s");
     else
-        printf("# Cols: %d (%d:%d:%d)\n", (int) N , (int) N_MIN, (int) N_STEP, (int) N_MAX);
-    printf("# TRANSA: %s\n", TRANSA);
-    printf("# TRANSB: %s\n", TRANSB);
-    if (print_res )  printf("# Print Residual\n");
+        csc_table_comment_printf(tab, "Cols: %d (%d:%d:%d)", (int) N , (int) N_MIN, (int) N_STEP, (int) N_MAX);
+    csc_table_comment_printf(tab, "TRANSA: %s", TRANSA);
+    csc_table_comment_printf(tab, "TRANSB: %s", TRANSB);
+    csc_table_comment_printf(tab, "SIGN:   %lg", sign);
+    csc_table_comment_printf(tab, "Solution of the Sylvester2 Equation");
+
+    csc_table_column_minwidth(tab, col_what, 10);
+    csc_table_column_minwidth(tab, col_m, 5);
+    csc_table_column_minwidth(tab, col_n, 5);
+    csc_table_column_minwidth(tab, col_mb, 5);
+    csc_table_column_minwidth(tab, col_nb, 5);
+    csc_table_column_minwidth(tab, col_recsy, 12);
+    csc_table_column_minwidth(tab, col_lcalign, 12);
+    csc_table_column_minwidth(tab, col_lc, 12);
+    csc_table_column_minwidth(tab, col_reorder, 12);
+    csc_table_column_minwidth(tab, col_l2opt, 12);
+    csc_table_column_minwidth(tab, col_unopt, 12);
+    csc_table_column_minwidth(tab, col_rec, 12);
+    csc_table_column_minwidth(tab, col_omp, 12);
+    csc_table_column_minwidth(tab, col_l32s, 12);
+    csc_table_print_current_row(tab);
+
 
 
     mepack_trsylv2_isolver_set(1);
@@ -286,10 +327,7 @@ int main(int argc, char **argv)
         NB_MAX = 1;
     }
 
-
-
-    printf("#\n");
-    printf("#  M    N    MB  NB       RECSY     LC_ALIGN   LOCAL_COPY      REORDER       L2-OPT        UNOPT    RECURSIVE    OpenMP-DAG   L3-2STAGE\n");
+    /** printf("#  M    N    MB  NB       RECSY     LC_ALIGN   LOCAL_COPY      REORDER       L2-OPT        UNOPT    RECURSIVE    OpenMP-DAG   L3-2STAGE\n"); */
     for (M = M_MIN, N = N_MIN; M <= M_MAX && N<=N_MAX; M = (N>=N_MAX) ? (M+M_STEP): M,  N=(N<N_MAX)?(N+N_STEP):(N_MIN)) {
         if (mn_same) {
             N = M;
@@ -365,7 +403,7 @@ int main(int argc, char **argv)
                 te = te / RUNS;
                 times[0] += te;
 
-                ress[0] += benchmark_check_X_double(M,N,X, M, Xorig, M);
+                ress[0] += mepack_double_residual_sylv2(TRANSA, TRANSB, sign, M, N, A, M, B, N, X, M, RHS, M, scale);
 #else
                 times[0] = 0;
                 ress[0] = 0;
@@ -399,7 +437,7 @@ int main(int argc, char **argv)
                     te = te / RUNS;
                     times[is] += te;
 
-                    ress[is] += benchmark_check_X_double(M,N,X, M, Xorig, M);
+                    ress[is] += mepack_double_residual_sylv2(TRANSA, TRANSB, sign, M, N, A, M, B, N, X, M, RHS, M, scale);
                 }
             }
             for (i = 0; i < 9; i++) {
@@ -409,16 +447,43 @@ int main(int argc, char **argv)
             }
 
             /* Print  */
+            csc_table_new_row(tab);
+            csc_table_set_entry_string(tab, col_what, "Wall-Time");
+            csc_table_set_entry(tab, col_m, (int)M);
+            csc_table_set_entry(tab, col_n, (int)N);
+            csc_table_set_entry(tab, col_mb, (int)MB);
+            csc_table_set_entry(tab, col_nb, (int)NB);
+            csc_table_set_entry(tab, col_recsy, times[0]);
+            csc_table_set_entry(tab, col_lcalign, times[1]);
+            csc_table_set_entry(tab, col_lc, times[2]);
+            csc_table_set_entry(tab, col_reorder, times[3]);
+            csc_table_set_entry(tab, col_l2opt, times[4]);
+            csc_table_set_entry(tab, col_unopt, times[5]);
+            csc_table_set_entry(tab, col_rec, times[6]);
+            csc_table_set_entry(tab, col_omp, times[7]);
+            csc_table_set_entry(tab, col_l32s, times[8]);
+            csc_table_print_current_row(tab);
 
-            if (print_res ) {
-                printf("%5d %5d %3d %3d  %10.5e  %10.5e  %10.5e  %10.5e  %10.5e  %10.5e  %10.5e %10.5e  %10.5e\n",
-                        (int) M,(int) N, (int) MB, (int) NB, ress[0], ress[1], ress[2], ress[3], ress[4], ress[5], ress[6], ress[7], ress[8]);
-
-            } else {
-                printf("%5d %5d %3d %3d  %10.5e  %10.5e  %10.5e  %10.5e  %10.5e  %10.5e  %10.5e  %10.5e  %10.5e\n",
-                        (int) M,(int) N,(int)  MB,(int)  NB, times[0], times[1], times[2], times[3], times[4], times[5], times[6], times[7], times[8]);
+            if ( print_res )
+            {
+                csc_table_new_row(tab);
+                csc_table_set_entry_string(tab, col_what, "Residual");
+                csc_table_set_entry(tab, col_m, (int)M);
+                csc_table_set_entry(tab, col_n, (int)N);
+                csc_table_set_entry(tab, col_mb, (int)MB);
+                csc_table_set_entry(tab, col_nb, (int)NB);
+                csc_table_set_entry(tab, col_recsy, ress[0]);
+                csc_table_set_entry(tab, col_lcalign, ress[1]);
+                csc_table_set_entry(tab, col_lc, ress[2]);
+                csc_table_set_entry(tab, col_reorder, ress[3]);
+                csc_table_set_entry(tab, col_l2opt, ress[4]);
+                csc_table_set_entry(tab, col_unopt, ress[5]);
+                csc_table_set_entry(tab, col_rec, ress[6]);
+                csc_table_set_entry(tab, col_omp, ress[7]);
+                csc_table_set_entry(tab, col_l32s, ress[8]);
+                csc_table_print_current_row(tab);
             }
-            fflush(stdout);
+
             free(A);
             free(B);
             free(X);
@@ -428,6 +493,14 @@ int main(int argc, char **argv)
 
         }
     }
+
+    if ( output_file) {
+        FILE *fp = fopen(output_file, "w");
+        csc_table_print_ascii(fp, tab, " ");
+        fclose(fp);
+        free(output_file);
+    }
+    csc_table_destroy(tab);
 
     benchmark_exit();
     return 0;

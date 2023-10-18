@@ -38,9 +38,9 @@
 
     A ** T * X * A - X = SCALE * Y                              (2)
 
- where A is a M-by-M general matrix.
- The right hand side Y and the solution X are M-by-M matrices.  The matrix A
- can be either supplied as general matrix or factorized in terms of its
+ where A is a M-by-M general matrix or a matrix in upper Hessenberg form.
+ The right hand side Y and the solution X are M-by-M matrices.  
+ The general matrix A can supplied factorized in terms of its
  Schur decomposition.
 
  \endverbatim
@@ -57,6 +57,8 @@
                   A = Q*S*Q**T will be computed.
           == 'F':  The matrix A is given as its Schur decomposition in terms of S and Q
                   form A = Q*S*Q**T
+          == 'H':  The matrix A is given in upper Hessenberg form and its Schur decomposition
+                  A = Q*S*Q**T will be computed
  \endverbatim
 
  \param[in] TRANS
@@ -80,6 +82,8 @@
           schur decomposition S.
           If FACT == "F", the matrix A contains its (quasi-) upper triangular matrix S being the
           Schur decomposition of A.
+          If FACT == "H", the matrix A is an upper Hessenberg matrix and it is overwritten
+          with its schur decomposition S.
  \endverbatim
 
  \param[in] LDA
@@ -94,6 +98,8 @@
           If FACT == "N", the matrix Q is an empty M-by-M matrix on input and contains the
           Schur vectors of A on output.
           If FACT == "F", the matrix Q contains the Schur vectors of A.
+          If FACT == "H", the matrix Q is an empty M-by-M matrix on input and contains the
+          Schur vectors of A on output.
  \endverbatim
 
  \param[in] LDQ
@@ -154,7 +160,7 @@
 
  \author Martin Koehler, MPI Magdeburg
 
- \date June 2023
+ \date October 2023
  */
 void mepack_double_gestein(const char * FACT, const char *TRANS, int M, double * A,  int LDA, double * Q, int LDQ, double *X, int LDX,
         double * SCALE, double *WORK, size_t LDWORK, int *INFO)
@@ -190,9 +196,9 @@ void mepack_double_gestein(const char * FACT, const char *TRANS, int M, double *
 
     A ** T * X * A - X = SCALE * Y                              (2)
 
- where A is a M-by-M general matrix.
- The right hand side Y and the solution X are M-by-M matrices.  The matrix A
- can be either supplied as general matrix or factorized in terms of its
+ where A is a M-by-M general matrix or a matrix in upper Hessenberg form.
+ The right hand side Y and the solution X are M-by-M matrices.  
+ The general matrix A can supplied factorized in terms of its
  Schur decomposition.
 
  \endverbatim
@@ -209,6 +215,8 @@ void mepack_double_gestein(const char * FACT, const char *TRANS, int M, double *
                   A = Q*S*Q**T will be computed.
           == 'F':  The matrix A is given as its Schur decomposition in terms of S and Q
                   form A = Q*S*Q**T
+          == 'H':  The matrix A is given in upper Hessenberg form and its Schur decomposition
+                  A = Q*S*Q**T will be computed
  \endverbatim
 
  \param[in] TRANS
@@ -232,6 +240,8 @@ void mepack_double_gestein(const char * FACT, const char *TRANS, int M, double *
           schur decomposition S.
           If FACT == "F", the matrix A contains its (quasi-) upper triangular matrix S being the
           Schur decomposition of A.
+          If FACT == "H", the matrix A is an upper Hessenberg matrix and it is overwritten
+          with its schur decomposition S.
  \endverbatim
 
  \param[in] LDA
@@ -246,6 +256,8 @@ void mepack_double_gestein(const char * FACT, const char *TRANS, int M, double *
           If FACT == "N", the matrix Q is an empty M-by-M matrix on input and contains the
           Schur vectors of A on output.
           If FACT == "F", the matrix Q contains the Schur vectors of A.
+          If FACT == "H", the matrix Q is an empty M-by-M matrix on input and contains the
+          Schur vectors of A on output.
  \endverbatim
 
  \param[in] LDQ
@@ -296,7 +308,7 @@ void mepack_double_gestein(const char * FACT, const char *TRANS, int M, double *
  \verbatim
           INFO is INTEGER
           == 0:  successful exit
-          = 1:  DGEES failed
+          = 1:  DHGEES failed
           = 2:  DLA_SORT_EV failed
           = 3:  Internal solver failed
           < 0:  if INFO == -i, the i-Th argument had an illegal value
@@ -307,7 +319,7 @@ void mepack_double_gestein(const char * FACT, const char *TRANS, int M, double *
 
  \author Martin Koehler, MPI Magdeburg
 
- \date June 2023
+ \date October 2023
  */
 void mepack_single_gestein(const char * FACT, const char *TRANS, int M, float * A,  int LDA, float * Q, int LDQ, float *X, int LDX,
         float * SCALE, float *WORK, size_t LDWORK, int *INFO)

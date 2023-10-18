@@ -160,7 +160,7 @@
 
  \author Martin Koehler, MPI Magdeburg
 
- \date June 2023
+ \date October 2023
 */
 void mepack_double_trsylv2_level2(const char *TRANSA, const char *TRANSB, double SGN,  int M, int N,
                                  double * A, int LDA, double * B, int LDB, double *X, int LDX,
@@ -318,7 +318,7 @@ void mepack_double_trsylv2_level2(const char *TRANSA, const char *TRANSB, double
 
  \author Martin Koehler, MPI Magdeburg
 
- \date June 2023
+ \date October 2023
 */
 void mepack_double_trsylv2_level2_reorder(const char *TRANSA, const char *TRANSB, double SGN,  int M, int N,
                                  double * A, int LDA, double * B, int LDB, double *X, int LDX,
@@ -475,7 +475,7 @@ void mepack_double_trsylv2_level2_reorder(const char *TRANSA, const char *TRANSB
 
  \author Martin Koehler, MPI Magdeburg
 
- \date June 2023
+ \date October 2023
 */
 void mepack_double_trsylv2_level2_unopt(const char *TRANSA, const char *TRANSB, double SGN,  int M, int N,
                                  double * A, int LDA, double * B, int LDB, double *X, int LDX,
@@ -632,7 +632,7 @@ void mepack_double_trsylv2_level2_unopt(const char *TRANSA, const char *TRANSB, 
 
  \author Martin Koehler, MPI Magdeburg
 
- \date June 2023
+ \date October 2023
 */
 void mepack_double_trsylv2_level2_local_copy(const char *TRANSA, const char *TRANSB, double SGN,  int M, int N,
                                  double * A, int LDA, double * B, int LDB, double *X, int LDX,
@@ -789,7 +789,7 @@ void mepack_double_trsylv2_level2_local_copy(const char *TRANSA, const char *TRA
 
  \author Martin Koehler, MPI Magdeburg
 
- \date June 2023
+ \date October 2023
 */
 
 void mepack_double_trsylv2_level2_local_copy_32(const char *TRANSA, const char *TRANSB, double SGN,  int M, int N,
@@ -947,7 +947,7 @@ void mepack_double_trsylv2_level2_local_copy_32(const char *TRANSA, const char *
 
  \author Martin Koehler, MPI Magdeburg
 
- \date June 2023
+ \date October 2023
 */
 
 void mepack_double_trsylv2_level2_local_copy_64(const char *TRANSA, const char *TRANSB, double SGN,  int M, int N,
@@ -1105,7 +1105,7 @@ void mepack_double_trsylv2_level2_local_copy_64(const char *TRANSA, const char *
 
  \author Martin Koehler, MPI Magdeburg
 
- \date June 2023
+ \date October 2023
 */
 
 void mepack_double_trsylv2_level2_local_copy_96(const char *TRANSA, const char *TRANSB, double SGN,  int M, int N,
@@ -1263,7 +1263,7 @@ void mepack_double_trsylv2_level2_local_copy_96(const char *TRANSA, const char *
 
  \author Martin Koehler, MPI Magdeburg
 
- \date June 2023
+ \date October 2023
 */
 
 void mepack_double_trsylv2_level2_local_copy_128(const char *TRANSA, const char *TRANSB, double SGN,  int M, int N,
@@ -1421,7 +1421,7 @@ void mepack_double_trsylv2_level2_local_copy_128(const char *TRANSA, const char 
 
  \author Martin Koehler, MPI Magdeburg
 
- \date June 2023
+ \date October 2023
 */
 
 
@@ -1580,7 +1580,7 @@ void mepack_single_trsylv2_level2(const char *TRANSA, const char *TRANSB, float 
 
  \author Martin Koehler, MPI Magdeburg
 
- \date June 2023
+ \date October 2023
 */
 
 
@@ -1739,7 +1739,7 @@ void mepack_single_trsylv2_level2_reorder(const char *TRANSA, const char *TRANSB
 
  \author Martin Koehler, MPI Magdeburg
 
- \date June 2023
+ \date October 2023
 */
 void mepack_single_trsylv2_level2_unopt(const char *TRANSA, const char *TRANSB, float SGN,  int M, int N,
                                  float * A, int LDA, float * B, int LDB, float *X, int LDX,
@@ -1896,7 +1896,7 @@ void mepack_single_trsylv2_level2_unopt(const char *TRANSA, const char *TRANSB, 
 
  \author Martin Koehler, MPI Magdeburg
 
- \date June 2023
+ \date October 2023
 */
 
 
@@ -2055,7 +2055,7 @@ void mepack_single_trsylv2_level2_local_copy(const char *TRANSA, const char *TRA
 
  \author Martin Koehler, MPI Magdeburg
 
- \date June 2023
+ \date October 2023
 */
 void mepack_single_trsylv2_level2_local_copy_32(const char *TRANSA, const char *TRANSB, float SGN,  int M, int N,
                                  float * A, int LDA, float * B, int LDB, float *X, int LDX,
@@ -2212,7 +2212,7 @@ void mepack_single_trsylv2_level2_local_copy_32(const char *TRANSA, const char *
 
  \author Martin Koehler, MPI Magdeburg
 
- \date June 2023
+ \date October 2023
 */
 void mepack_single_trsylv2_level2_local_copy_64(const char *TRANSA, const char *TRANSB, float SGN,  int M, int N,
                                  float * A, int LDA, float * B, int LDB, float *X, int LDX,
@@ -2369,7 +2369,7 @@ void mepack_single_trsylv2_level2_local_copy_64(const char *TRANSA, const char *
 
  \author Martin Koehler, MPI Magdeburg
 
- \date June 2023
+ \date October 2023
 */
 
 
@@ -2528,7 +2528,7 @@ void mepack_single_trsylv2_level2_local_copy_96(const char *TRANSA, const char *
 
  \author Martin Koehler, MPI Magdeburg
 
- \date June 2023
+ \date October 2023
 */
 
 

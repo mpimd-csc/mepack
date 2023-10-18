@@ -113,7 +113,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date June 2023
+!> \date October 2023
 !> \ingroup sglaux
 !
 SUBROUTINE SLA_TRANSFORM_GENERAL(TRANS, M, N, X, LDX, QA, LDQA, QB, LDQB, WORK )

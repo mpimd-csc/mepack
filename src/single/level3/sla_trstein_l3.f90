@@ -135,7 +135,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date June 2023
+!> \date October 2023
 !> \ingroup sgltrlyap
 !
 SUBROUTINE SLA_TRSTEIN_L3 ( TRANS, M, A, LDA, X, LDX, SCALE, WORK, INFO)

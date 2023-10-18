@@ -39,8 +39,8 @@
 !>    A^T * X * B + B^T * X * A =  SCALE * Y                                             (2)
 !>
 !> where (A,B) is a M-by-M matrix pencil. The right hand side Y and the solution X are
-!> M-by-M matrices.  The matrix pencil (A,B) is either in general form or in generalized
-!> Schur form where Q and Z also needs to be provided.
+!> M-by-M matrices.  The matrix pencil (A,B) is either in general form, in generalized
+!> Hessenberg form, or in generalized Schur form where Q and Z also need to be provided.
 !>
 !> \endverbatim
 !>
@@ -56,6 +56,8 @@
 !>                  A = Q*S*Z**T, B = Q*R*Z**T will be computed.
 !>          == 'F':  The matrix A is given as its Schur decomposition in terms of S and Q
 !>                  form A = Q*S*Q**T
+!>          == 'H': The matrix pencil (A,B) is given in generalized Hessenberg form and its Schur decomposition
+!>                  A = Q*S*Z**T, B = Q*R*Z**T will be computed.
 !> \endverbatim
 !
 !> \param[in] TRANS
@@ -75,10 +77,13 @@
 !> \param[in,out] A
 !> \verbatim
 !>          A is REAL array, dimension (LDA,M)
-!>          If FACT == "N", the matrix A is a general matrix and it is overwritten with then
+!>          If FACT == "N", the matrix A is a general matrix and it is overwritten with the
 !>          quasi upper triangular matrix S of the generalized schur decomposition.
 !>          If FACT == "F", the matrix A contains its (quasi-) upper triangular matrix S of the
 !>          generalized  Schur decomposition of (A,B).
+!>          If FACT == "H", the matrix A is an upper Hessenberg matrix of the generalized
+!>          Hessenberg form (A,B) and it is overwritten with the quasi upper triangular matrix S
+!>          of the generalized Schur decomposition.
 !> \endverbatim
 !>
 !> \param[in] LDA
@@ -94,6 +99,8 @@
 !>          matrix of the generalized Schur decomposition.
 !>          If FACT == "F", the matrix B contains its upper triangular matrix R of the generalized schur
 !>          Schur decomposition of (A,B).
+!>          If FACT == "H", the matrix B is the upper triangular matrix of the generalized Hessenberg form
+!>          (A,B) and it is overwritten with the upper triangular matrix of the generalized Schur decomposition.
 !> \endverbatim
 !>
 !> \param[in] LDB
@@ -108,6 +115,8 @@
 !>          If FACT == "N", the matrix Q is an empty M-by-M matrix on input and contains the
 !>          left Schur vectors of (A,B) on output.
 !>          If FACT == "F", the matrix Q contains the left Schur vectors of (A,B).
+!>          If FACT == "H", the matrix Q is an empty M-by-M matrix on input and contains the
+!>          left Schur vectors of (A,B) on output.
 !> \endverbatim
 !>
 !> \param[in] LDQ
@@ -123,6 +132,8 @@
 !>          If FACT == "N", the matrix Z is an empty M-by-M matrix on input and contains the
 !>          right Schur vectors of (A,B) on output.
 !>          If FACT == "F", the matrix Z contains the right Schur vectors of (A,B).
+!>          If FACT == "H", the matrix Z is an empty M-by-M matrix on input and contains the
+!>          right Schur vectors of (A,B) on output.
 !> \endverbatim
 !>
 !> \param[in] LDZ
@@ -190,7 +201,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date June 2023
+!> \date October 2023
 !> \ingroup sglgglyap
 !
 SUBROUTINE SLA_GGLYAP(FACT, TRANS, M , A, LDA, B, LDB, Q, LDQ, Z, LDZ, X, LDX, SCALE, WORK, LDWORK, INFO)
@@ -209,19 +220,20 @@ SUBROUTINE SLA_GGLYAP(FACT, TRANS, M , A, LDA, B, LDB, Q, LDQ, Z, LDZ, X, LDX, S
     ! Local Variables
     INTEGER ININFO
     INTEGER LDWORKI, IINFO
-    LOGICAL BTRANS, BFACT, DUMMY
+    LOGICAL BTRANS, BFACT, DUMMY, AHESS
     INTEGER SDIM, MB, ISOLVER
     INTEGER SORTEV
     INTEGER SOLVER
     REAL ONE, ZERO
     PARAMETER(ONE = 1.0, ZERO = 0.0)
     INTEGER BIGNB
+    CHARACTER ASHAPE
 
     ! External Functions
 
     EXTERNAL SLA_TRANSFORM_STANDARD
     EXTERNAL SGEMM
-    EXTERNAL SGGES
+    EXTERNAL SHGGES
     EXTERNAL SLA_SORT_GEV
     EXTERNAL LSAME
     EXTERNAL XERROR_HANDLER
@@ -238,6 +250,7 @@ SUBROUTINE SLA_GGLYAP(FACT, TRANS, M , A, LDA, B, LDB, Q, LDQ, Z, LDZ, X, LDX, S
     ! Check Input
     BTRANS = LSAME(TRANS, 'N')
     BFACT  = LSAME(FACT, 'F')
+    AHESS  = LSAME(FACT, 'H')
 
     MB = TGLYAP_BLOCKSIZE(M)
     ISOLVER = TGLYAP_ISOLVER()
@@ -247,7 +260,7 @@ SUBROUTINE SLA_GGLYAP(FACT, TRANS, M , A, LDA, B, LDB, Q, LDQ, Z, LDZ, X, LDX, S
 
     ININFO = INFO
     INFO = 0
-    IF ( .NOT. BFACT .AND. .NOT. LSAME(FACT, 'N')) THEN
+    IF ( .NOT. BFACT .AND. .NOT. AHESS .AND. .NOT. LSAME(FACT, 'N')) THEN
         INFO = -1
     ELSE IF ( .NOT. BTRANS .AND. .NOT. LSAME(TRANS, 'T')) THEN
         INFO = -2
@@ -325,8 +338,12 @@ SUBROUTINE SLA_GGLYAP(FACT, TRANS, M , A, LDA, B, LDB, Q, LDQ, Z, LDZ, X, LDX, S
 
 
     IF (.NOT. BFACT) THEN
-        CALL SGGES("Vectors", "Vectors", "NoSort", DUMMY, M, A, LDA, B, LDB, SDIM, WORK(1), WORK(M+1), WORK(2*M+1), &
-            & Q, LDQ,  Z, LDZ,  WORK(3*M+1), LDWORKI-3*M, DUMMY, IINFO)
+        ASHAPE = 'G'
+        IF ( AHESS ) THEN
+            ASHAPE = 'H'
+        END IF
+        CALL SHGGES(ASHAPE, "Vectors", "Vectors", "NoSort", DUMMY, M, A, LDA, B, LDB, SDIM, WORK(1), WORK(M+1), &
+            & WORK(2*M+1), Q, LDQ,  Z, LDZ,  WORK(3*M+1), LDWORKI-3*M, DUMMY, IINFO)
         IF ( IINFO .NE. 0 ) THEN
             INFO = 1
             RETURN

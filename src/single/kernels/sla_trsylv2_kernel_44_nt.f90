@@ -129,7 +129,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date June 2023
+!> \date October 2023
 !> \ingroup sgltrsylv
 SUBROUTINE SLA_TRSYLV2_KERNEL_44NT (SGN, M, N, A, LDA, B, LDB, X, LDX, SCALE, INFO)
     USE MEPACK_OPTIONS_MACHINE_SINGLE

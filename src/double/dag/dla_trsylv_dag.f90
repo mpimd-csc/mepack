@@ -171,7 +171,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date June 2023
+!> \date October 2023
 !> \ingroup dbltrsylv
 !
 SUBROUTINE DLA_TRSYLV_DAG ( TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, X, LDX, SCALE, WORK, INFO)
@@ -223,7 +223,6 @@ SUBROUTINE DLA_TRSYLV_DAG ( TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, X, LDX, S
     NB = TRSYLV_BLOCKSIZE_NB(M,N)
     ISOLVER = TRSYLV_ISOLVER()
     MAXNB = MAX(MB, NB)
-
 
     ! Check Input
     ININFO = INFO
@@ -322,7 +321,7 @@ SUBROUTINE DLA_TRSYLV_DAG ( TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, X, LDX, S
 
 
         !$omp parallel default(shared)
-        !$omp master
+        !$omp single
         L = 1
         LH = 1
         LOLD = 1
@@ -440,7 +439,7 @@ SUBROUTINE DLA_TRSYLV_DAG ( TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, X, LDX, S
             LHOLD = LH
             LH = LH + 1
         END DO
-        !$omp end  master
+        !$omp end  single
         !$omp taskwait
         !$omp end parallel
 

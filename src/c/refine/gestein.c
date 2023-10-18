@@ -187,7 +187,7 @@
 
  \author Martin Koehler, MPI Magdeburg
 
- \date June 2023
+ \date October 2023
 */
 void mepack_double_gestein_refine(const char * TRANS, const char *GUESS,  int M , double * A, int LDA,
         double *X, int LDX, double *Y, int LDY, double *AS, int LDAS, double * Q, int LDQ,
@@ -205,7 +205,7 @@ void mepack_double_gestein_refine(const char * TRANS, const char *GUESS,  int M 
     FORTRAN_LEN_T c1len = strlen(TRANS);
     FORTRAN_LEN_T c2len = strlen(GUESS);
 
-    FC_GLOBAL_(dla_gestein_refine, DLA_GELYAP_REFINE) (TRANS, GUESS, &_M, A, &_LDA, X, &_LDX, Y, &_LDY, AS, &_LDAS, Q, &_LDQ,
+    FC_GLOBAL_(dla_gestein_refine, DLA_GESTEIN_REFINE) (TRANS, GUESS, &_M, A, &_LDA, X, &_LDX, Y, &_LDY, AS, &_LDAS, Q, &_LDQ,
             &_MAXIT, TAU, CONVLOG, WORK, &_LDWORK, &_INFO, c1len, c2len);
 
     *INFO = _INFO;
@@ -374,7 +374,7 @@ void mepack_double_gestein_refine(const char * TRANS, const char *GUESS,  int M 
 
  \author Martin Koehler, MPI Magdeburg
 
- \date June 2023
+ \date October 2023
 */
 
 void mepack_single_gestein_refine(const char * TRANS, const char *GUESS, int M , float * A, int LDA,
@@ -393,7 +393,7 @@ void mepack_single_gestein_refine(const char * TRANS, const char *GUESS, int M ,
     FORTRAN_LEN_T c1len = strlen(TRANS);
     FORTRAN_LEN_T c2len = strlen(GUESS);
 
-    FC_GLOBAL_(sla_gestein_refine, SLA_GELYAP_REFINE) (TRANS, GUESS, &_M, A, &_LDA, X, &_LDX, Y, &_LDY, AS, &_LDAS, Q, &_LDQ,
+    FC_GLOBAL_(sla_gestein_refine, SLA_GESTEIN_REFINE) (TRANS, GUESS, &_M, A, &_LDA, X, &_LDX, Y, &_LDY, AS, &_LDAS, Q, &_LDQ,
             &_MAXIT, TAU, CONVLOG, WORK, &_LDWORK, &_INFO, c1len,c2len);
 
     *INFO = _INFO;

@@ -23,7 +23,7 @@
 #include "mexoct/interface.hpp"
 #include "mepackoptions.hpp"
 #include "qtriangular_test.hpp"
-
+#include "hess_test.hpp"
 using namespace mexoct;
 
 #ifdef MEXOCT_OCTAVE
@@ -116,12 +116,18 @@ SteinDriver( ArrayType<T> A, ArrayType<T> Y, ArrayType<T> Q, std::string opA = s
     }
 
     ssize_t auxmem;
+    std::string factA = std::string("N");
 
     if ( factorize ) {
-        auxmem = mepack_memory_frontend(stein_solver<T>::fn, (const char *){"N"}, (const char *){"N"}, A.rows, A.columns);
+        /* Check if the matrices are Hessenberg */
+        bool a_hess = mepack_mexoct_check_hess(A);
+        if (a_hess ) factA = std::string("H");
     } else {
-        auxmem = mepack_memory_frontend(stein_solver<T>::fn, (const char *){"F"}, (const char *){"F"}, A.rows, A.columns);
+        factA = std::string("F");
     }
+
+    auxmem = mepack_memory_frontend(stein_solver<T>::fn, factA.c_str(), factA.c_str(), A.rows, A.columns);
+
     if ( auxmem < 0 ) {
         mexoct_error("MEPACK:mepack_memory", "Failed to obtain the size of the auxiliary memory.");
     }
@@ -130,11 +136,7 @@ SteinDriver( ArrayType<T> A, ArrayType<T> Y, ArrayType<T> Q, std::string opA = s
     T scale = 1;
     int info = 0;
 
-    if ( factorize ) {
-        stein_solver<T>::solve("N", opA.c_str(), A.rows, A.ptr(), A.ld, Q.ptr(), Q.ld, Y.ptr(), Y.ld, &scale, auxbuf, auxmem, &info);
-    } else {
-        stein_solver<T>::solve("F", opA.c_str(), A.rows, A.ptr(), A.ld, Q.ptr(), Q.ld, Y.ptr(), Y.ld, &scale, auxbuf, auxmem, &info);
-    }
+    stein_solver<T>::solve(factA.c_str(), opA.c_str(), A.rows, A.ptr(), A.ld, Q.ptr(), Q.ld, Y.ptr(), Y.ld, &scale, auxbuf, auxmem, &info);
 
     if ( info != 0) {
         mexoct_error("MEPACK:GESTEIN", "GESTEIN failed with info = %d", (int) info);
@@ -299,6 +301,9 @@ the Schur form of A and its unitary transformation matrix is returned.
 The matrices A and Y must be of the same size and Y must be symmetric.
 
 The function uses the level-3 solver D/SLA_GESTEIN of MEPACK.
+
+The involved Schur decomposition is aware of matrices in Hessenberg form.
+In this case the initial Hessenberg reduction of the Schur decomposition is skipped.
 
 If the OptSet argument is given, the default settings of MEPACK can
 be overwritten this structure can have the following members for

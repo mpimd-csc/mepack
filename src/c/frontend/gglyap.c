@@ -38,8 +38,8 @@
     A^T * X * B + B^T * X * A =  SCALE * Y                                             (2)
 
  where (A,B) is a M-by-M matrix pencil. The right hand side Y and the solution X are
- M-by-M matrices.  The matrix pencil (A,B) is either in general form or in generalized
- Schur form where Q and Z also needs to be provided.
+ M-by-M matrices.  The matrix pencil (A,B) is either in general form, in generalized
+ Hessenberg form, or in generalized Schur form where Q and Z also need to be provided
 
  \endverbatim
 
@@ -55,6 +55,8 @@
                   A = Q*S*Z**T, B = Q*R*Z**T will be computed.
           == 'F':  The matrix A is given as its Schur decomposition in terms of S and Q
                   form A = Q*S*Q**T
+          == 'H': The matrix pencil (A,B) is given in generalized Hessenberg form and its Schur decomposition
+                  A = Q*S*Z**T, B = Q*R*Z**T will be computed.
  \endverbatim
 
  \param[in] TRANS
@@ -78,6 +80,9 @@
           quasi upper triangular matrix S of the generalized Schur decomposition.
           If FACT == "F", the matrix A contains its (quasi-) upper triangular matrix S of the
           generalized  Schur decomposition of (A,B).
+          If FACT == "H", the matrix A is an upper Hessenberg matrix of the generalized
+          Hessenberg form (A,B) and it is overwritten with the quasi upper triangular matrix S
+          of the generalized Schur decomposition.
  \endverbatim
 
  \param[in] LDA
@@ -93,6 +98,8 @@
           matrix of the generalized Schur decomposition.
           If FACT == "F", the matrix B contains its upper triangular matrix R of the generalized schur
           Schur decomposition of (A,B).
+          If FACT == "H", the matrix B is the upper triangular matrix of the generalized Hessenberg form
+          (A,B) and it is overwritten with the upper triangular matrix of the generalized Schur decomposition.
  \endverbatim
 
  \param[in] LDB
@@ -107,6 +114,8 @@
           If FACT == "N", the matrix Q is an empty M-by-M matrix on input and contains the
           left generalized Schur vectors of (A,B) on output.
           If FACT == "F", the matrix Q contains the left generalized Schur vectors of (A,B).
+          If FACT == "H", the matrix Q is an empty M-by-M matrix on input and contains the
+          left Schur vectors of (A,B) on output.
  \endverbatim
 
  \param[in] LDQ
@@ -122,6 +131,8 @@
           If FACT == "N", the matrix Z is an empty M-by-M matrix on input and contains the
           right generalized Schur vectors of (A,B) on output.
           If FACT == "F", the matrix Z contains the right generalized Schur vectors of (A,B).
+          If FACT == "H", the matrix Z is an empty M-by-M matrix on input and contains the
+          right Schur vectors of (A,B) on output.
  \endverbatim
 
  \param[in] LDZ
@@ -182,7 +193,7 @@
 
  \author Martin Koehler, MPI Magdeburg
 
- \date June 2023
+ \date October 2023
 */
 
 void mepack_double_gglyap(const char * FACT, const char *TRANS, int M, double * A,  int LDA, double *B, int LDB,
@@ -222,8 +233,8 @@ void mepack_double_gglyap(const char * FACT, const char *TRANS, int M, double * 
     A^T * X * B + B^T * X * A =  SCALE * Y                                             (2)
 
  where (A,B) is a M-by-M matrix pencil. The right hand side Y and the solution X are
- M-by-M matrices.  The matrix pencil (A,B) is either in general form or in generalized
- Schur form where Q and Z also needs to be provided.
+ M-by-M matrices.  The matrix pencil (A,B) is either in general form, in generalized
+ Hessenberg form, or in generalized Schur form where Q and Z also need to be provided.
 
  \endverbatim
 
@@ -239,6 +250,8 @@ void mepack_double_gglyap(const char * FACT, const char *TRANS, int M, double * 
                   A = Q*S*Z**T, B = Q*R*Z**T will be computed.
           == 'F':  The matrix A is given as its Schur decomposition in terms of S and Q
                   form A = Q*S*Q**T
+          == 'H': The matrix pencil (A,B) is given in generalized Hessenberg form and its Schur decomposition
+                  A = Q*S*Z**T, B = Q*R*Z**T will be computed.
  \endverbatim
 
  \param[in] TRANS
@@ -258,10 +271,13 @@ void mepack_double_gglyap(const char * FACT, const char *TRANS, int M, double * 
  \param[in,out] A
  \verbatim
           A is SINGLE PRECISION array, dimension (LDA,M)
-          If FACT == "N", the matrix A is a general matrix and it is overwritten with then
-          quasi upper triangular matrix S of the generalized schur decomposition.
+          If FACT == "N", the matrix A is a general matrix and it is overwritten with the
+          quasi upper triangular matrix S of the generalized Schur decomposition.
           If FACT == "F", the matrix A contains its (quasi-) upper triangular matrix S of the
           generalized  Schur decomposition of (A,B).
+          If FACT == "H", the matrix A is an upper Hessenberg matrix of the generalized
+          Hessenberg form (A,B) and it is overwritten with the quasi upper triangular matrix S
+          of the generalized Schur decomposition.
  \endverbatim
 
  \param[in] LDA
@@ -277,6 +293,8 @@ void mepack_double_gglyap(const char * FACT, const char *TRANS, int M, double * 
           matrix of the generalized Schur decomposition.
           If FACT == "F", the matrix B contains its upper triangular matrix R of the generalized schur
           Schur decomposition of (A,B).
+          If FACT == "H", the matrix B is the upper triangular matrix of the generalized Hessenberg form
+          (A,B) and it is overwritten with the upper triangular matrix of the generalized Schur decomposition.
  \endverbatim
 
  \param[in] LDB
@@ -291,6 +309,8 @@ void mepack_double_gglyap(const char * FACT, const char *TRANS, int M, double * 
           If FACT == "N", the matrix Q is an empty M-by-M matrix on input and contains the
           left generalized Schur vectors of (A,B) on output.
           If FACT == "F", the matrix Q contains the left Schur vectors of (A,B).
+          If FACT == "H", the matrix Q is an empty M-by-M matrix on input and contains the
+          left Schur vectors of (A,B) on output.
  \endverbatim
 
  \param[in] LDQ
@@ -306,6 +326,8 @@ void mepack_double_gglyap(const char * FACT, const char *TRANS, int M, double * 
           If FACT == "N", the matrix Z is an empty M-by-M matrix on input and contains the
           right generalized Schur vectors of (A,B) on output.
           If FACT == "F", the matrix Z contains the right Schur vectors of (A,B).
+          If FACT == "H", the matrix Z is an empty M-by-M matrix on input and contains the
+          right Schur vectors of (A,B) on output.
  \endverbatim
 
  \param[in] LDZ
@@ -366,7 +388,7 @@ void mepack_double_gglyap(const char * FACT, const char *TRANS, int M, double * 
 
  \author Martin Koehler, MPI Magdeburg
 
- \date June 2023
+ \date October 2023
 */
 
 

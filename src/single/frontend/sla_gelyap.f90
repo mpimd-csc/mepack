@@ -38,9 +38,9 @@
 !>
 !>    A ** T * X  +  X * A = SCALE * Y                              (2)
 !>
-!> where A is a M-by-M general matrix.
-!> The right hand side Y and the solution X are M-by-M matrices.  The matrix A
-!> can be either supplied as general matrix or factorized in terms of its
+!> where A is a M-by-M general matrix or a matrix in upper Hessenberg form.
+!> The right hand side Y and the solution X are M-by-M matrices.
+!> The general matrix A can be supplied factorized in terms of its
 !> Schur decomposition.
 !>
 !> \endverbatim
@@ -57,6 +57,8 @@
 !>                  A = Q*S*Q**T will be computed.
 !>          == 'F':  The matrix A is given as its Schur decomposition in terms of S and Q
 !>                  form A = Q*S*Q**T
+!>          == 'H':  The matrix A is given in upper Hessenberg form and its Schur decomposition
+!>                  A = Q*S*Q**T will be computed
 !> \endverbatim
 !
 !> \param[in] TRANS
@@ -78,6 +80,8 @@
 !>          A is REAL array, dimension (LDA,M)
 !>          If FACT == "N", the matrix A is a general matrix and it is overwritten with its
 !>          schur decomposition S.
+!>          If FACT == "H", the matrix A is an upper Hessenberg matrix and it is overwritten
+!>          with its schur decomposition S.
 !>          If FACT == "F", the matrix A contains its (quasi-) upper triangular matrix S being the
 !>          Schur decomposition of A.
 !> \endverbatim
@@ -92,6 +96,8 @@
 !> \verbatim
 !>          Q is REAL array, dimension (LDQ,M)
 !>          If FACT == "N", the matrix Q is an empty M-by-M matrix on input and contains the
+!>          Schur vectors of A on output.
+!>          If FACT == "H", the matrix Q is an empty M-by-M matrix on input and contains the
 !>          Schur vectors of A on output.
 !>          If FACT == "F", the matrix Q contains the Schur vectors of A.
 !> \endverbatim
@@ -145,7 +151,7 @@
 !> \verbatim
 !>          INFO is INTEGER
 !>          == 0:  successful exit
-!>          = 1:  SGEES failed
+!>          = 1:  SHGEES failed
 !>          = 2:  SLA_SORT_EV failed
 !>          = 3:  Internal solver failed
 !>          < 0:  if INFO = -i, the i-th argument had an illegal value
@@ -163,7 +169,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date June 2023
+!> \date October 2023
 !> \ingroup sglgelyap
 !
 SUBROUTINE SLA_GELYAP(FACT, TRANS, M , A, LDA, Q, LDQ, X, LDX, SCALE, WORK, LDWORK, INFO)
@@ -182,7 +188,7 @@ SUBROUTINE SLA_GELYAP(FACT, TRANS, M , A, LDA, Q, LDQ, X, LDX, SCALE, WORK, LDWO
     ! Local Variables
     INTEGER ININFO
     INTEGER LDWORKI, IINFO
-    LOGICAL BTRANS, BFACT, DUMMY
+    LOGICAL BTRANS, BFACT, DUMMY, AHESS
     INTEGER SDIM, MB, ISOLVER
     INTEGER SORTEV
     INTEGER SOLVER
@@ -190,6 +196,7 @@ SUBROUTINE SLA_GELYAP(FACT, TRANS, M , A, LDA, Q, LDQ, X, LDX, SCALE, WORK, LDWO
 
     REAL ONE, ZERO
     PARAMETER(ONE = 1.0, ZERO = 0.0)
+    CHARACTER ASHAPE
 
 
     ! External Functions
@@ -202,7 +209,7 @@ SUBROUTINE SLA_GELYAP(FACT, TRANS, M , A, LDA, Q, LDQ, X, LDX, SCALE, WORK, LDWO
     EXTERNAL SLA_TRLYAP_DAG
 
     EXTERNAL SGEMM
-    EXTERNAL SGEES
+    EXTERNAL SHGEES
     EXTERNAL SLA_SORT_EV
     EXTERNAL LSAME
     EXTERNAL XERROR_HANDLER
@@ -212,6 +219,7 @@ SUBROUTINE SLA_GELYAP(FACT, TRANS, M , A, LDA, Q, LDQ, X, LDX, SCALE, WORK, LDWO
     ! Check Input
     BTRANS = LSAME(TRANS, 'N')
     BFACT  = LSAME(FACT, 'F')
+    AHESS  = LSAME(FACT, 'H')
     MB = TRLYAP_BLOCKSIZE(M)
     ISOLVER = TRLYAP_ISOLVER()
     SOLVER = TRLYAP_FRONTEND_SOLVER()
@@ -221,7 +229,7 @@ SUBROUTINE SLA_GELYAP(FACT, TRANS, M , A, LDA, Q, LDQ, X, LDX, SCALE, WORK, LDWO
 
     ININFO = INFO
     INFO = 0
-    IF ( .NOT. BFACT .AND. .NOT. LSAME(FACT, 'N')) THEN
+    IF ( .NOT. BFACT .AND. .NOT. AHESS .AND. .NOT. LSAME(FACT, 'N')) THEN
         INFO = -1
     ELSE IF ( .NOT. BTRANS .AND. .NOT. LSAME(TRANS, 'T')) THEN
         INFO = -2
@@ -293,8 +301,12 @@ SUBROUTINE SLA_GELYAP(FACT, TRANS, M , A, LDA, Q, LDQ, X, LDX, SCALE, WORK, LDWO
 
 
     IF (.NOT. BFACT) THEN
-        CALL SGEES("Vectors", "NoSort", DUMMY, M, A, LDA, SDIM, WORK(1), WORK(M+1), Q, LDQ,  &
-            & WORK(2*M+1), LDWORKI-2*M, DUMMY, IINFO)
+        ASHAPE = 'G'
+        IF ( AHESS ) THEN
+            ASHAPE = 'H'
+        END IF
+        CALL SHGEES(ASHAPE, "Vectors", "NoSort", DUMMY, M, A, LDA, SDIM, WORK(1), WORK(M+1), Q, &
+            & LDQ, WORK(2*M+1), LDWORKI-2*M, DUMMY, IINFO)
         IF ( IINFO .NE. 0 ) THEN
             INFO = 1
             RETURN

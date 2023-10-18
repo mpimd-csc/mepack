@@ -68,6 +68,7 @@ static void stackDump (lua_State *L) {
 
 
 
+
 csc_lua_t csc_lua_init(void)
 {
     lua_State *state;
@@ -79,6 +80,15 @@ csc_lua_t csc_lua_init(void)
     }
     luaL_openlibs(state);
     return (csc_lua_t) state;
+}
+
+csc_lua_t csc_lua_new_thread(csc_lua_t lua)
+{
+    lua_State *newstate;
+    lua_State *oldstate = lua;
+    if ( oldstate == NULL ) return NULL;
+    newstate = lua_newthread(oldstate);
+    return newstate;
 }
 
 void csc_lua_finalize(csc_lua_t lua)

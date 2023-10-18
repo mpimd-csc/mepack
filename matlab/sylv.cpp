@@ -24,7 +24,7 @@
 #include "mepackoptions.hpp"
 #include "qtriangular_test.hpp"
 #include "triangular_test.hpp"
-
+#include "hess_test.hpp"
 
 using namespace mexoct;
 
@@ -156,12 +156,22 @@ SylvDriver( ArrayType<T>& A, ArrayType<T>& B, ArrayType<T>& Y, ArrayType<T>& Q, 
 
 
     ssize_t auxmem;
+    std::string factA = std::string("N");
+    std::string factB = std::string("N");
 
     if ( factorize ) {
-        auxmem = mepack_memory_frontend(sylv_solver<T>::fn, (const char *){"N"}, (const char *){"N"}, A.rows, B.rows);
+        /* Check if the matrices are Hessenberg */
+        bool a_hess = mepack_mexoct_check_hess(A);
+        bool b_hess = mepack_mexoct_check_hess(B);
+
+        if ( a_hess ) factA = std::string("H");
+        if ( b_hess ) factB = std::string("H");
     } else {
-        auxmem = mepack_memory_frontend(sylv_solver<T>::fn, (const char *){"F"}, (const char *){"F"}, A.rows, B.rows);
+        factA = std::string("F");
+        factB = std::string("F");
     }
+
+    auxmem = mepack_memory_frontend(sylv_solver<T>::fn, factA.c_str(), factB.c_str(), A.rows, B.rows);
 
     if ( auxmem < 0 ) {
         mexoct_error("MEPACK:mepack_memory", "Failed to obtain the size of the auxiliary memory.");
@@ -177,14 +187,10 @@ SylvDriver( ArrayType<T>& A, ArrayType<T>& B, ArrayType<T>& Y, ArrayType<T>& Q, 
     }
 
 
-    if ( factorize ) {
-        sylv_solver<T>::solve("N", "N", opA.c_str(), opB.c_str(), sign, A.rows, B.rows, A.ptr(), A.ld, B.ptr(), B.ld, Q.ptr(), Q.ld, Z.ptr(), Z.ld, Y.ptr(), Y.ld, &scale, auxbuf, auxmem, &info);
-    } else {
-        sylv_solver<T>::solve("F", "F", opA.c_str(), opB.c_str(), sign, A.rows, B.rows, A.ptr(), A.ld, B.ptr(), B.ld, Q.ptr(), Q.ld, Z.ptr(), Z.ld, Y.ptr(), Y.ld, &scale, auxbuf, auxmem, &info);
-    }
+    sylv_solver<T>::solve(factA.c_str(), factB.c_str(), opA.c_str(), opB.c_str(), sign, A.rows, B.rows, A.ptr(), A.ld, B.ptr(), B.ld, Q.ptr(), Q.ld, Z.ptr(), Z.ld, Y.ptr(), Y.ld, &scale, auxbuf, auxmem, &info);
 
     if ( info != 0) {
-        mexoct_error("MEPACK:GESTEIN", "GESTEIN failed with info = %d", (int) info);
+        mexoct_error("MEPACK:GESYLV", "GESYLV failed with info = %d", (int) info);
     }
 
     return std::make_tuple(std::move(Y), std::move(A), std::move(B), std::move(Q), std::move(Z));
@@ -370,6 +376,9 @@ of B. If the function is called with five return values,
 the Schur forms of A and B and their unitary transformation matrices are returned.
 
 The function uses the level-3 solver D/SLA_GESYLV of MEPACK.
+
+The involved Schur decomposition is aware of matrices in Hessenberg form.
+In this case the initial Hessenberg reduction of the Schur decomposition is skipped.
 
 If the OptSet argument is given, the default settings of MEPACK can
 be overwritten this structure can have the following members for

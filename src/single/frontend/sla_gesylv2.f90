@@ -41,9 +41,9 @@
 !>
 !> where A is a M-by-M matrix and B is a N-by-N matrix. The right hand
 !> side Y and the solution X are M-by-N matrices. The matrices A and B can be
-!> either a general unreduced matrix or a (quasi-) upper triangular factor.
-!> In the later case QA and QB provide the Schur-vectors of the matrices A
-!> and B.
+!> either a general unreduced matrix or an upper Hessenberg form
+!> or a (quasi-) upper triangular factor. In the later case QA and QB provide
+!> the Schur-vectors of the matrices A and B.
 !>
 !> \endverbatim
 !
@@ -58,6 +58,8 @@
 !>                  A = QA*S*QA**T will be computed.
 !>          == 'F':  The matrix A is given as its Schur decomposition in terms of S and QA
 !>                  form A = QA*S*QA**T
+!>          == 'H':  The matrix A is given as an upper Hessenberg form and its Schur
+!>                  decomposition A = QA*S*QA**T will be computed
 !> \endverbatim
 !
 !> \param[in] FACTB
@@ -66,8 +68,10 @@
 !>          Specifies how the matrix B is given.
 !>          == 'N':  The matrix B is given as a general matrix and its Schur decomposition
 !>                  B = QB*R*QB**T will be computed.
-!>          == 'F':  The matrix A is given as its Schur decomposition in terms of R and QB
-!>                  form A = QB*R*QB**T
+!>          == 'F':  The matrix B is given as its Schur decomposition in terms of R and QB
+!>                  form B = QB*R*QB**T
+!>          == 'H':  The matrix B is given as an upper Hessenberg form and its Schur
+!>                  decomposition B = QB*R*QB**T will be computed
 !> \endverbatim
 !
 !> \param[in] TRANSA
@@ -109,10 +113,12 @@
 !> \param[in,out] A
 !> \verbatim
 !>          A is REAL array, dimension (LDA,M)
-!>          If FACT == "N", the matrix A is a general matrix and it is overwritten with its
+!>          If FACTA == "N", the matrix A is a general matrix and it is overwritten with its
 !>          schur decomposition S.
-!>          If FACT == "F", the matrix A contains its (quasi-) upper triangular matrix S being the
+!>          If FACTA == "F", the matrix A contains its (quasi-) upper triangular matrix S being the
 !>          Schur decomposition of A.
+!>          If FACTA == "H", the matrix A is an upper Hessenberg matrix and it is overwritten
+!>          with its schur decomposition S.
 !> \endverbatim
 !>
 !> \param[in] LDA
@@ -125,10 +131,12 @@
 !> \param[in,out] B
 !> \verbatim
 !>          B is REAL array, dimension (LDB,N)
-!>          If FACT == "N", the matrix B is a general matrix and it is overwritten with its
+!>          If FACTB == "N", the matrix B is a general matrix and it is overwritten with its
 !>          schur decomposition R.
-!>          If FACT == "F", the matrix A contains its (quasi-) upper triangular matrix R being the
+!>          If FACTB == "F", the matrix B contains its (quasi-) upper triangular matrix R being the
 !>          Schur decomposition of B.
+!>          If FACTB == "H", the matrix B is an upper Hessenberg matrix and it is overwritten with its
+!>          schur decomposition R.
 !> \endverbatim
 !>
 !> \param[in] LDB
@@ -140,9 +148,11 @@
 !> \param[in,out] QA
 !> \verbatim
 !>          QA is REAL array, dimension (LDQA,M)
-!>          If FACT == "N", the matrix QA is an empty M-by-M matrix on input and contains the
+!>          If FACTA == "N", the matrix QA is an empty M-by-M matrix on input and contains the
 !>          Schur vectors of A on output.
-!>          If FACT == "F", the matrix QA contains the Schur vectors of A.
+!>          If FACTA == "F", the matrix QA contains the Schur vectors of A.
+!>          If FACTA == "H", the matrix QA is an empty M-by-M matrix on input and contains the
+!>          Schur vectors of A on output.
 !> \endverbatim
 !>
 !> \param[in] LDQA
@@ -155,9 +165,11 @@
 !> \param[in,out] QB
 !> \verbatim
 !>          QB is REAL array, dimension (LDQB,N)
-!>          If FACT == "N", the matrix QB is an empty N-by-N matrix on input and contains the
+!>          If FACTB == "N", the matrix QB is an empty N-by-N matrix on input and contains the
 !>          Schur vectors of B on output.
-!>          If FACT == "F", the matrix QB contains the Schur vectors of B.
+!>          If FACTB == "F", the matrix QB contains the Schur vectors of B.
+!>          If FACTB == "H", the matrix QB is an empty N-by-N matrix on input and contains the
+!>          Schur vectors of B on output.
 !> \endverbatim
 !>
 !> \param[in] LDQB
@@ -208,7 +220,7 @@
 !> \verbatim
 !>          INFO is INTEGER
 !>          == 0:  successful exit
-!>          = 1:  SGEES failed
+!>          = 1:  SHGEES failed
 !>          = 2:  SLA_SORT_EV failed
 !>          = 3:  SLA_TRLYAP_DAG failed
 !>          < 0:  if INFO = -i, the i-th argument had an illegal value
@@ -232,7 +244,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date June 2023
+!> \date October 2023
 !> \ingroup sglgesylv
 !
 SUBROUTINE SLA_GESYLV2(FACTA, FACTB, TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, QA, LDQA, QB, LDQB, &
@@ -254,7 +266,7 @@ SUBROUTINE SLA_GESYLV2(FACTA, FACTB, TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, 
     ! Local Variables
     INTEGER ININFO
     INTEGER LDWORKI, IINFO
-    LOGICAL BTRANSA, BTRANSB
+    LOGICAL BTRANSA, BTRANSB, AHESS, BHESS
     LOGICAL BFACTA, BFACTB, DUMMY
     INTEGER SDIM, MB, ISOLVER, NB
     INTEGER SORTEV
@@ -263,6 +275,7 @@ SUBROUTINE SLA_GESYLV2(FACTA, FACTB, TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, 
     INTEGER MAXMN
     REAL ONE, ZERO
     PARAMETER(ONE = 1.0, ZERO = 0.0)
+    CHARACTER ASHAPE, BSHAPE
 
 
     ! External Functions
@@ -282,7 +295,7 @@ SUBROUTINE SLA_GESYLV2(FACTA, FACTB, TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, 
     EXTERNAL SLA_TRSYLV2_RECURSIVE
 
     EXTERNAL SGEMM
-    EXTERNAL SGEES
+    EXTERNAL SHGEES
     EXTERNAL SLA_SORT_EV
     EXTERNAL LSAME
     EXTERNAL XERROR_HANDLER
@@ -294,6 +307,8 @@ SUBROUTINE SLA_GESYLV2(FACTA, FACTB, TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, 
     BTRANSB = LSAME(TRANSB, 'N')
     BFACTA  = LSAME(FACTA, 'F')
     BFACTB  = LSAME(FACTB, 'F')
+    AHESS  = LSAME(FACTA, 'H')
+    BHESS  = LSAME(FACTB, 'H')
 
     MB = TRSYLV2_BLOCKSIZE_MB(M,N)
     NB = TRSYLV2_BLOCKSIZE_NB(M,N)
@@ -304,9 +319,9 @@ SUBROUTINE SLA_GESYLV2(FACTA, FACTB, TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, 
 
     ININFO = INFO
     INFO = 0
-    IF ( .NOT. BFACTA .AND. .NOT. LSAME(FACTA, 'N')) THEN
+    IF ( .NOT. BFACTA .AND. .NOT. AHESS .AND. .NOT. LSAME(FACTA, 'N')) THEN
         INFO = -1
-    ELSE IF ( .NOT. BFACTB .AND. .NOT. LSAME(FACTB, 'N')) THEN
+    ELSE IF ( .NOT. BFACTB .AND. .NOT. BHESS .AND. .NOT. LSAME(FACTB, 'N')) THEN
         INFO = -2
     ELSE IF ( .NOT. BTRANSA .AND. .NOT. LSAME(TRANSA, 'T')) THEN
         INFO = -3
@@ -427,8 +442,12 @@ SUBROUTINE SLA_GESYLV2(FACTA, FACTB, TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, 
     ! Factorize A
     !
     IF (.NOT. BFACTA) THEN
-        CALL SGEES("Vectors", "NoSort", DUMMY, M, A, LDA, SDIM, WORK(1), WORK(M+1), QA, LDQA,  &
-            & WORK(2*M+1), LDWORKI-2*M, DUMMY, IINFO)
+        ASHAPE = 'G'
+        IF ( AHESS ) THEN
+            ASHAPE = 'H'
+        END IF
+        CALL SHGEES(ASHAPE, "Vectors", "NoSort", DUMMY, M, A, LDA, SDIM, WORK(1), WORK(M+1), &
+            & QA, LDQA, WORK(2*M+1), LDWORKI-2*M, DUMMY, IINFO)
         IF ( IINFO .NE. 0 ) THEN
             INFO = 1
             RETURN
@@ -447,8 +466,12 @@ SUBROUTINE SLA_GESYLV2(FACTA, FACTB, TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, 
     ! Factorize B
     !
     IF (.NOT. BFACTB) THEN
-        CALL SGEES("Vectors", "NoSort", DUMMY, N, B, LDB, SDIM, WORK(1), WORK(N+1), QB, LDQB,  &
-            & WORK(2*N+1), LDWORKI-2*N, DUMMY, IINFO)
+        BSHAPE = 'G'
+        IF ( BHESS ) THEN
+            BSHAPE = 'H'
+        END IF
+        CALL SHGEES(BSHAPE, "Vectors", "NoSort", DUMMY, N, B, LDB, SDIM, WORK(1), WORK(N+1), &
+            & QB, LDQB, WORK(2*N+1), LDWORKI-2*N, DUMMY, IINFO)
         IF ( IINFO .NE. 0 ) THEN
             INFO = 1
             RETURN

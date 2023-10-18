@@ -291,10 +291,44 @@ SET(SINGLE_FRONTEND
 	single/refine/sla_ggcsylv_dual_refine.f90
     )
 
+SET(UTILS_DOUBLE
+    utils/double/dhgees.f
+    utils/double/dhgges.f
+    )
+SET(UTILS_SINGLE
+    utils/single/shgees.f
+    utils/single/shgges.f
+    )
+
+SET (RESIDUAL_DOUBLE
+    double/residual/res_lyap.f90
+    double/residual/res_glyap.f90
+    double/residual/res_stein.f90
+    double/residual/res_gstein.f90
+    double/residual/res_sylv.f90
+    double/residual/res_sylv2.f90
+    double/residual/res_gsylv.f90
+    double/residual/res_csylv.f90
+    double/residual/res_csylv_dual.f90
+
+    )
+SET (RESIDUAL_SINGLE
+    single/residual/res_lyap.f90
+    single/residual/res_glyap.f90
+    single/residual/res_stein.f90
+    single/residual/res_gstein.f90
+    single/residual/res_sylv.f90
+    single/residual/res_sylv2.f90
+    single/residual/res_gsylv.f90
+    single/residual/res_csylv.f90
+    single/residual/res_csylv_dual.f90
+    )
+
+
 SET(DOUBLE_SRC ${DOUBLE_KERNEL_SRC}  ${DOUBLE_LEVEL2_SRC} ${DOUBLE_LEVEL3_SRC} ${DOUBLE_RECURSIVE_SRC} ${DOUBLE_FRONTEND})
 SET(SINGLE_SRC ${SINGLE_KERNEL_SRC}  ${SINGLE_LEVEL2_SRC} ${SINGLE_LEVEL3_SRC} ${SINGLE_RECURSIVE_SRC} ${SINGLE_FRONTEND})
-SET(DOUBLE_SRC ${DOUBLE_SRC} ${DOUBLE_2STAGE_SRC} ${DOUBLE_DAG_SRC})
-SET(SINGLE_SRC ${SINGLE_SRC} ${SINGLE_2STAGE_SRC} ${SINGLE_DAG_SRC})
+SET(DOUBLE_SRC ${DOUBLE_SRC} ${DOUBLE_2STAGE_SRC} ${DOUBLE_DAG_SRC} ${RESIDUAL_DOUBLE} ${UTILS_DOUBLE})
+SET(SINGLE_SRC ${SINGLE_SRC} ${SINGLE_2STAGE_SRC} ${SINGLE_DAG_SRC} ${RESIDUAL_SINGLE} ${UTILS_SINGLE})
 
 SET(MISC_SRC
 	   misc/lapack_fix/dgetc2x.f90 misc/lapack_fix/sgetc2x.f90 misc/lapack_fix/cgetc2x.f90 misc/lapack_fix/zgetc2x.f90
@@ -392,6 +426,17 @@ SET (C_INTERFACE_SRC
     c/dag/tgcsylv_dual.c
     c/frontend/cgsylv_dual.c
     c/refine/cgsylv_dual.c
+
+    c/residual/lyap.c
+    c/residual/glyap.c
+    c/residual/stein.c
+    c/residual/gstein.c
+    c/residual/sylv.c
+    c/residual/sylv2.c
+    c/residual/gsylv.c
+    c/residual/csylv.c
+    c/residual/csylv_dual.c
+
 )
 
 
@@ -405,7 +450,12 @@ SET_SOURCE_FILES_PROPERTIES(common/version.F90 PROPERTIES COMPILE_DEFINITIONS "M
 # Add the libraries
 
 ADD_LIBRARY(mepack SHARED ${SRC} $<TARGET_OBJECTS:lapack_missing> $<TARGET_OBJECTS:cscutils_lua_src> $<TARGET_OBJECTS:lua_src> $<$<BOOL:${STARPU_FOUND}>:$<TARGET_OBJECTS:mepack_starpu>>)
-ADD_VERSION_SCRIPT(mepack ${CMAKE_CURRENT_SOURCE_DIR}/mepack.map)
+
+IF (CMAKE_C_COMPILER_ID MATCHES "Intel.*")
+    ADD_VERSION_SCRIPT(mepack ${CMAKE_CURRENT_SOURCE_DIR}/mepack.intel.map)
+ELSE()
+    ADD_VERSION_SCRIPT(mepack ${CMAKE_CURRENT_SOURCE_DIR}/mepack.map)
+ENDIF()
 
 IF(BUILD_STATIC STREQUAL "ON")
     ADD_LIBRARY(mepack_static STATIC ${SRC} $<TARGET_OBJECTS:lapack_missing> $<TARGET_OBJECTS:cscutils_lua_src> $<TARGET_OBJECTS:lua_src> )
@@ -441,8 +491,9 @@ TARGET_INCLUDE_DIRECTORIES(
         PRIVATE
             $<TARGET_PROPERTY:cscutils_src,INCLUDE_DIRECTORIES>
      )
-
 MEPACK_LINK_LIBRARIES(mepack)
+
+
 SET_TARGET_PROPERTIES(mepack PROPERTIES Fortran_MODULE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/f90mod-shared")
 SET_TARGET_PROPERTIES(mepack PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION ${PROJECT_VERSION_MAJOR}  )
 SET_PROPERTY(TARGET mepack PROPERTY

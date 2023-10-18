@@ -112,7 +112,7 @@
 
  \author Martin Koehler, MPI Magdeburg
 
- \date June 2023
+ \date October 2023
 
 */
 void mepack_double_trlyap_recursive(const char *TRANS, int M, double * A, int LDA, double *X, int LDX, double * SCALE, double *WORK, int *INFO)
@@ -215,7 +215,7 @@ void mepack_double_trlyap_recursive(const char *TRANS, int M, double * A, int LD
 
  \author Martin Koehler, MPI Magdeburg
 
- \date June 2023
+ \date October 2023
 
 */
 void mepack_single_trlyap_recursive(const char *TRANS, int M, float * A, int LDA, float *X, int LDX, float * SCALE, float *WORK, int *INFO)

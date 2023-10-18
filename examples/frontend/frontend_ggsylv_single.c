@@ -29,6 +29,7 @@
 #include "benchmark.h"
 #include "mepack.h"
 #include "mepack_internal.h"
+#include "cscutils/table.h"
 
 void solver_name(int is) {
     switch(is) {
@@ -146,7 +147,12 @@ void usage(char *prgmname) {
     printf("--alignoff, -a           Turn off the blocksize alignment.\n");
     printf("--changerole, -c         B and D changes places.\n");
     printf("--reuse, -R              Benchmark the factorization reuse process.\n");
+    printf("--hess, -H               Solve for a generalized Hessenberg form (H,T).\n");
     printf("--sign=+/-1, -S  +/-1    Sign in the equation.\n");
+    printf("--output=path, -o path   Write the final result table to csv-like file.\n");
+
+
+
     printf("\nPossible Solvers\n");
 
     for (is = 0; is <= 27; is++) {
@@ -170,6 +176,8 @@ int main(int argc, char **argv)
     Int MB_MIN=64,MB_MAX=64,MB_STEP=32;
     Int NB_MIN=64,NB_MAX=64,NB_STEP=32;
     Int MB, NB;
+    char *output_file = NULL;
+
 
     Int RUNS = 5;
     Int is = 0;
@@ -183,6 +191,7 @@ int main(int argc, char **argv)
     char TRANSB[20]="N";
     char reusestr[10];
 
+    float res = 0.0;
     float scale = 1.0;
     int info, run;
     double te, ts = 0;
@@ -190,11 +199,11 @@ int main(int argc, char **argv)
 
     double  times,ts2 = 0, te2;
     double  ctimes;
-    float ress = 1.0;
+    float forward_error = 1.0;
     float eps;
     int choice;
     int changerole = 0;
-    int reuse = 0;
+    int reuse = 0, hess = 0;
 
     NB = MB = 64;
 
@@ -219,6 +228,8 @@ int main(int argc, char **argv)
             {"sign",  required_argument, 0, 'S'},
             {"alignoff", no_argument, 0, 'a'},
             {"reuse", no_argument, 0, 'R'},
+            {"hess", no_argument, 0, 'H'},
+            {"output", required_argument, 0, 'o'},
             {0,0,0,0}
         };
 
@@ -229,7 +240,7 @@ no_argument: " "
 required_argument: ":"
 optional_argument: "::" */
 
-        choice = getopt_long( argc, argv, "hm:n:M:N:A:B:t:r:s:S:caR",
+        choice = getopt_long( argc, argv, "hm:n:M:N:A:B:t:r:s:S:caR:Ho:",
                 long_options, &option_index);
 
         if (choice == -1)
@@ -366,6 +377,14 @@ optional_argument: "::" */
             case 'R':
                 reuse = 1;
                 break;
+            case 'H':
+                hess = 1;
+                break;
+            case 'o':
+                output_file = strdup(optarg);
+                break;
+
+
             default:
                 /* Not sure how to get here... */
                 return EXIT_FAILURE;
@@ -377,38 +396,60 @@ optional_argument: "::" */
         exit(-1);
     }
 
+    if ( reuse == 1 && hess == 1) {
+        fprintf(stderr, "Both -R and -H can not be set simultaneously. \n");
+        exit(-1);
+    }
+
     mepack_init();
     benchmark_init();
     /*-----------------------------------------------------------------------------
      *  Output Configuration
      *-----------------------------------------------------------------------------*/
-    printf("# Command Line: ");
-    for (i = 1; i < argc; i++) {
-        printf("%s ", argv[i]);
-    }
-    printf("\n");
-    printf("# RUNS:  %d\n", (int) RUNS);
-    printf("# Number of Matrices: %d\n", (int) nMAT);
-    printf("# Rows: %d (%d:%d:%d)\n", (int) M , (int) M_MIN, (int) M_STEP, (int) M_MAX);
+    csc_table_t *tab = csc_table_new(0);
+    csc_table_comment_cmd(tab, argc, argv);
+    csc_table_comment_allinfo(tab);
+    csc_table_comment_printf(tab, "RUNS:  %d", (int) RUNS);
+    csc_table_comment_printf(tab, "Number of Matrices: %d", (int) nMAT);
+    csc_table_comment_printf(tab, "Rows: %d (%d:%d:%d)", (int) M , (int) M_MIN, (int) M_STEP, (int) M_MAX);
     if ( mn_same )
-        printf("# Cols: same as rows.\n");
+        csc_table_comment_printf(tab, "Cols: same as rows. %s");
     else
-        printf("# Cols: %d (%d:%d:%d)\n", (int) N , (int) N_MIN, (int) N_STEP, (int) N_MAX);
-    printf("# TRANSA: %s\n", TRANSA);
-    printf("# TRANSB: %s\n", TRANSB);
-    printf("# SIGN:   %lg\n", sign);
-    printf("# Block Alignment: %s\n", (align_on == 1)?"YES":"NO");
-    if ( changerole) printf("# B and D changes places.\n");
+        csc_table_comment_printf(tab, "Cols: %d (%d:%d:%d)", (int) N , (int) N_MIN, (int) N_STEP, (int) N_MAX);
+    csc_table_comment_printf(tab, "TRANSA: %s", TRANSA);
+    csc_table_comment_printf(tab, "TRANSB: %s", TRANSB);
+    csc_table_comment_printf(tab, "SIGN:   %lg", sign);
+    csc_table_comment_printf(tab, "Block Alignment: %s", (align_on == 1)?"YES":"NO");
+    csc_table_comment_printf(tab, "Matrix in Hessenberg Form: %d", hess);
+    if ( changerole ) csc_table_comment_printf(tab, "B and D change roles");
+    csc_table_comment_printf(tab, "Solution of the Generalized Sylvester Equation");
+
+    int col_m = csc_table_add_column(tab, "M", CSC_TABLE_INTEGER, CSC_TABLE_RIGHT);
+    int col_n = csc_table_add_column(tab, "N", CSC_TABLE_INTEGER, CSC_TABLE_RIGHT);
+    int col_mb = csc_table_add_column(tab, "MB", CSC_TABLE_INTEGER, CSC_TABLE_RIGHT);
+    int col_nb = csc_table_add_column(tab, "NB", CSC_TABLE_INTEGER, CSC_TABLE_RIGHT);
+    int col_walltime = csc_table_add_column(tab, "Wall-Time", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+    int col_cputime = csc_table_add_column(tab, "CPU-Time", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+    int col_ratio = csc_table_add_column(tab, "Ratio", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+    int col_ferr  = csc_table_add_column(tab, "Forward-Error", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+    int col_res   = csc_table_add_column(tab, "Residual", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+
+    csc_table_column_minwidth(tab, col_m, 5);
+    csc_table_column_minwidth(tab, col_n, 5);
+    csc_table_column_minwidth(tab, col_mb, 5);
+    csc_table_column_minwidth(tab, col_nb, 5);
+    csc_table_column_minwidth(tab, col_walltime, 12);
+    csc_table_column_minwidth(tab, col_cputime, 12);
+    csc_table_column_minwidth(tab, col_ratio, 12);
+    csc_table_column_minwidth(tab, col_ferr, 12);
+    csc_table_column_minwidth(tab, col_res, 12);
+    csc_table_print_current_row(tab);
+
+
     mepack_tgsylv_isolver_set(1);
     mepack_single_tgsylv_blocksize_2stage_set(256);
-
     eps = mepack_single_epsilon();
 
-    printf("# Solver: "); solver_name(is);
-
-
-    printf("#\n");
-    printf("#  M    N    MB  NB   Wall-Time     CPU-Time       Ratio    Forward-Err\n");
     for (M = M_MIN, N = N_MIN; M <= M_MAX && N<=N_MAX; M = (N>=N_MAX) ? (M+M_STEP): M,  N=(N<N_MAX)?(N+N_STEP):(N_MIN)) {
         if (mn_same) {
             N = M;
@@ -430,7 +471,8 @@ optional_argument: "::" */
             /* Prepare  */
             times = 0;
             ctimes = 0;
-            ress = 0.0;
+            forward_error = 0.0;
+            res = 0.0;
 
             A = (float *) malloc(sizeof(float) * (M*M));
             C = (float *) malloc(sizeof(float) * (M*M));
@@ -476,8 +518,9 @@ optional_argument: "::" */
                 mepack_tgsylv_isolver_set(1);
             }
 
-
-            if ( reuse ) {
+            if ( hess ) {
+                strcpy(reusestr, "Hess");
+            } else if ( reuse ) {
                 strcpy(reusestr, "Nofact");
             } else {
                 strcpy(reusestr, "Fact");
@@ -498,11 +541,17 @@ optional_argument: "::" */
                 N2 = M * M;
                 FC_GLOBAL(slarnv,SLARNV)(&IDIST, iseed, &N2, A);
                 FC_GLOBAL(slarnv,SLARNV)(&IDIST, iseed, &N2, C);
+                if(hess){
+                    benchmark_ghess_single(M, A, QA, C, ZA, Work, ldwork);
+                }
                 FC_GLOBAL_(slacpy,SLACPY)("All", &M, &M, A, &M, Aorig, &M, 1);
                 FC_GLOBAL_(slacpy,SLACPY)("All", &M, &M, C, &M, Corig, &M, 1);
                 N2 = N * N;
                 FC_GLOBAL(slarnv,SLARNV)(&IDIST, iseed, &N2, B);
                 FC_GLOBAL(slarnv,SLARNV)(&IDIST, iseed, &N2, D);
+                if(hess){
+                    benchmark_ghess_single(N, B, QB, D, ZB, Work, ldwork);
+                }
                 FC_GLOBAL_(slacpy,SLACPY)("All", &N, &N, B, &N, Borig, &N, 1);
                 FC_GLOBAL_(slacpy,SLACPY)("All", &N, &N, D, &N, Dorig, &N, 1);
 
@@ -525,7 +574,11 @@ optional_argument: "::" */
 
 
                     if ( run == -1 || !reuse) {
-                        mepack_single_ggsylv("N", "N", TRANSA, TRANSB, sign, M, N, A, M, B, N, C, M, D, N, QA, M, ZA, M, QB, N, ZB, N, X, M, &scale, Work, ldwork, &info);
+                        if ( hess ) {
+                            mepack_single_ggsylv("H", "H", TRANSA, TRANSB, sign, M, N, A, M, B, N, C, M, D, N, QA, M, ZA, M, QB, N, ZB, N, X, M, &scale, Work, ldwork, &info);
+                        } else {
+                            mepack_single_ggsylv("N", "N", TRANSA, TRANSB, sign, M, N, A, M, B, N, C, M, D, N, QA, M, ZA, M, QB, N, ZB, N, X, M, &scale, Work, ldwork, &info);
+                        }
                     } else {
                         mepack_single_ggsylv("F", "F", TRANSA, TRANSB, sign, M, N, A, M, B, N, C, M, D, N, QA, M, ZA, M, QB, N, ZB, N, X, M, &scale, Work, ldwork, &info);
                     }
@@ -540,18 +593,28 @@ optional_argument: "::" */
                 times += te;
                 ctimes += te2;
 
-                ress += benchmark_check_X_float(M,N,X, M, Xorig, M);
+                res += mepack_single_residual_gsylv(TRANSA, TRANSB, sign, M, N, Aorig, M, Borig, N, Corig, M, Dorig, N, X, M, RHS, M, scale);
+                forward_error += benchmark_check_X_float(M,N,X, M, Xorig, M);
 
             }  // nmat
             times /= (float) nMAT;
             ctimes /= (float) nMAT;
-            ress /= (float) nMAT;
+            forward_error /= (float) nMAT;
+            res /= (float) nMAT;
 
             /* Print  */
+            csc_table_new_row(tab);
+            csc_table_set_entry_integer(tab, col_m, M);
+            csc_table_set_entry_integer(tab, col_n, N);
+            csc_table_set_entry_integer(tab, col_mb, MB);
+            csc_table_set_entry_integer(tab, col_nb, NB);
+            csc_table_set_entry_float(tab, col_walltime, times);
+            csc_table_set_entry_float(tab, col_cputime, ctimes);
+            csc_table_set_entry_float(tab, col_ratio, ctimes/times);
+            csc_table_set_entry_float(tab, col_ferr, forward_error);
+            csc_table_set_entry_float(tab, col_res, res);
+            csc_table_print_current_row(tab);
 
-            printf("%5d %5d %3d %3d  %10.5e  %10.5e  %10.5e  %10.5e \n",
-                    (int) M,(int) N, (int) MB, (int) NB, times, ctimes, ctimes/times, ress);
-            fflush(stdout);
             free(A);
             free(B);
             free(C);
@@ -571,9 +634,17 @@ optional_argument: "::" */
 
         }
     }
+    if ( output_file) {
+        FILE *fp = fopen(output_file, "w");
+        csc_table_print_ascii(fp, tab, " ");
+        fclose(fp);
+        free(output_file);
+    }
+    csc_table_destroy(tab);
+
 
     benchmark_exit();
-    return (ress < sqrt(eps)*1000)? 0 : -1 ;
+    return ( res < eps*100)? 0 : -1 ;
 
 }
 

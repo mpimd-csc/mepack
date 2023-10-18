@@ -16,7 +16,7 @@
 %
 
 function test_sylv2()
-     mepack_test_init_random();
+    mepack_test_init_random();
 
     is_octave =  exist('OCTAVE_VERSION', 'builtin');
     if ( is_octave )
@@ -40,49 +40,67 @@ function test_sylv2()
     tol = sqrt(eps) * max(m,n);
     ierr = 0;
 
-    A = rand( m , m );
-    B = rand( n,  n );
+    hess_comp = { 'NN', 'NH', 'HN', 'HH'};
+    Ao = rand( m , m );
+    Bo = rand( n , n );
 
     X = ones ( m , n );
 
-    Y1 = A*X*B + X;
-    Y2 = A*X*B' + X;
-    Y3 = A'*X*B + X;
-    Y4 = A'*X*B' + X;
+    for h = 1:4
+        current_hess = hess_comp{h};
 
-    Y5 = A*X*B - X;
-    Y6 = A*X*B' - X;
-    Y7 = A'*X*B - X;
-    Y8 = A'*X*B'- X;
+        fprintf(1,"Tesing Hessenberg Setup %s\n", current_hess);
 
-    X1 = mepack_sylv2(A, B, Y1);
-    X2 = mepack_sylv2(A, B, Y2, 'N', 'T');
-    X3 = mepack_sylv2(A, B, Y3, 'T', 'N');
-    X4 = mepack_sylv2(A, B, Y4, 'T', 'T');
+        if ( current_hess(1) == 'N')
+            A = Ao;
+        else
+            A = hess(Ao);
+        end
+        if ( current_hess(2) == 'N')
+            B = Bo;
+        else
+            B = hess(Bo);
+        end
 
-    assert(norm(A * X1 * B  + X1 - Y1, 'fro')/norm(Y1, 'fro') < tol, '[ 1 ] A * X1 * B    + X1 = Y1' );
-    assert(norm(A * X2 * B' + X2 - Y2, 'fro')/norm(Y2, 'fro') < tol, '[ 1 ] A * X2 * B**T + X2 = Y2' );
-    assert(norm(A' * X3 * B + X3 - Y3, 'fro')/norm(Y3, 'fro') < tol, '[ 1 ] A**T * X3 * B + X3 = Y3' );
-    assert(norm(A' * X4 * B'+ X4 - Y4, 'fro')/norm(Y4, 'fro') < tol, '[ 1 ] A**T * X4 * B**T +  X4 = Y4' );
+        Y1 = A*X*B + X;
+        Y2 = A*X*B' + X;
+        Y3 = A'*X*B + X;
+        Y4 = A'*X*B' + X;
 
-    [X1, S1, T1, Q1, Z1 ] = mepack_sylv2(A, B, Y5, optset);
-    [X2, S2, T2, Q2, Z2 ] = mepack_sylv2(A, B, Y6, 'N', 'T', optset);
-    [X3, S3, T3, Q3, Z3 ] = mepack_sylv2(A, B, Y7, 'T', 'N', optset);
-    [X4, S4, T4, Q4, Z4 ] = mepack_sylv2(A, B, Y8, 'T', 'T', optset);
+        Y5 = A*X*B - X;
+        Y6 = A*X*B' - X;
+        Y7 = A'*X*B - X;
+        Y8 = A'*X*B'- X;
 
-    assert(norm(A * X1  * B  - X1 - Y5, 'fro')/norm(Y5, 'fro') < tol,  '[ 2 ] A * X1 * B    - X1 = Y5 opt' );
-    assert(norm(A * X2  * B' - X2 - Y6, 'fro')/norm(Y6, 'fro') < tol,  '[ 2 ] A * X2 * B**T - X2 = Y6 opt' );
-    assert(norm(A' * X3 * B  - X3 - Y7, 'fro')/norm(Y7, 'fro') < tol,  '[ 2 ] A**T * X3 * B - X3 = Y7 opt' );
-    assert(norm(A' * X4 * B' - X4 - Y8, 'fro')/norm(Y8, 'fro') < tol,  '[ 2 ] A**T * X4 * B**T - X4 = Y8 opt' );
+        X1 = mepack_sylv2(A, B, Y1);
+        X2 = mepack_sylv2(A, B, Y2, 'N', 'T');
+        X3 = mepack_sylv2(A, B, Y3, 'T', 'N');
+        X4 = mepack_sylv2(A, B, Y4, 'T', 'T');
 
-    X1 = mepack_sylv2(S1, T1, Q1, Z1, Y5, optset);
-    X2 = mepack_sylv2(S2, T2, Q2, Z2, Y6, 'N', 'T', optset);
-    X3 = mepack_sylv2(S3, T3, Q3, Z3, Y7, 'T', 'N', optset);
-    X4 = mepack_sylv2(S4, T4, Q4, Z4, Y8, 'T', 'T', optset);
+        assert(norm(A * X1 * B  + X1 - Y1, 'fro')/norm(Y1, 'fro') < tol, '[ 1 ] A * X1 * B    + X1 = Y1' );
+        assert(norm(A * X2 * B' + X2 - Y2, 'fro')/norm(Y2, 'fro') < tol, '[ 1 ] A * X2 * B**T + X2 = Y2' );
+        assert(norm(A' * X3 * B + X3 - Y3, 'fro')/norm(Y3, 'fro') < tol, '[ 1 ] A**T * X3 * B + X3 = Y3' );
+        assert(norm(A' * X4 * B'+ X4 - Y4, 'fro')/norm(Y4, 'fro') < tol, '[ 1 ] A**T * X4 * B**T +  X4 = Y4' );
 
-    assert(norm(A * X1  * B  - X1 - Y5, 'fro')/norm(Y5, 'fro') < tol,  '[ 3 ] A * X1 * B    - X1 = Y5 opt' );
-    assert(norm(A * X2  * B' - X2 - Y6, 'fro')/norm(Y6, 'fro') < tol,  '[ 3 ] A * X2 * B**T - X2 = Y6 opt' );
-    assert(norm(A' * X3 * B  - X3 - Y7, 'fro')/norm(Y7, 'fro') < tol,  '[ 3 ] A**T * X3 * B - X3 = Y7 opt' );
-    assert(norm(A' * X4 * B' - X4 - Y8, 'fro')/norm(Y8, 'fro') < tol,  '[ 3 ] A**T * X4 * B**T - X4 = Y8 opt' );
+        [X1, S1, T1, Q1, Z1 ] = mepack_sylv2(A, B, Y5, optset);
+        [X2, S2, T2, Q2, Z2 ] = mepack_sylv2(A, B, Y6, 'N', 'T', optset);
+        [X3, S3, T3, Q3, Z3 ] = mepack_sylv2(A, B, Y7, 'T', 'N', optset);
+        [X4, S4, T4, Q4, Z4 ] = mepack_sylv2(A, B, Y8, 'T', 'T', optset);
 
+        assert(norm(A * X1  * B  - X1 - Y5, 'fro')/norm(Y5, 'fro') < tol,  '[ 2 ] A * X1 * B    - X1 = Y5 opt' );
+        assert(norm(A * X2  * B' - X2 - Y6, 'fro')/norm(Y6, 'fro') < tol,  '[ 2 ] A * X2 * B**T - X2 = Y6 opt' );
+        assert(norm(A' * X3 * B  - X3 - Y7, 'fro')/norm(Y7, 'fro') < tol,  '[ 2 ] A**T * X3 * B - X3 = Y7 opt' );
+        assert(norm(A' * X4 * B' - X4 - Y8, 'fro')/norm(Y8, 'fro') < tol,  '[ 2 ] A**T * X4 * B**T - X4 = Y8 opt' );
+
+        X1 = mepack_sylv2(S1, T1, Q1, Z1, Y5, optset);
+        X2 = mepack_sylv2(S2, T2, Q2, Z2, Y6, 'N', 'T', optset);
+        X3 = mepack_sylv2(S3, T3, Q3, Z3, Y7, 'T', 'N', optset);
+        X4 = mepack_sylv2(S4, T4, Q4, Z4, Y8, 'T', 'T', optset);
+
+        assert(norm(A * X1  * B  - X1 - Y5, 'fro')/norm(Y5, 'fro') < tol,  '[ 3 ] A * X1 * B    - X1 = Y5 opt' );
+        assert(norm(A * X2  * B' - X2 - Y6, 'fro')/norm(Y6, 'fro') < tol,  '[ 3 ] A * X2 * B**T - X2 = Y6 opt' );
+        assert(norm(A' * X3 * B  - X3 - Y7, 'fro')/norm(Y7, 'fro') < tol,  '[ 3 ] A**T * X3 * B - X3 = Y7 opt' );
+        assert(norm(A' * X4 * B' - X4 - Y8, 'fro')/norm(Y8, 'fro') < tol,  '[ 3 ] A**T * X4 * B**T - X4 = Y8 opt' );
+
+    end
 end

@@ -1,31 +1,20 @@
-SET( SRC
-
-    benchmark_trsylv
-	benchmark_trsylv2
-	benchmark_trlyap
-	benchmark_trstein
-	benchmark_tgsylv
-	benchmark_tglyap
-	benchmark_tgstein
+SET(NSRC
 	benchmark_tgcsylv
 	benchmark_tgcsylv_dual
+    benchmark_tgsylv
+    benchmark_trsylv
+    benchmark_trsylv2
+    benchmark_trlyap
+    benchmark_trstein
+    benchmark_tglyap
+	benchmark_tgstein
 
 
-	benchmark_trlyap_single
-	benchmark_trsylv_single
-	benchmark_trsylv2_single
-	benchmark_trstein_single
-	benchmark_tgsylv_single
-	benchmark_tglyap_single
-	benchmark_tgstein_single
-	benchmark_tgcsylv_single
-	benchmark_tgcsylv_dual_single
+    )
 
 
-)
-
-foreach (srcfile ${SRC})
-	add_executable (${srcfile} ${srcfile}.c)
+foreach (srcfile ${NSRC})
+	add_executable (${srcfile} main.c ${srcfile}.c)
     target_link_libraries (
         ${srcfile}
             PRIVATE
@@ -36,7 +25,23 @@ foreach (srcfile ${SRC})
                 ${LAPACK_LIBRARIES}
                 ${BLAS_LIBRARIES}
                 cscutils)
-endforeach (srcfile)
+endforeach()
+
+foreach (srcfile ${NSRC})
+	add_executable (${srcfile}_single main.c ${srcfile}.c)
+    target_compile_definitions(${srcfile}_single PRIVATE SINGLE_PRECISION)
+    target_link_libraries (
+        ${srcfile}_single
+            PRIVATE
+                OpenMP::OpenMP_C
+                mepack
+                ${ADDITIONAL_LIBRARIES}
+                benchmark_lib
+                ${LAPACK_LIBRARIES}
+                ${BLAS_LIBRARIES}
+                cscutils)
+endforeach()
+
 
 
 # Testing

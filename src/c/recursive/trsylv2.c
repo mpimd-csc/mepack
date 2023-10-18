@@ -161,7 +161,7 @@
 
  \author Martin Koehler, MPI Magdeburg
 
- \date June 2023
+ \date October 2023
 */
 
 
@@ -320,7 +320,7 @@ void mepack_double_trsylv2_recursive(const char *TRANSA, const char *TRANSB, dou
 
  \author Martin Koehler, MPI Magdeburg
 
- \date June 2023
+ \date October 2023
 */
 
 

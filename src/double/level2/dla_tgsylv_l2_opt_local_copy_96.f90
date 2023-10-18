@@ -209,7 +209,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date June 2023
+!> \date October 2023
 !> \ingroup dbltgsylv
 !
 SUBROUTINE DLA_TGSYLV_L2_LOCAL_COPY_96( TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, C, LDC, D, LDD, X, LDX, SCALE, &

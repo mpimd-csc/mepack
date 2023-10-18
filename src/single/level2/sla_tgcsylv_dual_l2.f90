@@ -239,7 +239,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date June 2023
+!> \date October 2023
 !> \ingroup sgltgsylv
 !
 SUBROUTINE SLA_TGCSYLV_DUAL_L2 ( TRANSA, TRANSB, SGN1, SGN2,  M, N, A, LDA, B, LDB, C, LDC, D, LDD, &
@@ -252,7 +252,6 @@ SUBROUTINE SLA_TGCSYLV_DUAL_L2 ( TRANSA, TRANSB, SGN1, SGN2,  M, N, A, LDA, B, L
     INTEGER M, N, LDA, LDB, LDC, LDD, LDE, LDF, INFO
     REAL A(LDA, *), B(LDB, *) , C(LDC, *), D(LDD, *), E(LDE, *), F(LDF,*)
     REAL WORK(*)
-
 
     ! Local Variables
     INTEGER ININFO
@@ -1257,13 +1256,12 @@ SUBROUTINE SLA_TGCSYLV_DUAL_L2 ( TRANSA, TRANSB, SGN1, SGN2,  M, N, A, LDA, B, L
                 IF ( LB .EQ. IONE ) THEN
                     CALL SGER(M, N-LH, -SGN1*ONE, E(1,L), IONE, B(L,LH+1), LDB, F(1,LH+1), LDF)
                     CALL SGER(M, N-LH, -SGN2*ONE, F(1,L), IONE, D(L,LH+1), LDD, F(1,LH+1), LDF)
-
                 ELSE
-                    CALL SGER(M, N-LH, -SGN1*ONE, E(1,L),  IONE, B(L,LH+1),  LDB, F(1,LH+1), LDF)
-                    CALL SGER(M, N-LH, -SGN1*ONE, F(1,LH), IONE, B(LH,LH+1), LDB, F(1,LH+1), LDF)
+                    CALL SGER(M, N-LH, -SGN1, E(1,L),  IONE, B(L,LH+1),  LDB, F(1,LH+1), LDF)
+                    CALL SGER(M, N-LH, -SGN1, E(1,LH), IONE, B(LH,LH+1), LDB, F(1,LH+1), LDF)
 
-                    CALL SGER(M, N-LH, -SGN2*ONE, F(1,L),  IONE, D(L,LH+1),  LDD, F(1,LH+1), LDF)
-                    CALL SGER(M, N-LH, -SGN2*ONE, F(1,LH), IONE, D(LH,LH+1), LDD, F(1,LH+1), LDF)
+                    CALL SGER(M, N-LH, -SGN2, F(1,L),  IONE, D(L,LH+1),  LDD, F(1,LH+1), LDF)
+                    CALL SGER(M, N-LH, -SGN2, F(1,LH), IONE, D(LH,LH+1), LDD, F(1,LH+1), LDF)
                 ENDIF
             END IF
 

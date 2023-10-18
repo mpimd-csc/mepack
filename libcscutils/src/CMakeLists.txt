@@ -27,6 +27,8 @@ SET(COMMON_SRC
     sysinfo/cpuinfo.c
     sysinfo/compiler_info.c
     sysinfo/fortran_api.f90
+    sysinfo/cmake.c
+    sysinfo/compilerflags.c
     )
 
 IF( LUA_ENABLE)
@@ -136,6 +138,18 @@ IF ( LUA_ENABLE )
 ENDIF()
 
 ADD_LIBRARY(cscutils_src OBJECT ${SRC})
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL Linux)
+    set_source_files_properties(sysinfo/cmake.c PROPERTIES COMPILE_DEFINITIONS CMAKE_ARGS="${CMAKE_ARGS}")
+endif()
+
+
+get_property(elg GLOBAL PROPERTY ENABLED_LANGUAGES)
+FOREACH ( L ${elg})
+    STRING(TOUPPER ${CMAKE_BUILD_TYPE} BT)
+    set_property(SOURCE sysinfo/compilerflags.c APPEND PROPERTY COMPILE_DEFINITIONS CMAKE_${L}_FLAGS="${CMAKE_${L}_FLAGS} ${CMAKE_${L}_FLAGS_${BT}}")
+    set_property(SOURCE sysinfo/compilerflags.c APPEND PROPERTY COMPILE_DEFINITIONS LANGUAGE_${L}=1)
+ENDFOREACH()
 
 
 IF (CMAKE_Fortran_COMPILER_ID STREQUAL "IntelLLVM")

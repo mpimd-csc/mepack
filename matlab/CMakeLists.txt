@@ -61,6 +61,16 @@ IF (MEXOCT_LINK_STATIC STREQUAL OFF)
         $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/src/>
         )
 
+    #
+    # Default LUA Config
+    #
+    # INCLUDE(${PROJECT_SOURCE_DIR}/libcscutils/src/lua/LuaInterface.cmake)
+    # IF ( NOT MEPACK_LUA_CONFIG )
+        # CSC_LUA_ADD_INLINE_CODE(mepackmexoct ${PROJECT_SOURCE_DIR}/src/default_config.lua VARNAME mepack_default_config_code FUNCTIONNAME mepack_default_config)
+    # ELSE()
+        # CSC_LUA_ADD_INLINE_CODE(mepackmexoct ${MEPACK_LUA_CONFIG} VARNAME mepack_default_config_code FUNCTIONNAME mepack_default_config)
+    # ENDIF()
+
     FILE(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/matlab/matlab")
     FILE(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/matlab/octave")
 

@@ -29,6 +29,7 @@
 #include "benchmark.h"
 #include "mepack.h"
 #include "mepack_internal.h"
+#include "cscutils/table.h"
 
 void solver_name(int is) {
     switch(is) {
@@ -140,6 +141,11 @@ void usage(char *prgmname) {
     printf("--solver=S, -s S         Select the solver \n");
     printf("--alignoff, -a           Turn off the block alignment\n");
     printf("--reuse, -R              Benchmark the Reuse of the schur decomposition.\n");
+    printf("--hess, -H               Solve for a generalized Hessenberg form (H,T).\n");
+    printf("--output=path, -o path   Write the final result table to csv-like file.\n");
+
+
+
     printf("\nPossible Solvers\n");
     for (is = 0; is <= 27; is++) {
         printf("%2d : ", is);
@@ -162,11 +168,13 @@ int main(int argc, char **argv)
     Int M_MIN=1024,M_MAX=1024,M_STEP=128;
     Int MB_MIN=64,MB_MAX=64,MB_STEP=32;
     Int MB;
+    char *output_file = NULL;
+
 
     Int RUNS = 5;
     Int is = 0;
     Int nMAT = 1;
-    Int alignon = 1;
+    Int align_on = 1;
     size_t mem = 0 ;
 
     double alpha, beta;
@@ -180,10 +188,11 @@ int main(int argc, char **argv)
 
     double times,ts2 = 0, te2;
     double ctimes;
-    double ress = 1.0;
+    double forward_error = 1.0;
+    double res = 0.0;
 
     int choice;
-    int reuse = 0;
+    int reuse = 0, hess = 0;
 
     MB = 64;
 
@@ -203,6 +212,9 @@ int main(int argc, char **argv)
             {"solver",  required_argument, 0, 's'},
             {"alignoff", no_argument, 0, 'a'},
             {"reuse", no_argument, 0, 'R',},
+            {"hess", no_argument, 0, 'H'},
+            {"output", required_argument, 0, 'o'},
+
             {0,0,0,0}
         };
 
@@ -213,7 +225,7 @@ no_argument: " "
 required_argument: ":"
 optional_argument: "::" */
 
-        choice = getopt_long( argc, argv, "hm:M:A:t:r:s:S:R",
+        choice = getopt_long( argc, argv, "hm:M:A:t:r:s:S:R:Ho:",
                 long_options, &option_index);
 
         if (choice == -1)
@@ -277,11 +289,19 @@ optional_argument: "::" */
                 is = atoi(optarg);
                 break;
             case 'a':
-                alignon = 0;
+                align_on = 0;
                 break;
             case 'R':
                 reuse = 1;
                 break;
+            case 'H':
+                hess = 1;
+                break;
+            case 'o':
+                output_file = strdup(optarg);
+                break;
+
+
             default:
                 /* Not sure how to get here... */
                 return EXIT_FAILURE;
@@ -293,32 +313,48 @@ optional_argument: "::" */
         exit(-1);
     }
 
+    if ( reuse == 1 && hess == 1) {
+        fprintf(stderr, "Both -R and -H were selected. \n");
+        exit(-1);
+    }
+
     mepack_init();
     benchmark_init();
     /*-----------------------------------------------------------------------------
      *  Output Configuration
      *-----------------------------------------------------------------------------*/
-    printf("# Command Line: ");
-    for (i = 1; i < argc; i++) {
-        printf("%s ", argv[i]);
-    }
-    printf("\n");
-    printf("# RUNS:  %d\n", (int) RUNS);
-    printf("# Number of Matrices: %d\n", (int) nMAT);
-    printf("# Rows: %d (%d:%d:%d)\n", (int) M , (int) M_MIN, (int) M_STEP, (int) M_MAX);
-    printf("# TRANSA: %s\n", TRANSA);
-    printf("# Block Alignment: %s\n", (alignon == 1)?"YES":"NO");
+    csc_table_t *tab = csc_table_new(0);
+    csc_table_comment_cmd(tab, argc, argv);
+    csc_table_comment_allinfo(tab);
+    csc_table_comment_printf(tab, "RUNS:  %d", (int) RUNS);
+    csc_table_comment_printf(tab, "Number of Matrices: %d", (int) nMAT);
+    csc_table_comment_printf(tab, "Rows: %d (%d:%d:%d)", (int) M , (int) M_MIN, (int) M_STEP, (int) M_MAX);
+    csc_table_comment_printf(tab, "TRANSA: %s", TRANSA);
+    csc_table_comment_printf(tab, "Block Alignment: %s", (align_on == 1)?"YES":"NO");
+    csc_table_comment_printf(tab, "Matrix in Hessenberg Form: %d", hess);
+    csc_table_comment_printf(tab, "Solution of the Generalized Stein Equation");
+
+    int col_m = csc_table_add_column(tab, "M", CSC_TABLE_INTEGER, CSC_TABLE_RIGHT);
+    int col_mb = csc_table_add_column(tab, "MB", CSC_TABLE_INTEGER, CSC_TABLE_RIGHT);
+    int col_walltime = csc_table_add_column(tab, "Wall-Time", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+    int col_cputime = csc_table_add_column(tab, "CPU-Time", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+    int col_ratio = csc_table_add_column(tab, "Ratio", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+    int col_ferr  = csc_table_add_column(tab, "Forward-Error", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+    int col_res   = csc_table_add_column(tab, "Residual", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+
+    csc_table_column_minwidth(tab, col_m, 5);
+    csc_table_column_minwidth(tab, col_mb, 5);
+    csc_table_column_minwidth(tab, col_walltime, 12);
+    csc_table_column_minwidth(tab, col_cputime, 12);
+    csc_table_column_minwidth(tab, col_ratio, 12);
+    csc_table_column_minwidth(tab, col_ferr, 12);
+    csc_table_column_minwidth(tab, col_res, 12);
+    csc_table_print_current_row(tab);
+
 
     mepack_tgstein_isolver_set(1);
     mepack_double_tgstein_blocksize_2stage_set(256);
-
     eps = mepack_double_epsilon();
-
-    printf("# Solver: "); solver_name(is);
-
-
-    printf("#\n");
-    printf("#  M   MB  Wall-Time     CPU-Time       Ratio    Forward-Err\n");
 
     for (M = M_MIN ;  M <= M_MAX ; M = M + M_STEP ) {
         for (MB = MB_MIN; MB <= MB_MAX ; MB += MB_STEP) {
@@ -335,7 +371,8 @@ optional_argument: "::" */
             /* Prepare  */
             times = 0;
             ctimes = 0;
-            ress = 0.0;
+            forward_error = 0.0;
+            res = 0.0;
 
             A = (double *) malloc(sizeof(double) * (M*M));
             B = (double *) malloc(sizeof(double) * (M*M));
@@ -383,7 +420,7 @@ optional_argument: "::" */
 
             for (mat = 0; mat < nMAT; mat++) {
                 /* Setup the Problem  */
-                // benchmark_random_gevp_double(M, iseed, A, B, NULL, NULL, NULL, NULL, alignon*MB);
+                // benchmark_random_gevp_double(M, iseed, A, B, NULL, NULL, NULL, NULL, align_on*MB);
                 Int IDIST = 2;
                 Int ldwork = mem;
                 Int ldworkx = ldwork - 3*M;
@@ -392,6 +429,9 @@ optional_argument: "::" */
                 N2 = M * M;
                 FC_GLOBAL(dlarnv,DLARNV)(&IDIST, iseed, &N2, A);
                 FC_GLOBAL(dlarnv,DLARNV)(&IDIST, iseed, &N2, B);
+                if(hess){
+                    benchmark_ghess_double(M, A, Q, B, Z, Work, ldwork);
+                }
                 FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, A, &M, Aorig, &M, 1);
                 FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, B, &M, Borig, &M, 1);
                 benchmark_rhs_gstein_double(TRANSA, M, A, M, B, M, Xorig, M, RHS, M );
@@ -418,13 +458,17 @@ optional_argument: "::" */
                     ts2 = get_ctime();
 
                     if ( run == -1 || !reuse) {
-                        if ( is == 27) {
-                            Int infox = 0;
-                            FC_GLOBAL_(sg03ad,SG03AD)("DisCont", "X", "NonFact", TRANSX, "Upper", &M,
-                                    A, &M, B, &M, Q, &M, Z, &M, X, &M, &scale, &sep, &ferr,
-                                    &Work[0], &Work[M], &Work[2*M], NULL, &Work[3*M], &ldworkx,  &infox, 1, 1, 1, 1, 1);
-                        } else {
-                            mepack_double_ggstein("N", TRANSA, M, A, M, B, M, Q, M, Z, M, X, M, &scale, Work, ldwork,  &info);
+                        if(!hess){
+                            if ( is == 27) {
+                                Int infox = 0;
+                                FC_GLOBAL_(sg03ad,SG03AD)("DisCont", "X", "NonFact", TRANSX, "Upper", &M,
+                                        A, &M, B, &M, Q, &M, Z, &M, X, &M, &scale, &sep, &ferr,
+                                        &Work[0], &Work[M], &Work[2*M], NULL, &Work[3*M], &ldworkx,  &infox, 1, 1, 1, 1, 1);
+                            } else {
+                                mepack_double_ggstein("N", TRANSA, M, A, M, B, M, Q, M, Z, M, X, M, &scale, Work, ldwork,  &info);
+                            }
+                        } else{
+                            mepack_double_ggstein("H", TRANSA, M, A, M, B, M, Q, M, Z, M, X, M, &scale, Work, ldwork,  &info);
                         }
                     } else {
                         if ( is == 27 ) {
@@ -452,21 +496,28 @@ optional_argument: "::" */
                 times += te;
                 ctimes += te2;
 
-                ress += benchmark_check_X_double(M,M,X, M, Xorig, M);
-
-
-
+                res += mepack_double_residual_gstein(TRANSA, M, Aorig, M, Borig, M, X, M, RHS, M, scale);
+                forward_error += benchmark_check_X_double(M,M,X, M, Xorig, M);
             }
 
             times /= (double) nMAT;
             ctimes /= (double) nMAT;
-            ress /= (double) nMAT;
+            forward_error /= (double) nMAT;
+            res /= (double) nMAT;
 
             /* Print  */
+            csc_table_new_row(tab);
+            csc_table_set_entry_integer(tab, col_m, M);
+            csc_table_set_entry_integer(tab, col_mb, MB);
+            csc_table_set_entry_float(tab, col_walltime, times);
+            csc_table_set_entry_float(tab, col_cputime, ctimes);
+            csc_table_set_entry_float(tab, col_ratio, ctimes/times);
+            csc_table_set_entry_float(tab, col_ferr, forward_error);
+            csc_table_set_entry_float(tab, col_res, res);
+            csc_table_print_current_row(tab);
 
-            printf("%5d %3d %10.5e  %10.5e  %10.5e  %10.5e \n",
-                    (int) M, (int) MB, times, ctimes, ctimes/times, ress);
-            fflush(stdout);
+
+
             free(A);
             free(B);
             free(Aorig);
@@ -480,9 +531,17 @@ optional_argument: "::" */
 
         }
     }
+    if ( output_file) {
+        FILE *fp = fopen(output_file, "w");
+        csc_table_print_ascii(fp, tab, " ");
+        fclose(fp);
+        free(output_file);
+    }
+    csc_table_destroy(tab);
+
 
     benchmark_exit();
-    return (ress < sqrt(eps)*100)? 0 : -1 ;
+    return ( res < eps*100)? 0 : -1 ;
 }
 
 

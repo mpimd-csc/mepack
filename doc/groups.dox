@@ -456,5 +456,18 @@
     This section contains auxiliary routines that do not fit in one of the other
     categories.
 
+@defgroup residual Residual Computations
+    @brief This collection computes the relative residuals of the matrix
+    equations.
 
+    The routines in this group compute the relative residuals of the matrix
+    equations. In contrast to the computational routines, these routines mange
+    the memory on their own, making them easier to use from Fortran and C.
+
+@defgroup cresidual C-Interface
+    @ingroup residual
+    @brief C-Interface for the residual computations.
+
+    The routines in this group are wrappers around the Fortran routines from
+    \ref residual.
 **/

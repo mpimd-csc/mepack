@@ -27,748 +27,361 @@
 #include <string.h>
 #include <omp.h>
 #include "benchmark.h"
-
 #include "mepack.h"
 #include "mepack_internal.h"
 
-#ifdef RECSY
-#define MAX_SOLVER 26
+#include "cscutils/table.h"
+
+#ifdef SINGLE_PRECISION
+#define STRINGIFY(x) #x
+#define MEPACK_PRECISION_PREFIX(X) STRINGIFY( SLA_ ## X)
+#define MEPACK_PREFIX(x) mepack_single_ ## x
+#define FLOAT float
 #else
-#define MAX_SOLVER 24
+#define MEPACK_PREFIX(x) mepack_double_ ## x
+#define FLOAT double
+#define STRINGIFY(x) #x
+#define MEPACK_PRECISION_PREFIX(X) STRINGIFY( DLA_ ## X)
 #endif
 
-
-void solver_name(int is) {
-    switch(is) {
-        case 1:
-            printf("LEVEL3 - LEVEL2: LOCAL COPY fixed maximum size with alignment\n");
-            break;
-        case 2:
-            printf("LEVEL3 - LEVEL2: LOCAL COPY fixed maximum size\n");
-            break;
-        case 3:
-            printf("LEVEL3 - LEVEL2: REORDERED (column first solution)\n");
-            break;
-        case 4:
-            printf("LEVEL3 - LEVEL2: BLAS LEVEL-2 call\n");
-            break;
-        case 5:
-            printf("LEVEL3 - LEVEL2: Unoptimized\n");
-            break;
-        case 6:
-            printf("LEVEL3 - LEVEL2: RECURSIVE BLOCKING\n");
-            break;
-        case 7:
-            printf("DAG - LEVEL2: LOCAL COPY fixed maximum size with alignment\n");
-            break;
-        case 8:
-            printf("DAG - LEVEL2: LOCAL COPY fixed maximum size\n");
-            break;
-        case 9:
-            printf("DAG - LEVEL2: REORDERED (column first solution)\n");
-            break;
-        case 10:
-            printf("DAG - LEVEL2: BLAS LEVEL-2 call\n");
-            break;
-        case 11:
-            printf("DAG - LEVEL2: Unoptimized\n");
-            break;
-        case 12:
-            printf("DAG - LEVEL2: RECURSIVE BLOCKING\n");
-            break;
-        case 13:
-            printf("LEVEL3 - DAG - LEVEL2: LOCAL COPY fixed maximum size with alignment\n");
-            break;
-        case 14:
-            printf("LEVEL3 - DAG - LEVEL2: LOCAL COPY fixed maximum size\n");
-            break;
-        case 15:
-            printf("LEVEL3 - DAG - LEVEL2: REORDERED (column first solution)\n");
-            break;
-        case 16:
-            printf("LEVEL3 - DAG - LEVEL2: BLAS LEVEL-2 call\n");
-            break;
-        case 17:
-            printf("LEVEL3 - DAG - LEVEL2: Unoptimized\n");
-            break;
-        case 18:
-            printf("LEVEL3 - DAG - LEVEL2: RECURSIVE BLOCKING\n");
-            break;
-        case 19:
-            printf("LEVEL2: LOCAL COPY fixed maximum size with alignment\n");
-            break;
-        case 20:
-            printf("LEVEL2: LOCAL COPY fixed maximum size\n");
-            break;
-        case 21:
-            printf("LEVEL2: REORDERED (column first solution)\n");
-            break;
-        case 22:
-            printf("LEVEL2: BLAS LEVEL-2 call\n");
-            break;
-        case 23:
-            printf("LEVEL2: Unoptimized\n");
-            break;
-        case 24:
-            printf("RECURSIVE BLOCKING\n");
-            break;
-        case 25:
-            printf("RECSY\n");
-            break;
-        case 26:
-            printf("RECSY Parallel\n");
-            break;
-        case 27:
-            printf("Gardiner-Laub\n");
-            break;
-        case 28:
-            printf("Gardiner-Laub (Algorithm 705)\n");
-            break;
-
-    }
-
-}
-
-void usage(char *prgmname) {
-    int is;
-    printf("Solve a generalized Sylvester equation with triangular coefficient matrices.\n");
-    printf("\n");
-    printf("Usage: %s <options>\n", prgmname);
-    printf("\n");
-    printf("--help, -h        Display this help\n");
-    printf("--rows=M , -m M   Set the number of rows to M. \n");
-    printf("--cols=N , -n N   Set the number of cols to N. \n");
-    printf("--rows=START:STEP:STOP   Iterate the number of rows from START to STOP with step size STEP.\n");
-    printf("--cols=START:STEP:STOP   Iterate the number of columns from START to STOP with step size STEP.\n");
-    printf("--cols=-                 Use the number of rows as number of cols.\n");
-    printf("--mb=START:STEP:STOP     Iterate the row block size form START to STOP with step size STEP.\n");
-    printf("--nb=START:STEP:STOP     Iterate the column column block size from START to STOP with step size STEP.\n");
-    printf("--mb=MB                  Set the row block size.  \n");
-    printf("--nb=NB                  Set the column block size\n");
-    printf("--nb=-                   Set the column block size to the row block size.\n");
-    printf("--transa=N,T             Transpose on the matrix pair (A,C) \n");
-    printf("--transb=N,T             Transpose on the matrix pair (B,D) \n");
-    printf("--nmat=NUM               Number of different equations.\n");
-    printf("--runs=R                 Number of runs per equation.\n");
-    printf("--solver=S, -s S         Select the solver \n");
-    printf("--alignoff, -a           Turn off the blocksize alignment.\n");
-    printf("--changerole, -c         B and D changes places.\n");
-    printf("--sign=+/-1, -S  +/-1    Sign in the equation.\n");
-    printf("\nPossible Solvers\n");
-
-    for (is = 0; is <= 28; is++) {
-        printf("%2d : ", is); solver_name(is);
-    }
-    return;
-}
-
-
-int main(int argc, char **argv)
-{
-    Int iseed[4]={1,1,1,9};
-    Int i, mat ;
-    double *A, *B, *C, *D;
-    double *X, *Xorig,*Work, *RHS;
-    Int M = 1024, N=1024;
-    Int M_MIN=1024,M_MAX=1024,M_STEP=128;
-    Int N_MIN=1024,N_MAX=1024,N_STEP=128;
-    Int MB_MIN=64,MB_MAX=64,MB_STEP=32;
-    Int NB_MIN=64,NB_MAX=64,NB_STEP=32;
-    Int MB, NB;
-
-    Int RUNS = 5;
-    Int is = 0;
-    Int mn_same = 0;
-    Int mbnb_same = 0;
-    Int nMAT = 1;
-    Int align_on = 1;
-    double alpha, beta;
-    double sign = 1;
-    char TRANSA[20]="N";
-    char TRANSB[20]="N";
+typedef struct _context_gsylv_t {
+    Int M, N;
+Int MB, NB, BIGMB;
+    FLOAT sgn;
+    FLOAT scale;
+    FLOAT *A;  Int LDA;
+    FLOAT *B;  Int LDB;
+    FLOAT *C;  Int LDC;
+    FLOAT *D;  Int LDD;
+    FLOAT *X;  Int LDX;
+    FLOAT *Xorig; Int LDXorig;
+    FLOAT *RHS_X; Int LDRHS_X;
+    ssize_t mem;
+    FLOAT *work;
+    char * TRANSA;
+    char * TRANSB;
+    int isolver;
 #ifdef RECSY
     double MACHINE_RECSY[12];
-    Int type, N2;
+    Int type;
 #endif
+    int changerole;
+} context_gsylv_t;
 
-    double scale = 1.0;
-    int info, run;
-    double te, ts = 0;
-    ssize_t mem;
 
-    double times,ts2 = 0, te2;
-    double ctimes;
-    double ress = 1.0;
-    double eps;
-    int choice;
-    int changerole = 0;
-
-    NB = MB = 64;
-
-    while (1)
-    {
-        static struct option long_options[] =
-        {
-            /* Use flags like so:
-               {"verbose",    no_argument,    &verbose_flag, 'V'}*/
-            /* Argument styles: no_argument, required_argument, optional_argument */
-            {"help",    no_argument,    0,    'h'},
-            {"rows",    required_argument, 0, 'm'},
-            {"cols",    required_argument, 0, 'n'},
-            {"mb",      required_argument, 0, 'M'},
-            {"nb",      required_argument, 0, 'N'},
-            {"transa",  required_argument, 0, 'A'},
-            {"transb",  required_argument, 0, 'B'},
-            {"nmat",    required_argument, 0, 't'},
-            {"runs",    required_argument, 0, 'r'},
-            {"solver",  required_argument, 0, 's'},
-            {"changerole", no_argument, 0, 'c'},
-            {"sign",  required_argument, 0, 'S'},
-            {"alignoff", no_argument, 0, 'a'},
-
-            {0,0,0,0}
-        };
-
-        int option_index = 0;
-
-        /* Argument parameters:
-no_argument: " "
-required_argument: ":"
-optional_argument: "::" */
-
-        choice = getopt_long( argc, argv, "hm:n:M:N:A:B:t:r:s:S:ca",
-                long_options, &option_index);
-
-        if (choice == -1)
-            break;
-
-        switch( choice )
-        {
-            case 'h':
-                usage(argv[0]);
-                exit(-1);
-                break;
-            case 'm':
-                if ( strstr(optarg, ":") != NULL ) {
-                    int f1,f2,f3;
-                    if ( sscanf(optarg, "%d:%d:%d", &f1, &f2, &f3) != 3 ) {
-                        fprintf(stderr, "The loop argument must have the format MIN:STEP:MAX\n");
-                    }
-                    M_MIN = f1;
-                    M_STEP = f2;
-                    M_MAX = f3;
-                    M = f1;
-                } else {
-                    M = atoi(optarg);
-                    M_MIN = M;
-                    M_MAX = M;
-                    M_STEP = M;
-                }
-                break;
-            case 'n':
-                if ( strcmp("-", optarg) == 0 ) {
-                    mn_same = 1;
-                    N = M;
-                    N_MIN = N;
-                    N_MAX = N;
-                    N_STEP = N;
-                    break;
-                }
-                if ( strstr(optarg, ":") != NULL ) {
-                    int f1,f2,f3;
-                    if ( sscanf(optarg, "%d:%d:%d", &f1, &f2, &f3) != 3 ) {
-                        fprintf(stderr, "The loop argument must have the format MIN:STEP:MAX\n");
-                    }
-                    N_MIN = f1;
-                    N_STEP = f2;
-                    N_MAX = f3;
-                    N = f1;
-
-
-                } else {
-                    N = atoi(optarg);
-                    N_MIN = N;
-                    N_MAX = N;
-                    N_STEP = N;
-                }
-                break;
-            case 'M':
-                if ( strstr(optarg, ":") != NULL ) {
-                    int f1,f2,f3;
-                    if ( sscanf(optarg, "%d:%d:%d", &f1, &f2, &f3) != 3 ) {
-                        fprintf(stderr, "The loop argument must have the format MIN:STEP:MAX\n");
-                    }
-                    MB = f1;
-                    MB_MIN = f1;
-                    MB_STEP = f2;
-                    MB_MAX = f3;
-                } else {
-                    MB_MIN = atoi(optarg);
-                    MB_MAX = MB_MIN;
-                    MB_STEP = MB_MIN;
-                    MB = MB_MIN;
-                }
-                break;
-            case 'N':
-                if ( strcmp("-", optarg) == 0 ) {
-                    mbnb_same = 1;
-                    NB = MB;
-                    NB_MIN = NB;
-                    NB_MAX = NB;
-                    NB_STEP = NB;
-                    break;
-                }
-                if ( strstr(optarg, ":") != NULL ) {
-                    int f1,f2,f3;
-                    if ( sscanf(optarg, "%d:%d:%d", &f1, &f2, &f3) != 3 ) {
-                        fprintf(stderr, "The loop argument must have the format MIN:STEP:MAX\n");
-                    }
-                    NB_MIN = f1;
-                    NB_STEP = f2;
-                    NB_MAX = f3;
-                    NB = f1;
-
-
-                } else {
-                    NB = atoi(optarg);
-                    NB_MIN = NB;
-                    NB_MAX = NB;
-                    NB_STEP = NB;
-                }
-                break;
-            case 'A':
-                strncpy(TRANSA, optarg,2);
-                TRANSA[0] = toupper(TRANSA[0]);
-                if (TRANSA[0] != 'N' && TRANSA[0] != 'T') {
-                    printf("Invalid transpose option for (A,C).\n");
-                    return -1;
-                }
-                break;
-            case 'B':
-                strncpy(TRANSB, optarg,2);
-                TRANSB[0] = toupper(TRANSB[0]);
-                if (TRANSB[0] != 'N' && TRANSB[0] != 'T') {
-                    printf("Invalid transpose option for (B,D).\n");
-                    return -1;
-                }
-                break;
-            case 't':
-                nMAT = atoi(optarg);
-                break;
-            case 'r':
-                RUNS = atoi(optarg);
-                break;
-            case 's':
-                is = atoi(optarg);
-                break;
-            case 'S':
-                sign = atof(optarg);
-                break;
-            case 'a':
-                align_on = 0;
-                break;
-            case 'c':
-                changerole = 1;
-                break;
-            default:
-                /* Not sure how to get here... */
-                return EXIT_FAILURE;
-        }
-    }
-
-    if ( is < 1 || is > 28 ) {
-        fprintf(stderr, "Solver not known. \n");
-        exit(-1);
-    }
-
-    benchmark_init();
-
-    mepack_init();
-
-    /*-----------------------------------------------------------------------------
-     *  Output Configuration
-     *-----------------------------------------------------------------------------*/
-    printf("# Command Line: ");
-    for (i = 1; i < argc; i++) {
-        printf("%s ", argv[i]);
-    }
-    printf("\n");
-    printf("# RUNS:  %d\n", (int) RUNS);
-    printf("# Number of Matrices: %d\n",(int)  nMAT);
-    printf("# Rows: %d (%d:%d:%d)\n", (int) M , (int) M_MIN, (int) M_STEP, (int) M_MAX);
-    if ( mn_same )
-        printf("# Cols: same as rows.\n");
-    else
-        printf("# Cols: %d (%d:%d:%d)\n", (int) N , (int) N_MIN, (int) N_STEP, (int) N_MAX);
-    printf("# TRANSA: %s\n", TRANSA);
-    printf("# TRANSB: %s\n", TRANSB);
-    printf("# SIGN:   %lg\n", sign);
-    printf("# Block Alignment: %s\n", (align_on == 1)?"YES":"NO");
-    if ( changerole) printf("# B and D changes places.\n");
-    mepack_tgsylv_isolver_set(1);
-    mepack_double_tgsylv_blocksize_2stage_set(256);
-
-    eps = mepack_double_epsilon();
-
-    printf("# Solver: "); solver_name(is);
-
-    ress = 1.0;
-
-    printf("#\n");
-    printf("#  M    N    MB  NB   Wall-Time     CPU-Time       Ratio    Forward-Err\n");
-    for (M = M_MIN, N = N_MIN; M <= M_MAX && N<=N_MAX; M = (N>=N_MAX) ? (M+M_STEP): M,  N=(N<N_MAX)?(N+N_STEP):(N_MIN)) {
-        if (mn_same) {
-            N = M;
-        }
-        for (MB = MB_MIN, NB = NB_MIN; MB <= MB_MAX && NB<=NB_MAX; MB = (NB>=NB_MAX) ? (MB+MB_STEP): MB,  NB=(NB<NB_MAX)?(NB+NB_STEP):(NB_MIN)) {
-            if ( mbnb_same ) {
-                NB = MB;
-            }
-
-            /* Set the Block size   */
-            mepack_double_tgsylv_blocksize_mb_set(MB);
-            mepack_double_tgsylv_blocksize_nb_set(NB);
-
-            /* Prepare  */
-            times = 0;
-            ctimes = 0;
-            ress = 0.0;
-
-            A = (double *) malloc(sizeof(double) * (M*M));
-            C = (double *) malloc(sizeof(double) * (M*M));
-            B = (double *) malloc(sizeof(double) * (N*N));
-            D = (double *) malloc(sizeof(double) * (N*N));
-            X = (double *) malloc(sizeof(double) * (M*N));
-            memset(X, 0, sizeof(double) * M * N);
-            /* #pragma omp parallel for schedule(static,1) */
-            for (i = 0; i < M*M; i+=512) { A[i] = 0.0; C[i] = 0.0;  }
-            /* #pragma omp parallel for schedule(static,1) */
-            for (i = 0; i < N*N; i+=512) { B[i] = 0.0; D[i] = 0.0; }
-            /* #pragma omp parallel for schedule(static,1) */
-            for (i = 0; i < M*N; i+=1) { X[i] = 0.0; }
-
-            Xorig = (double *) malloc(sizeof(double) * (M*N));
-            RHS = (double *) malloc(sizeof(double) * (M*N));
-
-            if ( is < 7 ) {
-                 mepack_tgsylv_isolver_set(is);
-                 mem = mepack_memory("DLA_TGSYLV_L3", M, N);
-            } else if ( is > 6 && is < 13 ) {
-                mepack_tgsylv_isolver_set(is-6);
-                mem = mepack_memory("DLA_TGSYLV_DAG", M, N);
-            } else if ( is > 12 && is < 19 ) {
-                mepack_tgsylv_isolver_set(is-12);
-                mem = mepack_memory("DLA_TGSYLV_L3_2S", M, N);
-            } else if ( is == 19 ) {
-                if ( M <= 32 && N <= 32)
-                    mem = mepack_memory("DLA_TGSYLV_L2_LOCAL_COPY_32", M, N);
-                else if ( M <= 64 && N <= 64)
-                    mem = mepack_memory("DLA_TGSYLV_L2_LOCAL_COPY_64", M, N);
-                else if ( M <= 96 && N <= 96)
-                    mem = mepack_memory("DLA_TGSYLV_L2_LOCAL_COPY_96", M, N);
-                else if ( M <= 128 && N <= 128)
-                    mem = mepack_memory("DLA_TGSYLV_L2_LOCAL_COPY_128", M, N);
-                else
-                    mem = mepack_memory("DLA_TGSYLV_L2_REORDER", M, N);
-            } else if ( is == 20 ) {
-                if ( M <= 128 && N <= 128)
-                    mem = mepack_memory("DLA_TGSYLV_L2_LOCAL_COPY", M, N);
-                else
-                    mem = mepack_memory("DLA_TGSYLV_L2_REORDER", M, N);
-            }
-            else if ( is == 20 ) {
-                mem = mepack_memory("DLA_TGSYLV_L2_LOCAL_COPY", M, N);
-            } else if ( is == 21) {
-                mem = mepack_memory("DLA_TGSYLV_L2_REORDER", M, N);
-            } else if ( is == 22) {
-                mem = mepack_memory("DLA_TGSYLV_L2", M, N);
-            } else if ( is == 23) {
-                mem = mepack_memory("DLA_TGSYLV_L2_UNOPT", M, N);
-            } else if ( is == 24) {
-                mem = mepack_memory("DLA_TGSYLV_RECURSIVE", M, N);
-            } else if ( is == 27) {
-                mem = mepack_memory("DLA_TGSYLV_GARDINER_LAUB", M, N);
-            } else {
-                mem = 2*M*N;
-            }
-
-            if ( is == 19 || is == 20 ) {
-                mem = MAX(mepack_memory("DLA_TGSYLV_L2_REORDER", M, N), mem);
-            }
-            if ( is == 28 ) {
-                mem = 2*M*M+7*M;
-            }
-            Work = (double *) malloc(sizeof(double) * (mem));
-
-            alpha = 1; beta = 1;
-            FC_GLOBAL_(dlaset,DLASET)("All", &M, &N, &alpha, &beta, Xorig, &M, 1);
-
-            /* Reset the Seed  */
-            iseed[0] = 1;
-            iseed[1] = 1;
-            iseed[2] = 1;
-            iseed[3] = 1;
-
-            for (mat = 0; mat < nMAT; mat++) {
-                /* Setup the Problem  */
-                //		printf("seed %d %d %d %d\n", iseed[0], iseed[1], iseed[2], iseed[3]);
-                benchmark_random_gevp_double(M, iseed, A, C, NULL, NULL, NULL, NULL, align_on*gcd(MB, NB));
-                benchmark_random_gevp_double(N, iseed, B, D, NULL, NULL, NULL, NULL, align_on*gcd(MB, NB));
-                // 		printf("seed %d %d %d %d\n", iseed[0], iseed[1], iseed[2], iseed[3]);
-
-                if ( changerole ) {
-                    double *tmp = malloc ( sizeof( double ) * N * N);
-                    FC_GLOBAL(dlacpy,DLACPY) ( "All", &N, &N, B, &N, tmp, &N, 1);
-                    FC_GLOBAL(dlacpy,DLACPY) ( "All", &N, &N, D, &N, B, &N, 1);
-                    FC_GLOBAL(dlacpy,DLACPY) ( "All", &N, &N, tmp, &N, D, &N, 1);
-                    free(tmp);
-                }
-                benchmark_rhs_gsylv_double(TRANSA, TRANSB, sign,  M, N, A, M, B, N, C, M, D, N, Xorig, M, RHS, M );
-
-
-                /*-----------------------------------------------------------------------------
-                 *  LEVEL 3
-                 *-----------------------------------------------------------------------------*/
-                if ( is < 19 ) {
-                    if ( is < 7 )  {
-                        mepack_tgsylv_isolver_set(is);
-                    } else if ( is > 6 && is < 13 )  {
-                        mepack_tgsylv_isolver_set(is-6);
-                    } else if ( is > 12 && is < 19 )  {
-                        mepack_tgsylv_isolver_set(is-12);
-                    }
-
-                    te = 0.0;
-                    te2 = 0.0;
-                    for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &N, RHS, &M, X, &M, 1);
-                        ts = get_wtime();
-                        ts2 = get_ctime();
-                        if ( is < 7 )
-                            mepack_double_tgsylv_level3(TRANSA, TRANSB, sign,  M, N, A, M, B, N, C, M, D, N, X, M, &scale, Work, &info);
-                        else if ( is < 12 )
-                            mepack_double_tgsylv_dag(TRANSA, TRANSB, sign,  M, N, A, M, B, N, C, M, D, N, X, M, &scale, Work, &info);
-                        else if ( is < 19 )
-                            mepack_double_tgsylv_level3_2stage(TRANSA, TRANSB, sign,  M, N, A, M, B, N, C, M, D, N, X, M, &scale, Work, &info);
-
-                        if (run >= 0 ) {
-                            te2 += (get_ctime()-ts2);
-                            te += (get_wtime()-ts);
-                        }
-
-                    }
-                    te = te / RUNS;
-                    te2 = te2/RUNS;
-                    times += te;
-                    ctimes += te2;
-
-                    ress += benchmark_check_X_double(M,N,X, M, Xorig, M);
-                }
-
-                /*-----------------------------------------------------------------------------
-                 *  LEVEL 2
-                 *-----------------------------------------------------------------------------*/
-                if ( is > 18 && is < 25 )  {
-                    te = 0.0;
-                    te2 = 0.0;
-
-
-                    for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &N, RHS, &M, X, &M, 1);
-                        ts = get_wtime();
-                        ts2 = get_ctime();
-                        if ( is == 19 ){
-                            if ( M <= 32 && N <= 32 )
-                                mepack_double_tgsylv_level2_local_copy_32(TRANSA, TRANSB, sign,  M, N, A, M, B, N, C, M, D, N, X, M, &scale, Work, &info);
-                            else if ( M <= 64 && N <= 64 )
-                                mepack_double_tgsylv_level2_local_copy_64(TRANSA, TRANSB, sign,  M, N, A, M, B, N, C, M, D, N, X, M, &scale, Work, &info);
-                            else if ( M <= 96 && N <= 96 )
-                                mepack_double_tgsylv_level2_local_copy_96(TRANSA, TRANSB, sign,  M, N, A, M, B, N, C, M, D, N, X, M, &scale, Work, &info);
-                            else if ( M <= 128 && N <= 128 )
-                                mepack_double_tgsylv_level2_local_copy_128(TRANSA, TRANSB, sign,  M, N, A, M, B, N, C, M, D, N, X, M, &scale, Work, &info);
-                            else
-                                mepack_double_tgsylv_level2_reorder(TRANSA, TRANSB, sign,  M, N, A, M, B, N, C, M, D, N, X, M, &scale, Work, &info);
-                        } else if ( is == 20 ) {
-                            if ( M <= 128 && N <= 128) {
-                                mepack_double_tgsylv_level2_local_copy(TRANSA, TRANSB, sign,  M, N, A, M, B, N, C, M, D, N, X, M, &scale, Work, &info);
-                            } else {
-                                mepack_double_tgsylv_level2_reorder(TRANSA, TRANSB, sign,  M, N, A, M, B, N, C, M, D, N, X, M, &scale, Work, &info);
-                            }
-                        } else if ( is == 21 ) {
-                            mepack_double_tgsylv_level2_reorder(TRANSA, TRANSB, sign,  M, N, A, M, B, N, C, M, D, N, X, M, &scale, Work, &info);
-                        } else if ( is == 22 ) {
-                            mepack_double_tgsylv_level2(TRANSA, TRANSB, sign,  M, N, A, M, B, N, C, M, D, N, X, M, &scale, Work, &info);
-                        } else if ( is == 23 ) {
-                            mepack_double_tgsylv_level2_rowwise(TRANSA, TRANSB, sign,  M, N, A, M, B, N, C, M, D, N, X, M, &scale, Work, &info);
-                        } else {
-                            mepack_double_tgsylv_recursive(TRANSA, TRANSB, sign,  M, N, A, M, B, N, C, M, D, N, X, M, &scale, Work, &info);
-                        }
-                        if (run >= 0 ) {
-                            te2 += (get_ctime()-ts2);
-                            te += (get_wtime()-ts);
-                        }
-                    }
-
-
-                    te = te / RUNS;
-                    te2 = te2/RUNS;
-                    times += te;
-                    ctimes += te2;
-
-
-                    ress += benchmark_check_X_double(M,N,X, M, Xorig, M);
-                }
-#ifdef RECSY
-                /*-----------------------------------------------------------------------------
-                 *  RECSY
-                 *-----------------------------------------------------------------------------*/
-                type = benchmark_sylv_setup_to_type(TRANSA, TRANSB, sign);
-                FC_GLOBAL_(recsy_machine,RECSY_MACHINE)(MACHINE_RECSY);
-                N2 = M*N;
-                if ( is == 25  && changerole == 0)  {
-                    Int infox= 0;
-                    te = 0.0;
-                    te2 = 0.0;
-                    for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &N, RHS, &M, X, &M, 1);
-                        ts = get_wtime();
-                        ts2 = get_ctime();
-                        FC_GLOBAL_(recgsyl,RECGSYL)(&type, &scale, &M, &N, A, &M, B, &N,  C, &M, D, &N, X,  &M, &infox, MACHINE_RECSY, Work, &N2);
-
-                        if (run >= 0 ) {
-                            te2 += (get_ctime()-ts2);
-                            te += (get_wtime()-ts);
-                        }
-                    }
-                    te = te / RUNS;
-                    te2 = te2/RUNS;
-                    times += te;
-                    ctimes += te2;
-
-
-                    ress += benchmark_check_X_double(M,N,X, M, Xorig, M);
-                }
-
-
-                /*-----------------------------------------------------------------------------
-                 *  RECSY_P
-                 *-----------------------------------------------------------------------------*/
-                if ( is == 26 && changerole == 0 )  {
-                    Int infox = 0;
-                    Int proc = omp_get_max_threads();
-                    te = 0.0;
-                    te2 = 0.0;
-                    for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &N, RHS, &M, X, &M, 1);
-                        ts = get_wtime();
-                        ts2 = get_ctime();
-                        FC_GLOBAL_(recgsyl_p,RECGSYL_P)(&proc,&type, &scale, &M, &N, A, &M, B, &N,  C, &M, D, &N, X,  &M, &infox, MACHINE_RECSY, Work, &N2);
-
-                        if (run >= 0 ) {
-                            te2 += (get_ctime()-ts2);
-                            te += (get_wtime()-ts);
-                        }
-                    }
-                    te = te / RUNS;
-                    te2 = te2/RUNS;
-                    times += te;
-                    ctimes += te2;
-
-
-                    ress += benchmark_check_X_double(M,N,X, M, Xorig, M);
-                }
-
-
-#endif
-                /*-----------------------------------------------------------------------------
-                 *  Gardiner Laub
-                 *-----------------------------------------------------------------------------*/
-                if ( is == 27 )  {
-                    te = 0.0;
-                    te2 = 0.0;
-                    for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &N, RHS, &M, X, &M, 1);
-                        ts = get_wtime();
-                        ts2 = get_ctime();
-                        mepack_double_tgsylv_gardiner_laub(TRANSA, TRANSB, sign,  M, N, A, M, B, N, C, M, D, N, X, M, &scale, Work, &info);
-                        if (run >= 0 ) {
-                            te2 += (get_ctime()-ts2);
-                            te += (get_wtime()-ts);
-                        }
-
-                    }
-                    te = te / RUNS;
-                    te2 = te2/RUNS;
-                    times += te;
-                    ctimes += te2;
-
-                    ress += benchmark_check_X_double(M,N,X, M, Xorig, M);
-                }
-
-#ifdef GL705
-                /*-----------------------------------------------------------------------------
-                 *  Gardiner Laub (Old Algorithm 705 Code)
-                 *-----------------------------------------------------------------------------*/
-                if ( is == 28 )  {
-                    Int job = 0;
-                    Int *IWork;
-                    if (tolower(TRANSA[0])!='n' && tolower(TRANSB[0]) != 't') {
-                        printf("# Gardiner-Laub (Algorithm 705) only supports the (N,T) case\n");
-                    }
-                    if (!changerole) {
-                        printf("# Gardiner-Laub (Algorithm 705) only works if B and D change roles.\n");
-                    }
-                    IWork = (Int *) malloc(sizeof(Int) * (2*M));
-                    Int infox = 0;
-                    te = 0.0;
-                    te2 = 0.0;
-                    for (run = -1; run < RUNS; run++) {
-                        FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &N, RHS, &M, X, &M, 1);
-                        ts = get_wtime();
-                        ts2 = get_ctime();
-                        // FC_GLOBAL_(dla_tgsylv_gardiner_laub,DLA_TGSYLV_GARDINER_LAUB)(TRANSA, TRANSB, &sign,  &M, &N, A, &M, B, &N, C, &M, D, &N,  X, &M, &scale, Work, &info, MACHINE);
-                        FC_GLOBAL(bkhs2,BKHS2) (&M, &N, A, &M, B, &N, C,&M,  D,&N,  X,&M,  Work, IWork, &job, &infox);
-                        if (run >= 0 ) {
-                            te2 += (get_ctime()-ts2);
-                            te += (get_wtime()-ts);
-                        }
-
-                    }
-                    te = te / RUNS;
-                    te2 = te2/RUNS;
-                    times += te;
-                    ctimes += te2;
-                    free(IWork);
-                    ress += benchmark_check_X_double(M,N,X, M, Xorig, M);
-                }
-#endif
-            }  // nmat
-            times /= (double) nMAT;
-            ctimes /= (double) nMAT;
-            ress /= (double) nMAT;
-
-            /* Print  */
-            printf("%5d %5d %3d %3d  %10.5e  %10.5e  %10.5e  %10.5e \n",
-                   (int)  M,(int) N, (int) MB, (int) NB, times, ctimes, ctimes/times, ress);
-            fflush(stdout);
-            free(A);
-            free(B);
-            free(C);
-            free(D);
-            free(X);
-            free(Xorig);
-            free(Work);
-            free(RHS);
-
-        }
-    }
-
-    eps = mepack_double_epsilon();
-
-    benchmark_exit();
-    /* printf("ress %lg %lg\n", ress, sqrt(eps)*100); */
-    return (ress < sqrt(eps)*100)? 0 : -1 ;
-
+int is_sym(void) {
+    return 0;
 }
 
 
+static void context_sylv_init(void *_ctx, Int M, Int N, Int ISolver, Int MB, Int NB, Int BIGMB, const char *TA, const char *TB, double sgn1, double sgn2){
+    context_gsylv_t *ctx = _ctx;
+    Int i;
+    (void) sgn2;
+
+    MEPACK_PREFIX(tgsylv_blocksize_2stage_set)(BIGMB);
+    MEPACK_PREFIX(tgsylv_blocksize_mb_set)(MB);
+    MEPACK_PREFIX(tgsylv_blocksize_nb_set)(NB);
+
+    if ( ISolver < 19 ) {
+        if ( ISolver < 7 )  {
+            mepack_tgsylv_isolver_set(ISolver);
+        } else if ( ISolver > 6 && ISolver < 13 )  {
+            mepack_tgsylv_isolver_set(ISolver-6);
+        } else if ( ISolver > 12 && ISolver < 19 )  {
+            mepack_tgsylv_isolver_set(ISolver-12);
+        } else {
+            mepack_tgsylv_isolver_set(1);
+        }
+    } else {
+        mepack_tgsylv_isolver_set(1);
+    }
+
+    ctx->A = (FLOAT *) malloc(sizeof(FLOAT) * (M*M));
+    ctx->C = (FLOAT *) malloc(sizeof(FLOAT) * (M*M));
+    ctx->B = (FLOAT *) malloc(sizeof(FLOAT) * (N*N));
+    ctx->D = (FLOAT *) malloc(sizeof(FLOAT) * (N*N));
+    ctx->X = (FLOAT *) malloc(sizeof(FLOAT) * (M*N));
+
+
+#pragma omp parallel for schedule(static,1)
+    for (i = 0; i < M*M; i+=512) { ctx->A[i] = 0.0; ctx->C[i] = 0.0;  }
+#pragma omp parallel for schedule(static,1)
+    for (i = 0; i < N*N; i+=512) { ctx->B[i] = 0.0; ctx->D[i] = 0.0; }
+#pragma omp parallel for schedule(static,1)
+    for (i = 0; i < M*N; i+=512) { ctx->X[i] = 0.0; }
+
+    ctx->Xorig = (FLOAT *) malloc(sizeof(FLOAT) * (M*N));
+    ctx->RHS_X = (FLOAT *) malloc(sizeof(FLOAT) * (M*N));
+
+    if ( ISolver < 7 ) {
+        ctx->mem = mepack_memory(MEPACK_PRECISION_PREFIX(TGSYLV_L3), M, N);
+    } else if ( ISolver > 6 && ISolver < 13 ) {
+        ctx->mem = mepack_memory(MEPACK_PRECISION_PREFIX(TGSYLV_DAG), M, N);
+    } else if ( ISolver > 12 && ISolver < 19 ) {
+        ctx->mem = mepack_memory(MEPACK_PRECISION_PREFIX(TGSYLV_L3_2S), M, N);
+    } else if ( ISolver == 19 ) {
+        if ( M <=32 && N <= 32)
+            ctx->mem = mepack_memory(MEPACK_PRECISION_PREFIX(TGSYLV_L2_LOCAL_COPY_32), M, N);
+        else if ( M <=64 && N <= 64)
+            ctx->mem = mepack_memory(MEPACK_PRECISION_PREFIX(TGSYLV_L2_LOCAL_COPY_64), M, N);
+        else if ( M <=96 && N <= 96)
+            ctx->mem = mepack_memory(MEPACK_PRECISION_PREFIX(TGSYLV_L2_LOCAL_COPY_96), M, N);
+        else if ( M <=128 && N <= 128)
+            ctx->mem = mepack_memory(MEPACK_PRECISION_PREFIX(TGSYLV_L2_LOCAL_COPY_128), M, N);
+        else
+            ctx->mem = mepack_memory(MEPACK_PRECISION_PREFIX(TGSYLV_L2_REORDER), M, N);
+    } else if ( ISolver == 20 ) {
+        if ( M <=128 && N <= 128)
+            ctx->mem = mepack_memory(MEPACK_PRECISION_PREFIX(TGSYLV_L2_LOCAL_COPY), M, N);
+        else
+            ctx->mem = mepack_memory(MEPACK_PRECISION_PREFIX(TGSYLV_L2_REORDER), M, N);
+    } else if ( ISolver == 21)
+        ctx->mem = mepack_memory(MEPACK_PRECISION_PREFIX(TGSYLV_L2_REORDER), M, N);
+    else if ( ISolver == 22)
+        ctx->mem = mepack_memory(MEPACK_PRECISION_PREFIX(TGSYLV_L2), M, N);
+    else if ( ISolver == 23)
+        ctx->mem = mepack_memory(MEPACK_PRECISION_PREFIX(TGSYLV_L2_UNOPT), M, N);
+    else if ( ISolver == 24)
+        ctx->mem = mepack_memory(MEPACK_PRECISION_PREFIX(TGSYLV_RECURSIVE), M, N);
+    else
+        ctx->mem = 2*M*N;
+
+    if ( ISolver == 19 || ISolver == 20 ) {
+        ctx->mem = MAX(mepack_memory(MEPACK_PRECISION_PREFIX(TGSYLV_L2_REORDER), M, N), ctx->mem);
+    }
+    ctx->work = (FLOAT *) malloc(sizeof(FLOAT) * (ctx->mem));
+
+    ctx->M = M;
+    ctx->N = N;
+    ctx->MB = MB;
+    ctx->NB = NB;
+    ctx->BIGMB = BIGMB;
+    ctx->sgn = sgn1;
+    ctx->scale = 1;
+    ctx->LDA = M;
+    ctx->LDB = N;
+    ctx->LDC = M;
+    ctx->LDD = N;
+    ctx->LDX = M;
+    ctx->LDXorig = M;
+    ctx->LDRHS_X = M;
+    ctx->isolver = ISolver;
+
+    ctx->TRANSA=strdup(TA);
+    ctx->TRANSB=strdup(TB);
+#ifdef RECSY
+    ctx->type = benchmark_gsylv_setup_to_type(TA, TB, sgn1);
+    FC_GLOBAL_(recsy_machine,RECSY_MACHINE)(ctx->MACHINE_RECSY);
+
+#endif
+
+}
+
+static void context_sylv_setup_rhs(void *_ctx){
+    context_gsylv_t * ctx = _ctx;
+
+    FLOAT alpha = 1;
+    FLOAT beta = 1;
+
+#ifdef SINGLE_PRECISION
+    FC_GLOBAL_(slaset,SLASET)("All", &ctx->M, &ctx->N, &alpha, &beta, ctx->Xorig, &ctx->LDXorig, 1);
+#else
+    FC_GLOBAL_(dlaset,DLASET)("All", &ctx->M, &ctx->N, &alpha, &beta, ctx->Xorig, &ctx->LDXorig, 1);
+#endif
+}
+
+static void context_sylv_setup_problem(void *_ctx, Int iseed[4], Int align, Int changerole)
+{
+    context_gsylv_t * ctx = _ctx;
+    ctx->changerole = changerole;
+#ifdef SINGLE_PRECISION
+
+    benchmark_random_gevp_float(ctx->M, iseed, ctx->A, ctx->C, NULL, NULL, NULL, NULL, align);
+    benchmark_random_gevp_float(ctx->N, iseed, ctx->B, ctx->D, NULL, NULL, NULL, NULL, align);
+    if ( changerole ) {
+        float *tmp = malloc ( sizeof( float ) * ctx->N * ctx->N);
+        FC_GLOBAL(slacpy,SLACPY) ( "All", &ctx->N, &ctx->N, ctx->B, &ctx->LDB, tmp, &ctx->N, 1);
+        FC_GLOBAL(slacpy,SLACPY) ( "All", &ctx->N, &ctx->N, ctx->D, &ctx->LDD, ctx->B, &ctx->LDB, 1);
+        FC_GLOBAL(slacpy,SLACPY) ( "All", &ctx->N, &ctx->N, tmp   , &ctx->N, ctx->D, &ctx->LDD, 1);
+        free(tmp);
+    }
+    benchmark_rhs_gsylv_float(ctx->TRANSA, ctx->TRANSB, ctx->sgn, ctx->M, ctx->N,
+            ctx->A, ctx->LDA, ctx->B, ctx->LDB, ctx->C, ctx->LDC, ctx->D, ctx->LDD,
+            ctx->Xorig, ctx->LDXorig, ctx->RHS_X, ctx->LDRHS_X);
+#else
+    benchmark_random_gevp_double(ctx->M, iseed, ctx->A, ctx->C, NULL, NULL, NULL, NULL, align);
+    benchmark_random_gevp_double(ctx->N, iseed, ctx->B, ctx->D, NULL, NULL, NULL, NULL, align);
+    if ( changerole ) {
+        double *tmp = malloc ( sizeof( double ) * ctx->N * ctx->N);
+        FC_GLOBAL(dlacpy,DLACPY) ( "All", &ctx->N, &ctx->N, ctx->B, &ctx->LDB, tmp, &ctx->N, 1);
+        FC_GLOBAL(dlacpy,DLACPY) ( "All", &ctx->N, &ctx->N, ctx->D, &ctx->LDD, ctx->B, &ctx->LDB, 1);
+        FC_GLOBAL(dlacpy,DLACPY) ( "All", &ctx->N, &ctx->N, tmp   , &ctx->N, ctx->D, &ctx->LDD, 1);
+        free(tmp);
+    }
+    benchmark_rhs_gsylv_double(ctx->TRANSA, ctx->TRANSB, ctx->sgn,  ctx->M, ctx->N,
+            ctx->A, ctx->LDA, ctx->B, ctx->LDB, ctx->C, ctx->LDC, ctx->D, ctx->LDD,
+            ctx->Xorig, ctx->LDXorig, ctx->RHS_X, ctx->LDRHS_X);
+
+#endif
+}
+
+static void context_sylv_iter_prepare(void * _ctx) {
+    context_gsylv_t * ctx = _ctx;
+#ifdef SINGLE_PRECISION
+    FC_GLOBAL_(slacpy,SLACPY)("All", &ctx->M, &ctx->N, ctx->RHS_X, &ctx->LDRHS_X, ctx->X, &ctx->LDX, 1);
+#else
+    FC_GLOBAL_(dlacpy,DLACPY)("All", &ctx->M, &ctx->N, ctx->RHS_X, &ctx->LDRHS_X, ctx->X, &ctx->LDX, 1);
+#endif
+}
+
+static void context_sylv_iter_solve(void *_ctx){
+    context_gsylv_t * ctx = _ctx;
+    int info= 0;
+
+    if ( ctx->isolver < 7 ) {
+        MEPACK_PREFIX(tgsylv_level3)(ctx->TRANSA, ctx->TRANSB, ctx->sgn, ctx->M, ctx->N,
+                ctx->A, ctx->LDA, ctx->B, ctx->LDB, ctx->C, ctx->LDC, ctx->D, ctx->LDD, ctx->X, ctx->LDX,  &ctx->scale, ctx->work, &info);
+    } else if ( ctx->isolver < 12 ) {
+        MEPACK_PREFIX(tgsylv_dag)(ctx->TRANSA, ctx->TRANSB, ctx->sgn,  ctx->M, ctx->N,
+                ctx->A, ctx->LDA, ctx->B, ctx->LDB, ctx->C, ctx->LDC, ctx->D, ctx->LDD, ctx->X, ctx->LDX,  &ctx->scale, ctx->work, &info);
+    } else if ( ctx->isolver < 19 ) {
+        MEPACK_PREFIX(tgsylv_level3_2stage)(ctx->TRANSA, ctx->TRANSB, ctx->sgn,  ctx->M, ctx->N,
+                ctx->A, ctx->LDA, ctx->B, ctx->LDB, ctx->C, ctx->LDC, ctx->D, ctx->LDD, ctx->X, ctx->LDX,  &ctx->scale, ctx->work, &info);
+    } else if ( ctx->isolver == 19 ){
+        if ( ctx -> M <= 32 && ctx->N <= 32 )
+            MEPACK_PREFIX(tgsylv_level2_local_copy_32)(ctx->TRANSA, ctx->TRANSB, ctx->sgn,  ctx->M, ctx->N,
+                ctx->A, ctx->LDA, ctx->B, ctx->LDB, ctx->C, ctx->LDC, ctx->D, ctx->LDD, ctx->X, ctx->LDX,  &ctx->scale, ctx->work, &info);
+        else if ( ctx->M <= 64 && ctx->N <= 64 )
+            MEPACK_PREFIX(tgsylv_level2_local_copy_64)(ctx->TRANSA, ctx->TRANSB, ctx->sgn,  ctx->M, ctx->N,
+                ctx->A, ctx->LDA, ctx->B, ctx->LDB, ctx->C, ctx->LDC, ctx->D, ctx->LDD, ctx->X, ctx->LDX,  &ctx->scale, ctx->work, &info);
+        else if ( ctx->M <= 96 && ctx->N <= 96 )
+            MEPACK_PREFIX(tgsylv_level2_local_copy_96)(ctx->TRANSA, ctx->TRANSB, ctx->sgn,  ctx->M, ctx->N,
+                ctx->A, ctx->LDA, ctx->B, ctx->LDB, ctx->C, ctx->LDC, ctx->D, ctx->LDD, ctx->X, ctx->LDX,  &ctx->scale, ctx->work, &info);
+        else if ( ctx->M <= 128 && ctx->N <= 128 )
+            MEPACK_PREFIX(tgsylv_level2_local_copy_128)(ctx->TRANSA, ctx->TRANSB, ctx->sgn,  ctx->M, ctx->N,
+                ctx->A, ctx->LDA, ctx->B, ctx->LDB, ctx->C, ctx->LDC, ctx->D, ctx->LDD, ctx->X, ctx->LDX,  &ctx->scale, ctx->work, &info);
+        else
+            MEPACK_PREFIX(tgsylv_level2_reorder)(ctx->TRANSA, ctx->TRANSB, ctx->sgn,  ctx->M, ctx->N,
+                ctx->A, ctx->LDA, ctx->B, ctx->LDB, ctx->C, ctx->LDC, ctx->D, ctx->LDD, ctx->X, ctx->LDX,  &ctx->scale, ctx->work, &info);
+    } else if ( ctx->isolver == 20 ) {
+        if ( ctx->M <= 128 && ctx->N <= 128) {
+            MEPACK_PREFIX(tgsylv_level2_local_copy)(ctx->TRANSA, ctx->TRANSB, ctx->sgn,  ctx->M, ctx->N,
+                ctx->A, ctx->LDA, ctx->B, ctx->LDB, ctx->C, ctx->LDC, ctx->D, ctx->LDD, ctx->X, ctx->LDX,  &ctx->scale, ctx->work, &info);
+        } else {
+            MEPACK_PREFIX(tgsylv_level2_reorder)(ctx->TRANSA, ctx->TRANSB, ctx->sgn,  ctx->M, ctx->N,
+                ctx->A, ctx->LDA, ctx->B, ctx->LDB, ctx->C, ctx->LDC, ctx->D, ctx->LDD, ctx->X, ctx->LDX,  &ctx->scale, ctx->work, &info);
+        }
+    } else if ( ctx->isolver == 21 ) {
+        MEPACK_PREFIX(tgsylv_level2_reorder)(ctx->TRANSA, ctx->TRANSB, ctx->sgn,  ctx->M, ctx->N,
+                ctx->A, ctx->LDA, ctx->B, ctx->LDB, ctx->C, ctx->LDC, ctx->D, ctx->LDD, ctx->X, ctx->LDX,  &ctx->scale, ctx->work, &info);
+    } else if ( ctx->isolver == 22 ) {
+        MEPACK_PREFIX(tgsylv_level2)(ctx->TRANSA, ctx->TRANSB, ctx->sgn,  ctx->M, ctx->N,
+                ctx->A, ctx->LDA, ctx->B, ctx->LDB, ctx->C, ctx->LDC, ctx->D, ctx->LDD, ctx->X, ctx->LDX,  &ctx->scale, ctx->work, &info);
+    } else if ( ctx->isolver == 23 ) {
+        MEPACK_PREFIX(tgsylv_level2_rowwise)(ctx->TRANSA, ctx->TRANSB, ctx->sgn,  ctx->M, ctx->N,
+                ctx->A, ctx->LDA, ctx->B, ctx->LDB, ctx->C, ctx->LDC, ctx->D, ctx->LDD, ctx->X, ctx->LDX,  &ctx->scale, ctx->work, &info);
+    } else if ( ctx->isolver == 24){
+        MEPACK_PREFIX(tgsylv_recursive)(ctx->TRANSA, ctx->TRANSB, ctx->sgn,  ctx->M, ctx->N,
+                ctx->A, ctx->LDA, ctx->B, ctx->LDB, ctx->C, ctx->LDC, ctx->D, ctx->LDD, ctx->X, ctx->LDX,  &ctx->scale, ctx->work, &info);
+    }
+
+#if defined(RECSY) && !defined (SINGLE_PRECISION)
+    else if ( ctx->isolver == 25 ) {
+        Int N2 = ctx->M * ctx->N;
+        FC_GLOBAL_(recgsyl,RECGSYL)(&ctx->type, &ctx->scale, &ctx->M, &ctx->N, ctx->A, &ctx->LDA, ctx->B, &ctx->LDB, ctx->C, &ctx->LDC, ctx->D, &ctx->LDD, ctx->X, &ctx->LDX,  &info, ctx->MACHINE_RECSY,
+                ctx->work, &N2);
+    } else if ( ctx->isolver == 26 ) {
+        Int N2 = ctx->M * ctx->N;
+        Int proc = omp_get_num_procs();
+        FC_GLOBAL_(recgsyl_p,RECGSYL_P)(&proc, &ctx->type, &ctx->scale, &ctx->M, &ctx->N, ctx->A, &ctx->LDA, ctx->B, &ctx->LDB,
+                ctx->C, &ctx->LDC, ctx->D, &ctx->LDD, ctx->X, &ctx->LDX, &info, ctx->MACHINE_RECSY, ctx->work, &N2);
+    }
+#endif
+    else if ( ctx->isolver == 27 ) {
+        MEPACK_PREFIX(tgsylv_gardiner_laub)(ctx->TRANSA, ctx->TRANSB, ctx->sgn,  ctx->M, ctx->N, ctx->A, ctx->LDA, ctx->B, ctx->LDB, ctx->C, ctx->LDC, ctx->D, ctx->LDD, ctx->X, ctx->LDX, &ctx->scale, ctx->work, &info);
+    }
+
+#if defined(GL705) && !defined (SINGLE_PRECISION)
+    else if ( ctx->isolver == 28) {
+        Int job = 0;
+        if (tolower(ctx->TRANSA[0])!='n' && tolower(ctx->TRANSB[0]) != 't') {
+            fprintf(stderr, "# ---> Gardiner-Laub (Algorithm 705) only supports the (N,T) case <--- \n");
+        }
+        if (!ctx->changerole) {
+            fprintf(stderr, "# ---> Gardiner-Laub (Algorithm 705) only works if B and D change roles. <---\n");
+        }
+        Int * IWork = (Int *) malloc(sizeof(Int) * (2*ctx->M));
+
+        FC_GLOBAL(bkhs2,BKHS2) (&ctx->M, &ctx->N, ctx->A, &ctx->LDA, ctx->B, &ctx->LDB, ctx->C,&ctx->LDC,  ctx->D,&ctx->LDD,  ctx->X,&ctx->LDX,  ctx->work, IWork, &job, &info);
+        free(IWork);
+    }
+#endif
+}
+
+static void context_sylv_check(void *_ctx, double *forward, double *rel)
+{
+    context_gsylv_t * ctx = _ctx;
+    *rel += MEPACK_PREFIX(residual_gsylv)(ctx->TRANSA, ctx->TRANSB, ctx->sgn, ctx->M, ctx->N,
+            ctx->A, ctx->LDA, ctx->B, ctx->LDB, ctx->C, ctx->LDC, ctx->D, ctx->LDD,
+            ctx->X, ctx->LDX, ctx->RHS_X, ctx->LDRHS_X, ctx->scale);
+#ifdef SINGLE_PRECISION
+    *forward += benchmark_check_X_float(ctx->M,ctx->N,ctx->X, ctx->LDX, ctx->Xorig, ctx->LDXorig);
+#else
+    *forward += benchmark_check_X_double(ctx->M,ctx->N,ctx->X, ctx->LDX, ctx->Xorig, ctx->LDXorig);
+#endif
+}
+
+static void context_sylv_clean(void *_ctx)
+{
+    context_gsylv_t * ctx = _ctx;
+
+    free(ctx->A);
+    free(ctx->B);
+    free(ctx->C);
+    free(ctx->D);
+    free(ctx->X);
+    free(ctx->Xorig);
+    free(ctx->RHS_X);
+    free(ctx->work);
+    free(ctx->TRANSA);
+    free(ctx->TRANSB);
+}
+
+benchmark_context_t *benchmark_create(void)
+{
+    benchmark_context_t *bctx = malloc(sizeof(benchmark_context_t));
+    context_gsylv_t * ctx = malloc(sizeof(context_gsylv_t));
+    memset(ctx, 0, sizeof(context_gsylv_t));
+    bctx->ctx = ctx;
+    bctx->init = context_sylv_init;
+    bctx->setup_rhs = context_sylv_setup_rhs;
+    bctx->setup_problem = context_sylv_setup_problem;
+    bctx->iter_prepare = context_sylv_iter_prepare;
+    bctx->iter_solve = context_sylv_iter_solve;
+    bctx->check = context_sylv_check;
+    bctx->clean = context_sylv_clean;
+    return bctx;
+}
+
+const char *equation_name(void) {
+    return "Triangular Generalized Sylvester Equation";
+}
+
+int have_solver(int is){
+    if ( is > 0 && is <=28){
+#ifndef RECSY
+        if(is == 25 || is == 26 ) return 0;
+#endif
+#ifndef GL705
+        if (is == 28 ) return 0;
+#endif
+#ifdef SINGLE_PRECISION
+        if(is == 25 || is == 26 || is == 28) return 0;
+#endif
+
+        return 1;
+    }
+    return 0;
+
+}

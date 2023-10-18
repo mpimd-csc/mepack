@@ -172,6 +172,14 @@ do
 	sed -f cmake/convert_double_single.sed src/double/refine/${F}_refine.f90 > src/single/refine/${FS}_refine.f90
 done
 
+# Refine
+for F in lyap glyap stein gstein sylv sylv2 gsylv csylv csylv_dual
+do
+	FS=`echo $F | sed -e 's/^d/s/'`
+	sed -f cmake/convert_double_single.sed src/double/residual/res_${F}.f90 > src/single/residual/res_${FS}.f90
+done
+
+
 # Tests
 for v in cgsylv ggsylv gesylv gesylv2 gelyap gestein gglyap ggstein
 do

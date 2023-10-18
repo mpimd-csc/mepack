@@ -35,41 +35,55 @@ function test_lyap()
     tol = sqrt(eps) * n;
     ierr = 0;
 
-    A = rand( n , n );
-    X = ones ( n , n );
+    hess_comp = { 'N', 'H'};
 
-    Y1 = A*X + X*A';
-    Y2 = A'*X + X*A;
+    Ao = rand( n , n );
+    X  = ones( n , n );
 
-    X1 = mepack_lyap(A, Y1);
-    X2 = mepack_lyap(A, Y2, 'T');
-    X3 = mepack_lyap(A, Y1, optset);
-    X4 = mepack_lyap(A, Y2, 'T', optset);
+    for h = 1:2
+        current_hess = hess_comp{h};
 
-    assert(norm(A * X1 + X1 * A' - Y1, 'fro')/norm(Y1, 'fro') < tol, '[ 1 ] A * X1 + X1 * A**T = Y1' );
-    assert(norm(A' * X2 + X2 * A - Y2, 'fro')/norm(Y2, 'fro') < tol, '[ 1 ] A**T * X2 + X2 * A = Y2' );
-    assert(norm(A * X3 + X3 * A' - Y1, 'fro')/norm(Y1, 'fro') < tol, '[ 1 ] A * X3 + X3 * A**T = Y1' );
-    assert(norm(A' * X4 + X4 * A - Y2, 'fro')/norm(Y2, 'fro') < tol, '[ 1 ] A**T * X4 + X4 * A = Y2' );
+        fprintf(1,"Tesing Hessenberg Setup %s\n", current_hess);
 
-    [ X1, S1, Q1 ] = mepack_lyap(A, Y1);
-    [ X2, S2, Q2 ] = mepack_lyap(A, Y2, 'T');
-    [ X3, S3, Q3 ] = mepack_lyap(A, Y1, optset);
-    [ X4, S4, Q4 ] = mepack_lyap(A, Y2, 'T', optset);
+        if ( current_hess(1) == 'N')
+            A = Ao;
+        else
+            A = hess(Ao);
+        end
 
-    assert(norm(A * X1 + X1 * A' - Y1, 'fro')/norm(Y1, 'fro') < tol, '[ 2 ] A * X1 + X1 * A**T = Y1' );
-    assert(norm(A' * X2 + X2 * A - Y2, 'fro')/norm(Y2, 'fro') < tol, '[ 2 ] A**T * X2 + X2 * A = Y2' );
-    assert(norm(A * X3 + X3 * A' - Y1, 'fro')/norm(Y1, 'fro') < tol, '[ 2 ] A * X3 + X3 * A**T = Y1' );
-    assert(norm(A' * X4 + X4 * A - Y2, 'fro')/norm(Y2, 'fro') < tol, '[ 2 ] A**T * X4 + X4 * A = Y2' );
+        Y1 = A*X + X*A';
+        Y2 = A'*X + X*A;
 
-    X1 = mepack_lyap(S1, Q1 , Y1);
-    X2 = mepack_lyap(S2, Q2 , Y2, 'T');
-    X3 = mepack_lyap(S3, Q3 , Y1, optset);
-    X4 = mepack_lyap(S4, Q4 , Y2, 'T', optset);
+        X1 = mepack_lyap(A, Y1);
+        X2 = mepack_lyap(A, Y2, 'T');
+        X3 = mepack_lyap(A, Y1, optset);
+        X4 = mepack_lyap(A, Y2, 'T', optset);
 
-    assert(norm(A * X1 + X1 * A' - Y1, 'fro')/norm(Y1, 'fro') < tol, '[ 3 ] A * X1 + X1 * A**T = Y1' );
-    assert(norm(A' * X2 + X2 * A - Y2, 'fro')/norm(Y2, 'fro') < tol, '[ 3 ] A**T * X2 + X2 * A = Y2' );
-    assert(norm(A * X3 + X3 * A' - Y1, 'fro')/norm(Y1, 'fro') < tol, '[ 3 ] A * X3 + X3 * A**T = Y1' );
-    assert(norm(A' * X4 + X4 * A - Y2, 'fro')/norm(Y2, 'fro') < tol, '[ 3 ] A**T * X4 + X4 * A = Y2' );
+        assert(norm(A * X1 + X1 * A' - Y1, 'fro')/norm(Y1, 'fro') < tol, '[ 1 ] A * X1 + X1 * A**T = Y1' );
+        assert(norm(A' * X2 + X2 * A - Y2, 'fro')/norm(Y2, 'fro') < tol, '[ 1 ] A**T * X2 + X2 * A = Y2' );
+        assert(norm(A * X3 + X3 * A' - Y1, 'fro')/norm(Y1, 'fro') < tol, '[ 1 ] A * X3 + X3 * A**T = Y1' );
+        assert(norm(A' * X4 + X4 * A - Y2, 'fro')/norm(Y2, 'fro') < tol, '[ 1 ] A**T * X4 + X4 * A = Y2' );
 
+        [ X1, S1, Q1 ] = mepack_lyap(A, Y1);
+        [ X2, S2, Q2 ] = mepack_lyap(A, Y2, 'T');
+        [ X3, S3, Q3 ] = mepack_lyap(A, Y1, optset);
+        [ X4, S4, Q4 ] = mepack_lyap(A, Y2, 'T', optset);
+
+        assert(norm(A * X1 + X1 * A' - Y1, 'fro')/norm(Y1, 'fro') < tol, '[ 2 ] A * X1 + X1 * A**T = Y1' );
+        assert(norm(A' * X2 + X2 * A - Y2, 'fro')/norm(Y2, 'fro') < tol, '[ 2 ] A**T * X2 + X2 * A = Y2' );
+        assert(norm(A * X3 + X3 * A' - Y1, 'fro')/norm(Y1, 'fro') < tol, '[ 2 ] A * X3 + X3 * A**T = Y1' );
+        assert(norm(A' * X4 + X4 * A - Y2, 'fro')/norm(Y2, 'fro') < tol, '[ 2 ] A**T * X4 + X4 * A = Y2' );
+
+        X1 = mepack_lyap(S1, Q1 , Y1);
+        X2 = mepack_lyap(S2, Q2 , Y2, 'T');
+        X3 = mepack_lyap(S3, Q3 , Y1, optset);
+        X4 = mepack_lyap(S4, Q4 , Y2, 'T', optset);
+
+        assert(norm(A * X1 + X1 * A' - Y1, 'fro')/norm(Y1, 'fro') < tol, '[ 3 ] A * X1 + X1 * A**T = Y1' );
+        assert(norm(A' * X2 + X2 * A - Y2, 'fro')/norm(Y2, 'fro') < tol, '[ 3 ] A**T * X2 + X2 * A = Y2' );
+        assert(norm(A * X3 + X3 * A' - Y1, 'fro')/norm(Y1, 'fro') < tol, '[ 3 ] A * X3 + X3 * A**T = Y1' );
+        assert(norm(A' * X4 + X4 * A - Y2, 'fro')/norm(Y2, 'fro') < tol, '[ 3 ] A**T * X4 + X4 * A = Y2' );
+
+    end
 
 end

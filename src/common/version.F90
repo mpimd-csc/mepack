@@ -18,7 +18,7 @@
 !> @brief Get the MEPACK version number
 !> @param[out] MAJOR        MEPACK major version number
 !> @param[out] MINOR        MEPACK minor version number
-!> @param[out] PATCHLEVEL   MEPACK patchlevel
+!> @param[out] PATCHLEVEL   MEPACK patch level
 !>
 !> The MEPACK_GET_VERSION subroutine returns the MEPACK version number
 !> split into its components.

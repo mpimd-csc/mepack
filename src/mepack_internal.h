@@ -38,7 +38,7 @@
 void FC_GLOBAL_(mepack_initialize,MEPACK_INITIALIZE) (void);
 
 /*
- * Blocksizes
+ * Block sizes
  */
 void FC_MODULE_(mepack_options_blocksize_double,trsylv_blocksize_mb_set,MEPACK_OPTIONS_BLOCKSIZE_DOUBLE,TRSYLV_BLOCKSIZE_MB_SET)( Int *MB);
 void FC_MODULE_(mepack_options_blocksize_double,trsylv_blocksize_nb_set,MEPACK_OPTIONS_BLOCKSIZE_DOUBLE,TRSYLV_BLOCKSIZE_NB_SET)( Int *NB);
@@ -92,7 +92,7 @@ void FC_MODULE_(mepack_options_blocksize_single,tgcsylv_dual_blocksize_2stage_se
 
 
 /*
- * Frontends
+ * Frontend
  */
 void FC_MODULE_(mepack_options_frontend_solver,trsylv_frontend_solver_set,MEPACK_OPTIONS_FRONTEND_SOLVER,TRSYLV2_FRONTEND_SOLVER_SET)( Int *FSOLVE);
 void FC_MODULE_(mepack_options_frontend_solver,trsylv2_frontend_solver_set,MEPACK_OPTIONS_FRONTEND_SOLVER,TRSYLV22_FRONTEND_SOLVER_SET)( Int *FSOLVE);
@@ -704,9 +704,9 @@ void FC_GLOBAL_(sla_gelyap,SLA_GELYAP)(const char * FACT, const char *TRANSA, In
 /*
  * GSTEIN
  */
-void FC_GLOBAL_(dla_gestein,DLA_GELYAP)(const char * FACT, const char *TRANSA, Int *M, double * A, Int *LDA, double * Q, Int *LDQ, double *X, Int *LDX,
+void FC_GLOBAL_(dla_gestein,DLA_GESTEIN)(const char * FACT, const char *TRANSA, Int *M, double * A, Int *LDA, double * Q, Int *LDQ, double *X, Int *LDX,
         double * SCALE, double *WORK, Int *LDWORK, Int *INFO, FORTRAN_LEN_T l1, FORTRAN_LEN_T l2);
-void FC_GLOBAL_(sla_gestein,SLA_GELYAP)(const char * FACT, const char *TRANSA, Int *M, float * A, Int *LDA, float * Q, Int *LDQ, float *X,
+void FC_GLOBAL_(sla_gestein,SLA_GESTEIN)(const char * FACT, const char *TRANSA, Int *M, float * A, Int *LDA, float * Q, Int *LDQ, float *X,
         Int *LDX, float * SCALE, float *WORK, Int *LDWORK, Int *INFO, FORTRAN_LEN_T l1, FORTRAN_LEN_T l2);
 /*
  * GESYLV
@@ -901,6 +901,38 @@ void FC_GLOBAL_(sla_ggcsylv_dual_refine, SLA_GGCSYLV_DUAL_REFINE) (const char * 
         float *B, Int *LDB, float *C, Int * LDC, float * D, Int * LDD, float *R, Int *LDR, float *L, Int *LDL, float *E, Int *LDE, float *F, Int *LDF,
         float *AS, Int * LDAS, float * BS, Int *LDBS, float * CS, Int * LDCS, float * DS, Int * LDDS, float * Q, Int *LDQ, float * Z, Int * LDZ,
         float *U, Int *LDU, float * V, Int * LDV,  Int * MAXIT, float *TAU, float *CONVLOG, float * WORK, Int * LWORK, Int *INFO, FORTRAN_LEN_T l1, FORTRAN_LEN_T l2, FORTRAN_LEN_T l3);
+
+/* Residuals */
+double FC_GLOBAL_(dla_residual_lyap, DLA_RESIDUAL_LYAP)(const char *TRANS, Int *M, double *A, Int *LDA, double *X, Int *LDX, double *Y, Int *LDY, double *SCALE, FORTRAN_LEN_T l1);
+float FC_GLOBAL_(sla_residual_lyap, SLA_RESIDUAL_LYAP)(const char *TRANS, Int *M, float *A, Int *LDA, float *X, Int *LDX, float *Y, Int *LDY, float *SCALE, FORTRAN_LEN_T l1);
+double FC_GLOBAL_(dla_residual_glyap, DLA_RESIDUAL_GLYAP)(const char *TRANS, Int *M, double *A, Int *LDA, double *B, Int *LDB, double *X, Int *LDX, double *Y, Int *LDY, double *SCALE, FORTRAN_LEN_T l1);
+float FC_GLOBAL_(sla_residual_glyap, SLA_RESIDUAL_GLYAP)(const char *TRANS, Int *M, float *A, Int *LDA, float *B, Int *LDB, float *X, Int *LDX, float *Y, Int *LDY, float *SCALE, FORTRAN_LEN_T l1);
+
+double FC_GLOBAL_(dla_residual_stein, DLA_RESIDUAL_STEIN)(const char *TRANS, Int *M, double *A, Int *LDA, double *X, Int *LDX, double *Y, Int *LDY, double *SCALE, FORTRAN_LEN_T l1);
+float FC_GLOBAL_(sla_residual_stein, SLA_RESIDUAL_STEIN)(const char *TRANS, Int *M, float *A, Int *LDA, float *X, Int *LDX, float *Y, Int *LDY, float *SCALE, FORTRAN_LEN_T l1);
+double FC_GLOBAL_(dla_residual_gstein, DLA_RESIDUAL_GSTEIN)(const char *TRANS, Int *M, double *A, Int *LDA, double *B, Int *LDB, double *X, Int *LDX, double *Y, Int *LDY, double *SCALE, FORTRAN_LEN_T l1);
+float FC_GLOBAL_(sla_residual_gstein, SLA_RESIDUAL_GSTEIN)(const char *TRANS, Int *M, float *A, Int *LDA, float *B, Int *LDB, float *X, Int *LDX, float *Y, Int *LDY, float *SCALE, FORTRAN_LEN_T l1);
+
+double FC_GLOBAL_(dla_residual_sylv, DLA_RESIDUAL_SYLV)(const char *TRANSA, const char * TRANSB, double *SGN, Int *M, Int *N, double *A, Int *LDA, double *B, Int *LDB, double *X, Int *LDX, double *Y, Int *LDY, double *SCALE, FORTRAN_LEN_T l1, FORTRAN_LEN_T l2);
+float FC_GLOBAL_(sla_residual_sylv, SLA_RESIDUAL_SYLV)(const char *TRANSA, const char *TRANSB, float *SGN, Int *M, Int *N, float *A, Int *LDA, float *B, Int *LDB, float *X, Int *LDX, float *Y, Int *LDY, float *SCALE, FORTRAN_LEN_T l1, FORTRAN_LEN_T l2);
+double FC_GLOBAL_(dla_residual_sylv2, DLA_RESIDUAL_SYLV2)(const char *TRANSA, const char * TRANSB, double *SGN, Int *M, Int *N, double *A, Int *LDA, double *B, Int *LDB, double *X, Int *LDX, double *Y, Int *LDY, double *SCALE, FORTRAN_LEN_T l1, FORTRAN_LEN_T l2);
+float FC_GLOBAL_(sla_residual_sylv2, SLA_RESIDUAL_SYLV2)(const char *TRANSA, const char *TRANSB, float *SGN, Int *M, Int *N, float *A, Int *LDA, float *B, Int *LDB, float *X, Int *LDX, float *Y, Int *LDY, float *SCALE, FORTRAN_LEN_T l1, FORTRAN_LEN_T l2);
+
+double FC_GLOBAL_(dla_residual_gsylv, DLA_RESIDUAL_GSYLV)(const char *TRANSA, const char * TRANSB, double *SGN, Int *M, Int *N, double *A, Int *LDA, double *B, Int *LDB,
+        double *C, Int *LDC, double *D, Int *LDD, double *X, Int *LDX, double *Y, Int *LDY, double *SCALE, FORTRAN_LEN_T l1, FORTRAN_LEN_T l2);
+float FC_GLOBAL_(sla_residual_gsylv, SLA_RESIDUAL_GSYLV)(const char *TRANSA, const char *TRANSB, float *SGN, Int *M, Int *N, float *A, Int *LDA, float *B, Int *LDB,
+        float *C, Int *LDC, float *D, Int *LDD, float *X, Int *LDX, float *Y, Int *LDY, float *SCALE, FORTRAN_LEN_T l1, FORTRAN_LEN_T l2);
+
+double FC_GLOBAL_(dla_residual_csylv, DLA_RESIDUAL_CSYLV)(const char *TRANSA, const char * TRANSB, double *SGN1, double *SGN2, Int *M, Int *N, double *A, Int *LDA, double *B, Int *LDB,
+        double *C, Int *LDC, double *D, Int *LDD, double *R, Int *LDR, double *L, Int *LDL, double *E, Int *LDE, double *F, Int *LDF, double *SCALE, FORTRAN_LEN_T l1, FORTRAN_LEN_T l2);
+float FC_GLOBAL_(sla_residual_csylv, SLA_RESIDUAL_CSYLV)(const char *TRANSA, const char *TRANSB, float *SGN1, float *SGN2, Int *M, Int *N, float *A, Int *LDA, float *B, Int *LDB,
+            float *C, Int *LDC, float *D, Int *LDD,  float *R, Int *LDR, float *L, Int *LDL, float *E, Int *LDE, float *F, Int *LDF , float *SCALE, FORTRAN_LEN_T l1, FORTRAN_LEN_T l2);
+double FC_GLOBAL_(dla_residual_csylv_dual, DLA_RESIDUAL_CSYLV_DUAL)(const char *TRANSA, const char * TRANSB, double *SGN1, double *SGN2, Int *M, Int *N, double *A, Int *LDA, double *B, Int *LDB,
+        double *C, Int *LDC, double *D, Int *LDD, double *R, Int *LDR, double *L, Int *LDL, double *E, Int *LDE, double *F, Int *LDF, double *SCALE, FORTRAN_LEN_T l1, FORTRAN_LEN_T l2);
+float FC_GLOBAL_(sla_residual_csylv_dual, SLA_RESIDUAL_CSYLV_DUAL)(const char *TRANSA, const char *TRANSB, float *SGN1, float *SGN2, Int *M, Int *N, float *A, Int *LDA, float *B, Int *LDB,
+        float *C, Int *LDC, float *D, Int *LDD,  float *R, Int *LDR, float *L, Int *LDL, float *E, Int *LDE, float *F, Int *LDF, float  *SCALE, FORTRAN_LEN_T l1, FORTRAN_LEN_T l2);
+
+
 
 
 

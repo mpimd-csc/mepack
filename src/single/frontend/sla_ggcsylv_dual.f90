@@ -76,6 +76,8 @@
 !>                  A = QA*S*ZA**T, C = QA*R*ZA**T will be computed.
 !>          == 'F':  The matrix pencil (A,C) is already in generalized Schur form and S, R, QA, and ZA
 !>                  are given.
+!>          == 'H': The matrix pencil (A,C) is given in generalized Hessenberg form and its Schur decomposition
+!>                  A = QA*S*ZA**T, C = QA*R*ZA**T will be computed.
 !> \endverbatim
 !
 !> \param[in] FACTB
@@ -86,6 +88,8 @@
 !>                  B = QB*U*ZB**T, D = QB*V*ZB**T will be computed.
 !>          == 'F':  The matrix pencil (B,D) is already in generalized Schur form and U, V, QB, and ZB
 !>                  are given.
+!>          == 'H': The matrix pencil (B,D) is given in generalized Hessenberg form and its Schur decomposition
+!>                  B = QB*U*ZB**T, D = QB*V*ZB**T will be computed.
 !> \endverbatim
 !
 !> \param[in] TRANSA
@@ -135,6 +139,9 @@
 !>          (quasi-) upper triangular factor S of the Schur decomposition of (A,C).
 !>          If FACT == "F", the matrix A contains its (quasi-) upper triangular matrix S of
 !>          the Schur decomposition of (A,C).
+!>          If FACT == "H", the matrix A is an upper Hessenberg matrix of the generalized
+!>          Hessenberg form (A,C) and it is overwritten with the (quasi-) upper triangular
+!>          factor S of the Schur decomposition of (A,C).
 !> \endverbatim
 !>
 !> \param[in] LDA
@@ -151,6 +158,9 @@
 !>          (quasi-) upper triangular factor U of the Schur decomposition of (B,D).
 !>          If FACT == "F", the matrix B contains its (quasi-) upper triangular matrix U of
 !>          the Schur decomposition of (B,D).
+!>          If FACT == "H", the matrix B is an upper Hessenberg matrix of the generalized
+!>          Hessenberg form (B,D) and it is overwritten with the (quasi-) upper triangular
+!>          factor U of the Schur decomposition of (B,D).
 !> \endverbatim
 !>
 !> \param[in] LDB
@@ -166,6 +176,8 @@
 !>          upper triangular factor R of the Schur decomposition of (A,C).
 !>          If FACT == "F", the matrix C contains its upper triangular matrix R of
 !>          the Schur decomposition of (A,C).
+!>          If FACT == "H", the matrix C is the upper triangular matrix of the generalized Hessenberg form
+!>          (A,C) and it is overwritten with the upper triangular factor R of the Schur decomposition of (A,C).
 !> \endverbatim
 !>
 !> \param[in] LDC
@@ -182,6 +194,8 @@
 !>          upper triangular factor V of the Schur decomposition of (B,D).
 !>          If FACT == "F", the matrix D contains its upper triangular matrix V of
 !>          the Schur decomposition of (B,D).
+!>          If FACT == "H", the matrix D is the upper triangular matrix of the generalized Hessenberg form
+!>          (B,D) and it is overwritten with the upper triangular factor V of the Schur decomposition of (B,D).
 !> \endverbatim
 !>
 !> \param[in] LDD
@@ -196,6 +210,8 @@
 !>          If FACT == "N", the matrix QA is an empty M-by-M matrix on input and contains the
 !>          left Schur vectors of (A,C) on output.
 !>          If FACT == "F", the matrix QA contains the left Schur vectors of (A,C).
+!>          If FACT == "H", the matrix QA is an empty M-by-M matrix on input and contains the
+!>          left Schur vectors of (A,C) on output.
 !> \endverbatim
 !>
 !> \param[in] LDQA
@@ -210,6 +226,8 @@
 !>          If FACT == "N", the matrix ZA is an empty M-by-M matrix on input and contains the
 !>          right Schur vectors of (A,C) on output.
 !>          If FACT == "F", the matrix ZA contains the right Schur vectors of (A,C).
+!>          If FACT == "H", the matrix ZA is an empty M-by-M matrix on input and contains the
+!>          right Schur vectors of (A,C) on output.
 !> \endverbatim
 !>
 !> \param[in] LDZA
@@ -224,6 +242,8 @@
 !>          If FACT == "N", the matrix QB is an empty N-by-N matrix on input and contains the
 !>          left Schur vectors of (B,D) on output.
 !>          If FACT == "F", the matrix QB contains the left Schur vectors of (B,D).
+!>          If FACT == "H", the matrix QB is an empty M-by-M matrix on input and contains the
+!>          left Schur vectors of (B,D) on output.
 !> \endverbatim
 !>
 !> \param[in] LDQB
@@ -238,6 +258,8 @@
 !>          If FACT == "N", the matrix ZB is an empty N-by-N matrix on input and contains the
 !>          right Schur vectors of (B,D) on output.
 !>          If FACT == "F", the matrix ZB contains the right Schur vectors of (B,D).
+!>          If FACT == "H", the matrix ZB is an empty M-by-M matrix on input and contains the
+!>          right Schur vectors of (B,D) on output.
 !> \endverbatim
 !>
 !> \param[in] LDZB
@@ -283,7 +305,9 @@
 !> \param[in,out] WORK
 !> \verbatim
 !>          WORK is REAL array, dimension (MAX(1,LDWORK))
-!>          Workspace for the algorithm. The optmimal workspace is returned in LDWORK, if LDWORK == -1 on input. In this
+!>          If FACT == "H", the matrix ZB is an empty M-by-M matrix on input and contains the
+!>          right Schur vectors of (B,D) on output.  Workspace for the algorithm. The optmimal workspace is
+!>          returned in LDWORK, if LDWORK == -1 on input. In this
 !>          case no computations are performed.
 !> \endverbatim
 !>
@@ -299,7 +323,7 @@
 !> \verbatim
 !>          INFO is INTEGER
 !>          == 0:  successful exit
-!>          = 1:  SGGES failed
+!>          = 1:  SHGGES failed
 !>          = 2:  SLA_SORT_GEV failed
 !>          = 3:  Inner solver failed
 !>          < 0:  if INFO = -i, the i-th argument had an illegal value
@@ -320,7 +344,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date June 2023
+!> \date October 2023
 !> \ingroup sglggsylv
 !
 SUBROUTINE SLA_GGCSYLV_DUAL(FACTA, FACTB, TRANSA, TRANSB, SGN1, SGN2, M, N, A, LDA, B, LDB, C, LDC, D, LDD, &
@@ -345,7 +369,7 @@ SUBROUTINE SLA_GGCSYLV_DUAL(FACTA, FACTB, TRANSA, TRANSB, SGN1, SGN2, M, N, A, L
     INTEGER ININFO
     INTEGER LDWORKI, IINFO
     LOGICAL BTRANSA, BTRANSB
-    LOGICAL BFACTA, BFACTB, DUMMY
+    LOGICAL BFACTA, BFACTB, DUMMY, AHESS, BHESS
     INTEGER SDIM, MB, ISOLVER, NB, BIGNB
     INTEGER SORTEV
     INTEGER SOLVER
@@ -353,6 +377,7 @@ SUBROUTINE SLA_GGCSYLV_DUAL(FACTA, FACTB, TRANSA, TRANSB, SGN1, SGN2, M, N, A, L
 
     REAL ONE, ZERO
     PARAMETER(ONE = 1.0, ZERO = 0.0)
+    CHARACTER ASHAPE, BSHAPE
 
 
     ! External Functions
@@ -369,7 +394,7 @@ SUBROUTINE SLA_GGCSYLV_DUAL(FACTA, FACTB, TRANSA, TRANSB, SGN1, SGN2, M, N, A, L
     EXTERNAL SLA_TGCSYLV_DUAL_L2_LOCAL_COPY_128
     EXTERNAL SLA_TGCSYLV_DUAL_L2_LOCAL_COPY
 
-    EXTERNAL SGGES
+    EXTERNAL SHGGES
     EXTERNAL SLA_SORT_GEV
     EXTERNAL LSAME
     EXTERNAL XERROR_HANDLER
@@ -381,6 +406,8 @@ SUBROUTINE SLA_GGCSYLV_DUAL(FACTA, FACTB, TRANSA, TRANSB, SGN1, SGN2, M, N, A, L
     BTRANSB = LSAME(TRANSB, 'N')
     BFACTA  = LSAME(FACTA, 'F')
     BFACTB  = LSAME(FACTB, 'F')
+    AHESS  = LSAME(FACTA, 'H')
+    BHESS  = LSAME(FACTB, 'H')
 
     MB = TGCSYLV_DUAL_BLOCKSIZE_MB(M,N)
     NB = TGCSYLV_DUAL_BLOCKSIZE_NB(M,N)
@@ -393,9 +420,9 @@ SUBROUTINE SLA_GGCSYLV_DUAL(FACTA, FACTB, TRANSA, TRANSB, SGN1, SGN2, M, N, A, L
 
     ININFO = INFO
     INFO = 0
-    IF ( .NOT. BFACTA .AND. .NOT. LSAME(FACTA, 'N')) THEN
+    IF ( .NOT. BFACTA .AND. .NOT. AHESS .AND. .NOT. LSAME(FACTA, 'N')) THEN
         INFO = -1
-    ELSE IF ( .NOT. BFACTB .AND. .NOT. LSAME(FACTB, 'N')) THEN
+    ELSE IF ( .NOT. BFACTB .AND. .NOT. BHESS .AND. .NOT. LSAME(FACTB, 'N')) THEN
         INFO = -2
     ELSE IF ( .NOT. BTRANSA .AND. .NOT. LSAME(TRANSA, 'T')) THEN
         INFO = -3
@@ -537,7 +564,11 @@ SUBROUTINE SLA_GGCSYLV_DUAL(FACTA, FACTB, TRANSA, TRANSB, SGN1, SGN2, M, N, A, L
     ! Factorize A
     !
     IF (.NOT. BFACTA) THEN
-        CALL SGGES("Vectors", "Vectors", "NoSort", DUMMY, M, A, LDA, C, LDC, SDIM, WORK(1), WORK(M+1), WORK(2*M+1), &
+        ASHAPE = 'G'
+        IF ( AHESS ) THEN
+            ASHAPE = 'H'
+        END IF
+        CALL SHGGES(ASHAPE, "Vectors", "Vectors", "NoSort", DUMMY, M, A, LDA, C, LDC, SDIM, WORK(1), WORK(M+1), WORK(2*M+1), &
             & QA, LDQA,  ZA, LDZA,  WORK(3*M+1), LDWORKI-3*M, DUMMY, IINFO)
         IF ( IINFO .NE. 0 ) THEN
             INFO = 1
@@ -557,7 +588,11 @@ SUBROUTINE SLA_GGCSYLV_DUAL(FACTA, FACTB, TRANSA, TRANSB, SGN1, SGN2, M, N, A, L
     ! Factorize B
     !
     IF (.NOT. BFACTB) THEN
-         CALL SGGES("Vectors", "Vectors", "NoSort", DUMMY, N, B, LDB, D, LDD, SDIM, WORK(1), WORK(N+1), WORK(2*N+1), &
+         BSHAPE = 'G'
+         IF ( BHESS ) THEN
+             BSHAPE = 'H'
+         END IF
+         CALL SHGGES(BSHAPE, "Vectors", "Vectors", "NoSort", DUMMY, N, B, LDB, D, LDD, SDIM, WORK(1), WORK(N+1), WORK(2*N+1), &
             & QB, LDQB,  ZB, LDZB,  WORK(3*N+1), LDWORKI-3*M, DUMMY, IINFO)
         IF ( IINFO .NE. 0 ) THEN
             INFO = 1

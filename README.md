@@ -1,7 +1,7 @@
 Matrix Equations PACKage (MEPACK)
 =================================
 
-**Version:** 1.0.5
+**Version:** 1.1.0
 
 Copyright 2017-2023 by Martin Köhler, MPI-Magdeburg
 
@@ -135,7 +135,7 @@ or
 ```
 M. Köhler. 2022, Matrix Equations PACKage -- A Fortran library for the solution
 of Sylvester-like Matrix equations,
-Zendo, DOI: 10.5281/zenodo.7554327
+Zendo, DOI: 10.5281/zenodo.10016456
 ```
 
 Examples

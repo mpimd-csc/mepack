@@ -238,7 +238,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date June 2023
+!> \date October 2023
 !> \ingroup sglgglyap
 !
 SUBROUTINE SLA_GGLYAP_REFINE(TRANS, GUESS, M, A, LDA, B, LDB, X, LDX, Y, LDY, &

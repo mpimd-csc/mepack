@@ -25,108 +25,108 @@
 #include "benchmark.h"
 
 
-int benchmark_sylv_setup_to_type(char *TRANSA, char*TRANSB, double sign)
+int benchmark_sylv_setup_to_type(const char *TRANSA, const char*TRANSB, double sign)
 {
-    char ta = tolower(TRANSA[0]); 
-    char tb = tolower(TRANSB[0]); 
+    char ta = tolower(TRANSA[0]);
+    char tb = tolower(TRANSB[0]);
     if ( sign == 1 ) {
         if ( ta == 'n' && tb == 'n' ) {
-            return 0; 
+            return 0;
         } else if ( ta == 'n' && tb == 't') {
-            return 2; 
+            return 2;
         } else if ( ta == 't' && tb == 'n') {
-            return 4; 
+            return 4;
         } else {
-            return 6; 
+            return 6;
         }
-         
+
     } else {
         if ( ta == 'n' && tb == 'n' ) {
-            return 1; 
+            return 1;
         } else if ( ta == 'n' && tb == 't') {
-            return 3; 
+            return 3;
         } else if ( ta == 't' && tb == 'n') {
-            return 5; 
+            return 5;
         } else {
-            return 7; 
+            return 7;
         }
     }
 
 }
 
 
-int benchmark_gsylv_setup_to_type(char *TRANSA, char*TRANSB, double sign)
+int benchmark_gsylv_setup_to_type(const char *TRANSA, const char*TRANSB, double sign)
 {
-    char ta = tolower(TRANSA[0]); 
-    char tb = tolower(TRANSB[0]); 
+    char ta = tolower(TRANSA[0]);
+    char tb = tolower(TRANSB[0]);
     if ( sign == 1 ) {
         if ( ta == 'n' && tb == 'n' ) {
-            return 0; 
+            return 0;
         } else if ( ta == 'n' && tb == 't') {
-            return 2; 
+            return 2;
         } else if ( ta == 't' && tb == 'n') {
-            return 4; 
+            return 4;
         } else {
-            return 6; 
+            return 6;
         }
-         
+
     } else {
         if ( ta == 'n' && tb == 'n' ) {
-            return 1; 
+            return 1;
         } else if ( ta == 'n' && tb == 't') {
-            return 3; 
+            return 3;
         } else if ( ta == 't' && tb == 'n') {
-            return 5; 
+            return 5;
         } else {
-            return 7; 
+            return 7;
         }
     }
 
 }
 
-int benchmark_glyap_setup_to_type(char *TRANSA)
+int benchmark_glyap_setup_to_type(const char *TRANSA)
 {
-    char ta = tolower(TRANSA[0]); 
-    if ( ta == 'n' ) 
-        return 0; 
-    else return 1; 
+    char ta = tolower(TRANSA[0]);
+    if ( ta == 'n' )
+        return 0;
+    else return 1;
 
 }
 
-int benchmark_gstein_setup_to_type(char *TRANSA)
+int benchmark_gstein_setup_to_type(const char *TRANSA)
 {
-    char ta = tolower(TRANSA[0]); 
-    if ( ta == 'n' ) 
-        return 0; 
-    else return 1; 
+    char ta = tolower(TRANSA[0]);
+    if ( ta == 'n' )
+        return 0;
+    else return 1;
 
 }
 
 
-int benchmark_ggcsylv_setup_to_type(char *TRANSA, char*TRANSB, double sign)
+int benchmark_ggcsylv_setup_to_type(const char *TRANSA, const char*TRANSB, double sign)
 {
-    char ta = tolower(TRANSA[0]); 
-    char tb = tolower(TRANSB[0]); 
+    char ta = tolower(TRANSA[0]);
+    char tb = tolower(TRANSB[0]);
     if ( sign == 1 ) {
         if ( ta == 'n' && tb == 'n' ) {
-            return 0; 
+            return 0;
         } else if ( ta == 'n' && tb == 't') {
-            return 2; 
-        } else if ( ta == 't' && tb == 'n') {
-            return 4; 
+            return 2;
+            } else if ( ta == 't' && tb == 'n') {
+            return 4;
         } else {
-            return 6; 
+            return 6;
         }
-         
+
     } else {
         if ( ta == 'n' && tb == 'n' ) {
-            return 1; 
+            return 1;
         } else if ( ta == 'n' && tb == 't') {
-            return 3; 
+            return 3;
         } else if ( ta == 't' && tb == 'n') {
-            return 5; 
+            return 5;
         } else {
-            return 7; 
+            return 7;
         }
     }
 

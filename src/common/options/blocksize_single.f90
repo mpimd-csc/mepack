@@ -101,11 +101,11 @@ MODULE MEPACK_OPTIONS_BLOCKSIZE_SINGLE
                     LUA = GET_LUA()
                     CALL CSC_LUA_CALL_RETURN_INT(LUA, "trsylv_single_mb", M, N, MB, INFO)
                     IF (MB.LT.1 .OR. INFO .NE. 0) THEN
-                        MB = 32
-                        WRITE(*,*) "MEPACK_LUA_CONFIG(trsylv_single_mb) returned a blocksize lower than 1 or failed. Use 32."
+                        MB = 64
+                        WRITE(*,*) "MEPACK_LUA_CONFIG(trsylv_single_mb) returned a blocksize lower than 1 or failed. Use 64."
                     END IF
                 ELSE
-                    MB = 32
+                    MB = 64
                 END IF
             END IF
         END FUNCTION TRSYLV_BLOCKSIZE_MB
@@ -132,11 +132,11 @@ MODULE MEPACK_OPTIONS_BLOCKSIZE_SINGLE
                     LUA = GET_LUA()
                     CALL CSC_LUA_CALL_RETURN_INT(LUA, "trsylv_single_nb", M, N, NB, INFO)
                     IF (NB.LT.1 .OR. INFO .NE. 0) THEN
-                        NB = 32
-                        WRITE(*,*) "MEPACK_LUA_CONFIG(trsylv_single_nb) returned a blocksize lower than 1 or failed. Use 32."
+                        NB = 64
+                        WRITE(*,*) "MEPACK_LUA_CONFIG(trsylv_single_nb) returned a blocksize lower than 1 or failed. Use 64."
                     END IF
                 ELSE
-                    NB = 32
+                    NB = 64
                 END IF
             END IF
         END FUNCTION TRSYLV_BLOCKSIZE_NB
@@ -197,11 +197,11 @@ MODULE MEPACK_OPTIONS_BLOCKSIZE_SINGLE
                     LUA = GET_LUA()
                     CALL CSC_LUA_CALL_RETURN_INT(LUA, "trsylv2_single_mb", M, N, MB, INFO)
                     IF (MB.LT.1 .OR. INFO .NE. 0) THEN
-                        MB = 32
-                        WRITE(*,*) "MEPACK_LUA_CONFIG(trsylv2_single_mb) returned a blocksize lower than 1 or failed. Use 32."
+                        MB = 64
+                        WRITE(*,*) "MEPACK_LUA_CONFIG(trsylv2_single_mb) returned a blocksize lower than 1 or failed. Use 64."
                     END IF
                 ELSE
-                    MB = 32
+                    MB = 64
                 END IF
             END IF
         END FUNCTION TRSYLV2_BLOCKSIZE_MB
@@ -228,11 +228,11 @@ MODULE MEPACK_OPTIONS_BLOCKSIZE_SINGLE
                     LUA = GET_LUA()
                     CALL CSC_LUA_CALL_RETURN_INT(LUA, "trsylv2_single_nb", M, N, NB, INFO)
                     IF (NB.LT.1 .OR. INFO .NE. 0) THEN
-                        NB = 32
-                        WRITE(*,*) "MEPACK_LUA_CONFIG(trsylv2_single_nb) returned a blocksize lower than 1 or failed. Use 32."
+                        NB = 64
+                        WRITE(*,*) "MEPACK_LUA_CONFIG(trsylv2_single_nb) returned a blocksize lower than 1 or failed. Use 64."
                     END IF
                 ELSE
-                    NB = 32
+                    NB = 64
                 END IF
 
             END IF
@@ -293,11 +293,11 @@ MODULE MEPACK_OPTIONS_BLOCKSIZE_SINGLE
                     LUA = GET_LUA()
                     CALL CSC_LUA_CALL_RETURN_INT(LUA, "tgsylv_single_mb", M, N, MB, INFO)
                     IF (MB.LT.1 .OR. INFO .NE. 0) THEN
-                        MB = 32
-                        WRITE(*,*) "MEPACK_LUA_CONFIG(tgsylv_single_mb) returned a blocksize lower than 1 or failed. Use 32."
+                        MB = 64
+                        WRITE(*,*) "MEPACK_LUA_CONFIG(tgsylv_single_mb) returned a blocksize lower than 1 or failed. Use 64."
                     END IF
                 ELSE
-                    MB = 32
+                    MB = 64
                 END IF
 
             END IF
@@ -325,11 +325,11 @@ MODULE MEPACK_OPTIONS_BLOCKSIZE_SINGLE
                     LUA = GET_LUA()
                     CALL CSC_LUA_CALL_RETURN_INT(LUA, "tgsylv_single_nb", M, N, NB, INFO)
                     IF (NB.LT.1 .OR. INFO .NE. 0) THEN
-                        NB = 32
-                        WRITE(*,*) "MEPACK_LUA_CONFIG(tgsylv_single_nb) returned a blocksize lower than 1 or failed. Use 32."
+                        NB = 64
+                        WRITE(*,*) "MEPACK_LUA_CONFIG(tgsylv_single_nb) returned a blocksize lower than 1 or failed. Use 64."
                     END IF
                 ELSE
-                    NB = 32
+                    NB = 64
                 END IF
             END IF
         END FUNCTION TGSYLV_BLOCKSIZE_NB
@@ -388,11 +388,11 @@ MODULE MEPACK_OPTIONS_BLOCKSIZE_SINGLE
                     LUA = GET_LUA()
                     CALL CSC_LUA_CALL_RETURN_INT(LUA, "tgcsylv_single_mb", M, N, MB, INFO)
                     IF (MB.LT.1 .OR. INFO .NE. 0) THEN
-                        MB = 32
-                        WRITE(*,*) "MEPACK_LUA_CONFIG(tgcsylv_single_mb) returned a blocksize lower than 1 or failed. Use 32."
+                        MB = 64
+                        WRITE(*,*) "MEPACK_LUA_CONFIG(tgcsylv_single_mb) returned a blocksize lower than 1 or failed. Use 64."
                     END IF
                 ELSE
-                    MB = 32
+                    MB = 64
                 END IF
 
             END IF
@@ -420,11 +420,11 @@ MODULE MEPACK_OPTIONS_BLOCKSIZE_SINGLE
                     LUA = GET_LUA()
                     CALL CSC_LUA_CALL_RETURN_INT(LUA, "tgcsylv_single_nb", M, N, NB, INFO)
                     IF (NB.LT.1 .OR. INFO .NE. 0) THEN
-                        NB = 32
-                        WRITE(*,*) "MEPACK_LUA_CONFIG(tgcsylv_single_nb) returned a blocksize lower than 1 or failed. Use 32."
+                        NB = 64
+                        WRITE(*,*) "MEPACK_LUA_CONFIG(tgcsylv_single_nb) returned a blocksize lower than 1 or failed. Use 64."
                     END IF
                 ELSE
-                    NB = 32
+                    NB = 64
                 END IF
             END IF
         END FUNCTION TGCSYLV_BLOCKSIZE_NB
@@ -483,11 +483,11 @@ MODULE MEPACK_OPTIONS_BLOCKSIZE_SINGLE
                     LUA = GET_LUA()
                     CALL CSC_LUA_CALL_RETURN_INT(LUA, "tgcsylv_dual_single_mb", M, N, MB, INFO)
                     IF (MB.LT.1 .OR. INFO .NE. 0) THEN
-                        MB = 32
-                        WRITE(*,*) "MEPACK_LUA_CONFIG(tgcsylv_dual_single_mb) returned a blocksize lower than 1 or failed. Use 32."
+                        MB = 64
+                        WRITE(*,*) "MEPACK_LUA_CONFIG(tgcsylv_dual_single_mb) returned a blocksize lower than 1 or failed. Use 64."
                     END IF
                 ELSE
-                    MB = 32
+                    MB = 64
                 END IF
 
             END IF
@@ -515,11 +515,11 @@ MODULE MEPACK_OPTIONS_BLOCKSIZE_SINGLE
                     LUA = GET_LUA()
                     CALL CSC_LUA_CALL_RETURN_INT(LUA, "tgcsylv_dual_single_nb", M, N, NB, INFO)
                     IF (NB.LT.1 .OR. INFO .NE. 0) THEN
-                        NB = 32
-                        WRITE(*,*) "MEPACK_LUA_CONFIG(tgcsylv_dual_single_nb) returned a blocksize lower than 1 or failed. Use 32."
+                        NB = 64
+                        WRITE(*,*) "MEPACK_LUA_CONFIG(tgcsylv_dual_single_nb) returned a blocksize lower than 1 or failed. Use 64."
                     END IF
                 ELSE
-                    NB = 32
+                    NB = 64
                 END IF
             END IF
         END FUNCTION TGCSYLV_DUAL_BLOCKSIZE_NB
@@ -578,11 +578,11 @@ MODULE MEPACK_OPTIONS_BLOCKSIZE_SINGLE
                     LUA = GET_LUA()
                     CALL CSC_LUA_CALL_RETURN_INT(LUA, "trlyap_single_mb", M, MB, INFO)
                     IF (MB.LT.1 .OR. INFO .NE. 0) THEN
-                        MB = 32
-                        WRITE(*,*) "MEPACK_LUA_CONFIG(trlyap_single_mb) returned a blocksize lower than 1 or failed. Use 32."
+                        MB = 64
+                        WRITE(*,*) "MEPACK_LUA_CONFIG(trlyap_single_mb) returned a blocksize lower than 1 or failed. Use 64."
                     END IF
                 ELSE
-                    MB = 32
+                    MB = 64
                 END IF
 
             END IF
@@ -626,11 +626,11 @@ MODULE MEPACK_OPTIONS_BLOCKSIZE_SINGLE
                     LUA = GET_LUA()
                     CALL CSC_LUA_CALL_RETURN_INT(LUA, "trstein_single_mb", M, MB, INFO)
                     IF (MB.LT.1 .OR. INFO .NE. 0) THEN
-                        MB = 32
-                        WRITE(*,*) "MEPACK_LUA_CONFIG(trstein_single_mb) returned a blocksize lower than 1 or failed. Use 32."
+                        MB = 64
+                        WRITE(*,*) "MEPACK_LUA_CONFIG(trstein_single_mb) returned a blocksize lower than 1 or failed. Use 64."
                     END IF
                 ELSE
-                    MB = 32
+                    MB = 64
                 END IF
 
 
@@ -675,11 +675,11 @@ MODULE MEPACK_OPTIONS_BLOCKSIZE_SINGLE
                     LUA = GET_LUA()
                     CALL CSC_LUA_CALL_RETURN_INT(LUA, "tglyap_single_mb", M, MB, INFO)
                     IF (MB.LT.1 .OR. INFO .NE. 0) THEN
-                        MB = 32
-                        WRITE(*,*) "MEPACK_LUA_CONFIG(tglyap_single_mb) returned a blocksize lower than 1 or failed. Use 32."
+                        MB = 64
+                        WRITE(*,*) "MEPACK_LUA_CONFIG(tglyap_single_mb) returned a blocksize lower than 1 or failed. Use 64."
                     END IF
                 ELSE
-                    MB = 32
+                    MB = 64
                 END IF
 
 
@@ -724,11 +724,11 @@ MODULE MEPACK_OPTIONS_BLOCKSIZE_SINGLE
                     LUA = GET_LUA()
                     CALL CSC_LUA_CALL_RETURN_INT(LUA, "tgstein_single_mb", M, MB, INFO)
                     IF (MB.LT.1 .OR. INFO .NE. 0) THEN
-                        MB = 32
-                        WRITE(*,*) "MEPACK_LUA_CONFIG(tgstein_single_mb) returned a blocksize lower than 1 or failed. Use 32."
+                        MB = 64
+                        WRITE(*,*) "MEPACK_LUA_CONFIG(tgstein_single_mb) returned a blocksize lower than 1 or failed. Use 64."
                     END IF
                 ELSE
-                    MB = 32
+                    MB = 64
                 END IF
 
 

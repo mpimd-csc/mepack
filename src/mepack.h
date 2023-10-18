@@ -75,7 +75,7 @@ extern "C" {
     /**
      * @brief Use the naively implemented level-2 solver.
      */
-    #define MEPACK_ISOLVER_LEVEL2_NAIV 5
+    #define MEPACK_ISOLVER_LEVEL2_NAIVE 5
 
     /**
      * @brief Use the recursive blocking solvers instead of level-2 solvers.
@@ -233,9 +233,6 @@ extern "C" {
 
     MEPACK_EXPORT void mepack_single_trlyap_level3(const char *TRANS, int M, float * A, int LDA, float *X, int LDX, float * SCALE, float *WORK, int *INFO);
     MEPACK_EXPORT void mepack_double_trlyap_level3(const char *TRANS, int M, double * A, int LDA, double *X, int LDX, double * SCALE, double *WORK, int *INFO);
-
-    MEPACK_EXPORT void mepack_single_trlyap_level3_2stage(const char *TRANS, int M, float * A, int LDA, float *X, int LDX, float * SCALE, float *WORK, int *INFO);
-    MEPACK_EXPORT void mepack_double_trlyap_level3_2stage(const char *TRANS, int M, double * A, int LDA, double *X, int LDX, double * SCALE, double *WORK, int *INFO);
 
     MEPACK_EXPORT void mepack_single_trlyap_level3_2stage(const char *TRANS, int M, float * A, int LDA, float *X, int LDX, float * SCALE, float *WORK, int *INFO);
     MEPACK_EXPORT void mepack_double_trlyap_level3_2stage(const char *TRANS, int M, double * A, int LDA, double *X, int LDX, double * SCALE, double *WORK, int *INFO);
@@ -938,6 +935,48 @@ extern "C" {
         float * Q, int LDQ, float *Z, int LDZ, float *U, int LDU, float *V, int LDV,
         int *MAXIT, float *TAU, float *CONVLOG, float * WORK, size_t LDWORK, int *INFO);
 
+    /*
+     * Residuals
+     */
+    MEPACK_EXPORT double mepack_double_residual_lyap(const char * TRANS, int M, double *A, int LDA, double *X, int LDX, double *Y, int LDY, double SCALE);
+    MEPACK_EXPORT float mepack_single_residual_lyap(const char * TRANS, int M, float *A, int LDA, float *X, int LDX, float *Y, int LDY, float SCALE);
+    MEPACK_EXPORT double mepack_double_residual_glyap(const char * TRANS, int M, double *A, int LDA, double *B, int LDB, double *X, int LDX, double *Y, int LDY, double SCALE);
+    MEPACK_EXPORT float mepack_single_residual_glyap(const char * TRANS, int M, float *A, int LDA, float *B, int LDB, float *X, int LDX, float *Y, int LDY, float SCALE);
+    MEPACK_EXPORT double mepack_double_residual_stein(const char * TRANS, int M, double *A, int LDA, double *X, int LDX, double *Y, int LDY, double SCALE);
+    MEPACK_EXPORT float mepack_single_residual_stein(const char * TRANS, int M, float *A, int LDA, float *X, int LDX, float *Y, int LDY, float SCALE);
+    MEPACK_EXPORT double mepack_double_residual_gstein(const char * TRANS, int M, double *A, int LDA, double *B, int LDB, double *X, int LDX, double *Y, int LDY, double SCALE);
+    MEPACK_EXPORT float mepack_single_residual_gstein(const char * TRANS, int M, float *A, int LDA, float *B, int LDB, float *X, int LDX, float *Y, int LDY, float SCALE);
+
+    MEPACK_EXPORT double mepack_double_residual_sylv(const char * TRANSA, const char *TRANSB, double SGN, int M, int N, double *A, int LDA, double *B, int LDB,
+            double *X, int LDX, double *Y, int LDY, double SCALE);
+    MEPACK_EXPORT float mepack_single_residual_sylv(const char * TRANSA, const char *TRANSB, float SGN, int M, int N, float *A, int LDA, float *B, int LDB,
+            float *X, int LDX, float *Y, int LDY, float SCALE);
+    MEPACK_EXPORT double mepack_double_residual_sylv2(const char * TRANSA, const char *TRANSB, double SGN, int M, int N, double *A, int LDA, double *B, int LDB,
+            double *X, int LDX, double *Y, int LDY, double SCALE);
+    MEPACK_EXPORT float mepack_single_residual_sylv2(const char * TRANSA, const char *TRANSB, float SGN, int M, int N, float *A, int LDA, float *B, int LDB,
+            float *X, int LDX, float *Y, int LDY, float SCALE);
+    MEPACK_EXPORT double mepack_double_residual_gsylv(const char * TRANSA, const char *TRANSB, double SGN, int M, int N, double *A, int LDA, double *B, int LDB,
+            double *C, int LDC, double *D, int LDD,
+            double *X, int LDX, double *Y, int LDY, double SCALE);
+    MEPACK_EXPORT float mepack_single_residual_gsylv(const char * TRANSA, const char *TRANSB, float SGN, int M, int N, float *A, int LDA, float *B, int LDB,
+            float *C, int LDC, float *D, int LDD,
+            float *X, int LDX, float *Y, int LDY, float SCALE);
+    MEPACK_EXPORT double mepack_double_residual_csylv(const char * TRANSA, const char *TRANSB, double SGN1, double SGN2, int M, int N, double *A, int LDA, double *B, int LDB,
+            double *C, int LDC, double *D, int LDD,
+            double *R, int LDR, double *L, int LDL,
+            double *E, int LDE, double *F, int LDF, double SCALE);
+    MEPACK_EXPORT float mepack_single_residual_csylv(const char * TRANSA, const char *TRANSB, float SGN1, float SGN2, int M, int N, float *A, int LDA, float *B, int LDB,
+            float *C, int LDC, float *D, int LDD,
+            float *R, int LDR, float *L, int LDL,
+            float *E, int LDE, float *F, int LDF, float SCALE);
+    MEPACK_EXPORT double mepack_double_residual_csylv_dual(const char * TRANSA, const char *TRANSB, double SGN1, double SGN2, int M, int N, double *A, int LDA, double *B, int LDB,
+            double *C, int LDC, double *D, int LDD,
+            double *R, int LDR, double *L, int LDL,
+            double *E, int LDE, double *F, int LDF, double SCALE);
+    MEPACK_EXPORT float mepack_single_residual_csylv_dual(const char * TRANSA, const char *TRANSB, float SGN1, float SGN2, int M, int N, float *A, int LDA, float *B, int LDB,
+            float *C, int LDC, float *D, int LDD,
+            float *R, int LDR, float *L, int LDL,
+            float *E, int LDE, float *F, int LDF, float SCALE);
 
 
 #ifdef __cplusplus

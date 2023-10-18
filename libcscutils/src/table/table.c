@@ -291,16 +291,32 @@ static int new_row_internal(csc_table_t * t) {
 
 }
 
+void csc_table_print_current_row(csc_table_t *t)
+{
+    if (!t) return;
+    int last = t->number_of_rows;
+
+    if ( last <= 0 ) {
+        csc_table_comment_print(stdout, t->comment);
+        print_header_ascii(stdout, t, " ");
+    } else {
+        print_row_ascii(stdout, t, " ", last-1);
+    }
+    fflush(stdout);
+}
+
 int  csc_table_new_row(csc_table_t * t) {
     int last = t->number_of_rows;
 
     if ( t-> cp ) {
         if ( last <= 0 ) {
+            csc_table_comment_print(stdout, t->comment);
             print_header_ascii(stdout, t, " ");
         } else {
             print_row_ascii(stdout, t, " ", last-1);
         }
     }
+    fflush(stdout);
     return new_row_internal(t);
 }
 

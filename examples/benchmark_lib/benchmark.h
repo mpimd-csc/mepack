@@ -21,6 +21,8 @@ extern "C" {
 #include <ctype.h>
 #include <math.h>
 #include "FCMangle.h"
+
+
 #ifdef INTEGER8
 #include <stdint.h>
 #define Int int64_t
@@ -57,6 +59,8 @@ extern "C" {
 
 
     void solver_name(int is);
+    const char * solver_name_str(int is);
+
 
 
     /*-----------------------------------------------------------------------------
@@ -106,12 +110,17 @@ extern "C" {
     /*-----------------------------------------------------------------------------
      *  Recsy Helper
      *-----------------------------------------------------------------------------*/
-    int benchmark_sylv_setup_to_type(char *TRANSA, char*TRANSB, double sign);
-    int benchmark_gsylv_setup_to_type(char *TRANSA, char*TRANSB, double sign);
-    int benchmark_glyap_setup_to_type(char *TRANSA);
-    int benchmark_gstein_setup_to_type(char *TRANSA);
-    int benchmark_ggcsylv_setup_to_type(char *TRANSA, char*TRANSB, double sign);
+    int benchmark_sylv_setup_to_type(const char *TRANSA, const char*TRANSB, double sign);
+    int benchmark_gsylv_setup_to_type(const char *TRANSA, const char*TRANSB, double sign);
+    int benchmark_glyap_setup_to_type(const char *TRANSA);
+    int benchmark_gstein_setup_to_type(const char *TRANSA);
+    int benchmark_ggcsylv_setup_to_type(const char *TRANSA, const char*TRANSB, double sign);
 
+    /*-----------------------------------------------------------------------------
+     *  HESS
+     *-----------------------------------------------------------------------------*/
+    void benchmark_ghess_double(Int N, double *A, double *Q, double *B, double *Z, double *Work, Int ldwork);
+    void benchmark_ghess_single(Int N, float *A, float *Q, float *B, float *Z, float *Work, Int ldwork);
 
     /*-----------------------------------------------------------------------------
      *  LAPACK and MEPACK stuff
@@ -127,8 +136,14 @@ extern "C" {
 
     extern void FC_GLOBAL(dlarnv,DLARNV)(Int *i, Int *S, Int *N, double * X);
     extern double FC_GLOBAL(dlange,DLANGE)(char *NORM, Int *N, Int *M, double *A, Int *LDA, double *WORK, fortran_charlen_t l1);
-    extern void FC_GLOBAL(dgemm,DGEMM)(char *ta, char *tb, Int *M, Int *N, Int *K, double *alpha, double *A, Int *LDA, double *B, Int *LDB, double *beta, double *C, Int *LDC,fortran_charlen_t l1, fortran_charlen_t l2);
-
+    extern void FC_GLOBAL(dgemm,DGEMM)(char *ta, char *tb, Int *M, Int *N, Int *K, double *alpha, double *A, Int *LDA, double *B, Int *LDB, double *beta, double *C, Int *LDC, fortran_charlen_t l1, fortran_charlen_t l2);
+    extern void FC_GLOBAL(dgehrd, DGEHRD)(Int *N, Int *ILO, Int *IHI, double *A, Int *LDA, double *TAU, double *WORK, Int *LDWORK, Int *Info);
+    extern void FC_GLOBAL(dggbal, DGGBAL)(char* JOB, Int *N, double *A, Int *LDA, double *B, Int *LDB, Int *ILO, Int *IHI, double *LSCALE, double *RSCALE, double *WORK, Int *INFO, fortran_charlen_t l1);
+    extern void FC_GLOBAL(dgghrd, DGGHRD)(char *COMPQ, char* COMPZ, Int *N, Int *ILO, Int *IHI, double *A, Int *LDA,
+		    double *B, Int *LDB, double *Q, Int *LDQ, double *Z, Int *LDZ, Int *INFO, fortran_charlen_t l1, fortran_charlen_t l2);
+    extern void FC_GLOBAL(dgeqrf, DGEQRF)(Int *M, Int *N, double *A, Int *LDA, double *TAU, double *WORK, Int *LWORK, Int *INFO);
+    extern void FC_GLOBAL(dormqr, DORMQR)(char *SIDE, char *TRANS, Int *M, Int *N, Int *K, double *A, Int *LDA, double *TAU, double *C, Int *LDC, double *WORK, Int *LWORK, Int *INFO, fortran_charlen_t l1, fortran_charlen_t l2);
+    extern void FC_GLOBAL(dorgqr, DORGQR)(Int *M, Int *N, Int *K, double *A, Int *LDA, double *TAU, double *WORK, Int *LWORK, Int *INFO);
 
     extern float FC_GLOBAL(slange,SLANGE)(char *NORM, Int *N, Int *M, float *A, Int *LDA, float *WORK, fortran_charlen_t l1);
     extern void FC_GLOBAL(sgemm,SGEMM)(char *ta, char *tb, Int *M, Int *N, Int *K, float *alpha, float *A, Int *LDA, float *B, Int *LDB, float *beta, float *C, Int *LDC, fortran_charlen_t l1, fortran_charlen_t l2);
@@ -139,7 +154,13 @@ extern "C" {
     extern void FC_GLOBAL(slaset,SLASET)(char *UL, Int *M, Int *N, float *alpha, float *beta, float *X, Int *lda, fortran_charlen_t l1);
     extern void FC_GLOBAL(sgges,SGGES)(char *JOBVSL, char*JOBVSRL, char * SORT, void * SELECTG, Int *N, float *A, Int *LDA, float *C, Int *ldc, Int *SDIM, float *ALPHAR, float *ALPHAI, float *betar,
             float *VSL, Int *LDVSL, float *VSR, Int *LDVR,  float *WORK, Int * LDWORK, Int *BWORK, Int *INFO);
-
+    extern void FC_GLOBAL(sgehrd, SGEHRD)(Int *N, Int *ILO, Int *IHI, float *A, Int *LDA, float *TAU, float *WORK, Int *LDWORK, Int *Info);
+    extern void FC_GLOBAL(sggbal, SGGBAL)(char* JOB, Int *N, float *A, Int *LDA, float *B, Int *LDB, Int *ILO, Int *IHI, float *LSCALE, float *RSCALE, float *WORK, Int *INFO, fortran_charlen_t l1);
+    extern void FC_GLOBAL(sgghrd, SGGHRD)(char *COMPQ, char* COMPZ, Int *N, Int *ILO, Int *IHI, float *A, Int *LDA,
+                    float *B, Int *LDB, float *Q, Int *LDQ, float *Z, Int *LDZ, Int *INFO, fortran_charlen_t l1, fortran_charlen_t l2);
+    extern void FC_GLOBAL(sgeqrf, SGEQRF)(Int *M, Int *N, float *A, Int *LDA, float *TAU, float *WORK, Int *LWORK, Int *INFO);
+    extern void FC_GLOBAL(sormqr, SORMQR)(char *SIDE, char *TRANS, Int *M, Int *N, Int *K, float *A, Int *LDA, float *TAU, float *C, Int *LDC, float *WORK, Int *LWORK, Int *INFO, fortran_charlen_t l1, fortran_charlen_t l2);
+    extern void FC_GLOBAL(sorgqr, SORGQR)(Int *M, Int *N, Int *K, float *A, Int *LDA, float *TAU, float *WORK, Int *LWORK, Int *INFO);
 
     /*-----------------------------------------------------------------------------
      *  Error Handler
@@ -192,8 +213,11 @@ extern "C" {
     extern void FC_GLOBAL(sb03md,SB03MD)(char *DICO, char *JOB, char *FACT, char *TRANS,
             Int *N, double *A, Int *LDA, double *Q, Int *LDQ, double *X, Int *LDX,
             double *SCALE, double *SEP, double *FERR, double*ALPHAR, double *ALPHAI, Int *IWORK,
-            double *DWORK, Int *LDWORK, Int *info,
-            fortran_charlen_t l1, fortran_charlen_t l2, fortran_charlen_t l3, fortran_charlen_t l4);
+            double *DWORK, Int *LDWORK, Int *info, fortran_charlen_t l1, fortran_charlen_t l2, fortran_charlen_t l3, fortran_charlen_t l4);
+    extern void FC_GLOBAL(sb04md,SB04MD)( Int *N, Int *M, double *A, Int *LDA, double *B, Int *LDB, double *C, Int *LDC, double *Z, Int *LDZ, Int *IWORK, double *DWORK, Int *LDWORK, Int *INFO);
+    extern void FC_GLOBAL(sb04nd,SB04ND)( char *ABSCHU, char *ULA, char *ULB, Int *N, Int *M, double *A, Int *LDA, double *B, Int *LDB, double *C, Int *LDC, double *TOL, Int *IWORK, double *DWORK, Int *LDWORK, Int *INFO, fortran_charlen_t l1, fortran_charlen_t l2, fortran_charlen_t l3);
+    extern void FC_GLOBAL(sb04qd,SB04QD)( Int *N, Int *M, double *A, Int *LDA, double *B, Int *LDB, double *C, Int *LDC, double *Z, Int *LDZ, Int *IWORK, double *DWORK, Int *LDWORK, Int *INFO);
+    extern void FC_GLOBAL(sb04rd,SB04RD)( char *ABSCHU, char *ULA, char *ULB, Int *N, Int *M, double *A, Int *LDA, double *B, Int *LDB, double *C, Int *LDC, double *TOL, Int *IWORK, double *DWORK, Int *LDWORK, Int *INFO, fortran_charlen_t l1 , fortran_charlen_t l2, fortran_charlen_t l3);
     extern void FC_GLOBAL(sb04py,SB04PY)(char * TRANSA, char *TRANSB, Int *ISGN, Int *M, Int *N, double *A, Int *LDA, double *B, Int *LDB, double *X, Int *LDX, double *SCALE, double *dwork, Int *Info, fortran_charlen_t l1, fortran_charlen_t l2);
     extern void FC_GLOBAL(sb03my,SB03MY)( char *TRANA, Int * N, double *A, Int *LDA, double *C, Int *LDC, double *SCAL, Int *INFO, fortran_charlen_t l1);
     extern void FC_GLOBAL(sb03mx,SB03MX)( char *TRANA, Int * N, double *A, Int *LDA, double *C, Int *LDC, double *SCAL, double *WORK, Int *INFO, fortran_charlen_t l1);
@@ -208,6 +232,37 @@ extern "C" {
      *-----------------------------------------------------------------------------*/
     extern void FC_GLOBAL(dtrsyl,DTRSYL)(char * TRANSA, char *TRANSB, Int *ISGN, Int *M, Int *N, double *A, Int *LDA, double *B, Int *LDB, double *X, Int *LDX, double *SCALE, Int *Info);
     extern void FC_GLOBAL(strsyl,STRSYL)(char * TRANSA, char *TRANSB, Int *ISGN, Int *M, Int *N, float *A, Int *LDA, float *B, Int *LDB, float *X, Int *LDX, float *SCALE, Int *Info);
+
+
+
+
+    typedef void (*context_init_t)(void *_ctx, Int M, Int N, Int ISolver, Int MB, Int NB, Int BIGMB, const char *TA, const char *TB, double sgn1, double sgn2);
+    typedef void (*context_setup_rhs_t)(void *_ctx);
+    typedef void (*context_setup_problem_t)(void *_ctx, Int iseed[4], Int align, Int changerole);
+    typedef void (*context_iter_prepare_t)(void * _ctx);
+    typedef void (*context_iter_solve_t)(void *_ctx);
+    typedef void (*context_check_t)(void *_ctx, double *forward, double *rel);
+    typedef void (*context_clean_t)(void *_ctx);
+
+    typedef struct _benchmark_context_t {
+        void *ctx;
+        context_init_t init;
+        context_setup_rhs_t setup_rhs;
+        context_setup_problem_t setup_problem;
+        context_iter_prepare_t iter_prepare;
+        context_iter_solve_t iter_solve;
+        context_check_t check;
+        context_clean_t clean;
+    } benchmark_context_t;
+
+    void benchmark_context_free(benchmark_context_t *bctx);
+    void benchmark_context_init(benchmark_context_t *ctx, Int M, Int N, Int ISolver, Int MB, Int NB, Int BIGMB, const char *TA, const char *TB, double sgn1, double sgn2);
+    void benchmark_context_setup_rhs(benchmark_context_t  *ctx);
+    void benchmark_context_setup_problem(benchmark_context_t *ctx, Int iseed[4], Int align, Int changerole);
+    void benchmark_context_iter_prepare(benchmark_context_t *ctx);
+    void benchmark_context_iter_solve(benchmark_context_t *ctx);
+    void benchmark_context_check(benchmark_context_t *ctx, double *forward, double *rel);
+    void benchmark_context_clean(benchmark_context_t *ctx);
 
 #ifdef __cplusplus
 };

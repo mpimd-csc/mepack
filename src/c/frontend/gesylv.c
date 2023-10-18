@@ -40,9 +40,9 @@
 
  where A is a M-by-M matrix and B is a N-by-N matrix. The right hand
  side Y and the solution X are M-by-N matrices. The matrices A and B can be
- either a general unreduced matrix or a (quasi-) upper triangular factor.
- In the later case QA and QB provide the Schur-vectors of the matrices A
- and B.
+ either a general unreduced matrix or an upper Hessenberg form
+ or a (quasi-) upper triangular factor. In the latter case QA and QB provide
+ the Schur-vectors of the matrices A and B.
  \endverbatim
 
  \remark This function is a wrapper for \ref dla_gesylv.
@@ -57,6 +57,8 @@
                   A = QA*S*QA**T will be computed.
           == 'F':  The matrix A is given as its Schur decomposition in terms of S and QA
                   form A = QA*S*QA**T
+          == 'H':  The matrix A is given in upper Hessenberg form and its Schur decomposition
+                  A = QA*S*QA**T will be computed
  \endverbatim
 
  \param[in] FACTB
@@ -65,8 +67,11 @@
           Specifies how the matrix B is given.
           == 'N':  The matrix B is given as a general matrix and its Schur decomposition
                   B = QB*R*QB**T will be computed.
-          == 'F':  The matrix A is given as its Schur decomposition in terms of R and QB
-                  form A = QB*R*QB**T
+          == 'F':  The matrix B is given as its Schur decomposition in terms of R and QB
+                  form B = QB*R*QB**T
+          == 'H':  The matrix B is given in upper Hessenberg form and its Schur decomposition
+                  B = QB*R*QB**T will be computed
+
  \endverbatim
 
  \param[in] TRANSA
@@ -108,10 +113,12 @@
  \param[in,out] A
  \verbatim
           A is DOUBLE PRECISION array, dimension (LDA,M)
-          If FACT == "N", the matrix A is a general matrix and it is overwritten with its
+          If FACTA == "N", the matrix A is a general matrix and it is overwritten with its
           schur decomposition S.
-          If FACT == "F", the matrix A contains its (quasi-) upper triangular matrix S being the
+          If FACTA == "F", the matrix A contains its (quasi-) upper triangular matrix S being the
           Schur decomposition of A.
+          If FACTA == "H", the matrix A is an upper Hessenberg matrix and it is overwritten
+          with its schur decomposition S.
  \endverbatim
 
  \param[in] LDA
@@ -124,10 +131,12 @@
  \param[in,out] B
  \verbatim
           B is DOUBLE PRECISION array, dimension (LDB,N)
-          If FACT == "N", the matrix B is a general matrix and it is overwritten with its
+          If FACTB == "N", the matrix B is a general matrix and it is overwritten with its
           schur decomposition R.
-          If FACT == "F", the matrix A contains its (quasi-) upper triangular matrix R being the
+          If FACTB == "F", the matrix B contains its (quasi-) upper triangular matrix R being the
           Schur decomposition of B.
+          If FACTB == "N", the matrix B is an upper Hessenberg matrix and it is overwritten
+          with its schur decomposition R.
  \endverbatim
 
  \param[in] LDB
@@ -142,6 +151,8 @@
           If FACT == "N", the matrix QA is an empty M-by-M matrix on input and contains the
           Schur vectors of A on output.
           If FACT == "F", the matrix QA contains the Schur vectors of A.
+          If FACT == "H", the matrix QA is an empty M-by-M matrix on input and contains the
+          Schur vectors of A on output.
  \endverbatim
 
  \param[in] LDQA
@@ -157,6 +168,8 @@
           If FACT == "N", the matrix QB is an empty N-by-N matrix on input and contains the
           Schur vectors of B on output.
           If FACT == "F", the matrix QB contains the Schur vectors of B.
+          If FACT == "H", the matrix QB is an empty N-by-N matrix on input and contains the
+          Schur vectors of B on output.
  \endverbatim
 
  \param[in] LDQB
@@ -205,7 +218,7 @@
  \verbatim
           INFO is INTEGER
           == 0:  successful exit
-          = 1:  DGEES failed
+          = 1:  DHGEES failed
           = 2:  DLA_SORT_EV failed
           = 3:  DLA_TRLYAP_DAG failed
           < 0:  if INFO == -i, the i-Th argument had an illegal value
@@ -216,7 +229,7 @@
 
  \author Martin Koehler, MPI Magdeburg
 
- \date June 2023
+ \date October 2023
 */
 void mepack_double_gesylv(const char *FACTA, const char *FACTB, const char *TRANSA, const char*TRANSB, double SGN,  int M, int N,
         double * A, int LDA,double * B, int LDB, double *QA, int LDQA, double *QB, int LDQB, double *X, int LDX,
@@ -262,9 +275,9 @@ void mepack_double_gesylv(const char *FACTA, const char *FACTB, const char *TRAN
 
  where A is a M-by-M matrix and B is a N-by-N matrix. The right hand
  side Y and the solution X are M-by-N matrices. The matrices A and B can be
- either a general unreduced matrix or a (quasi-) upper triangular factor.
- In the later case QA and QB provide the Schur-vectors of the matrices A
- and B.
+ either a general unreduced matrix or an upper Hessenberg form
+ or a (quasi-) upper triangular factor. In the latter case QA and QB provide
+ the Schur-vectors of the matrices A and B.
  \endverbatim
 
  \remark This function is a wrapper for \ref sla_gesylv.
@@ -279,6 +292,8 @@ void mepack_double_gesylv(const char *FACTA, const char *FACTB, const char *TRAN
                   A = QA*S*QA**T will be computed.
           == 'F':  The matrix A is given as its Schur decomposition in terms of S and QA
                   form A = QA*S*QA**T
+          == 'H':  The matrix A is given in upper Hessenberg form and its Schur decomposition
+                  A = QA*S*QA**T will be computed
  \endverbatim
 
  \param[in] FACTB
@@ -287,8 +302,10 @@ void mepack_double_gesylv(const char *FACTA, const char *FACTB, const char *TRAN
           Specifies how the matrix B is given.
           == 'N':  The matrix B is given as a general matrix and its Schur decomposition
                   B = QB*R*QB**T will be computed.
-          == 'F':  The matrix A is given as its Schur decomposition in terms of R and QB
-                  form A = QB*R*QB**T
+          == 'F':  The matrix B is given as its Schur decomposition in terms of R and QB
+                  form B = QB*R*QB**T
+          == 'H':  The matrix B is given in upper Hessenberg form and its Schur decomposition
+                  B = QB*R*QB**T will be computed
  \endverbatim
 
  \param[in] TRANSA
@@ -330,10 +347,12 @@ void mepack_double_gesylv(const char *FACTA, const char *FACTB, const char *TRAN
  \param[in,out] A
  \verbatim
           A is DOUBLE PRECISION array, dimension (LDA,M)
-          If FACT == "N", the matrix A is a general matrix and it is overwritten with its
+          If FACTA == "N", the matrix A is a general matrix and it is overwritten with its
           schur decomposition S.
-          If FACT == "F", the matrix A contains its (quasi-) upper triangular matrix S being the
+          If FACTA == "F", the matrix A contains its (quasi-) upper triangular matrix S being the
           Schur decomposition of A.
+          If FACTA == "H", the matrix A is an upper Hessenberg matrix and it is overwritten
+          with its schur decomposition S.
  \endverbatim
 
  \param[in] LDA
@@ -346,10 +365,12 @@ void mepack_double_gesylv(const char *FACTA, const char *FACTB, const char *TRAN
  \param[in,out] B
  \verbatim
           B is DOUBLE PRECISION array, dimension (LDB,N)
-          If FACT == "N", the matrix B is a general matrix and it is overwritten with its
+          If FACTB == "N", the matrix B is a general matrix and it is overwritten with its
           schur decomposition R.
-          If FACT == "F", the matrix A contains its (quasi-) upper triangular matrix R being the
+          If FACTB == "F", the matrix B contains its (quasi-) upper triangular matrix R being the
           Schur decomposition of B.
+          If FACTB == "H", the matrix B is an upper Hessenberg matrix and it is overwritten
+          with its schur decomposition R.
  \endverbatim
 
  \param[in] LDB
@@ -361,9 +382,11 @@ void mepack_double_gesylv(const char *FACTA, const char *FACTB, const char *TRAN
  \param[in,out] QA
  \verbatim
           QA is DOUBLE PRECISION array, dimension (LDA,M)
-          If FACT == "N", the matrix QA is an empty M-by-M matrix on input and contains the
+          If FACTA == "N", the matrix QA is an empty M-by-M matrix on input and contains the
           Schur vectors of A on output.
-          If FACT == "F", the matrix QA contains the Schur vectors of A.
+          If FACTA == "F", the matrix QA contains the Schur vectors of A.
+          If FACTA == "H", the matrix QA is an empty M-by-M matrix on input and contains the
+          Schur vectors of A on output.
  \endverbatim
 
  \param[in] LDQA
@@ -376,9 +399,11 @@ void mepack_double_gesylv(const char *FACTA, const char *FACTB, const char *TRAN
  \param[in,out] QB
  \verbatim
           QB is DOUBLE PRECISION array, dimension (LDA,M)
-          If FACT == "N", the matrix QB is an empty M-by-M matrix on input and contains the
+          If FACTB == "N", the matrix QB is an empty M-by-M matrix on input and contains the
           Schur vectors of B on output.
-          If FACT == "F", the matrix QB contains the Schur vectors of B.
+          If FACTB == "F", the matrix QB contains the Schur vectors of B.
+          If FACTB == "H", the matrix QB is an empty M-by-M matrix on input and contains the
+          Schur vectors of B on output.
  \endverbatim
 
  \param[in] LDQB
@@ -427,7 +452,7 @@ void mepack_double_gesylv(const char *FACTA, const char *FACTB, const char *TRAN
  \verbatim
           INFO is INTEGER
           == 0:  successful exit
-          = 1:  DGEES failed
+          = 1:  DHGEES failed
           = 2:  DLA_SORT_EV failed
           = 3:  DLA_TRLYAP_DAG failed
           < 0:  if INFO == -i, the i-Th argument had an illegal value
@@ -438,7 +463,7 @@ void mepack_double_gesylv(const char *FACTA, const char *FACTB, const char *TRAN
 
  \author Martin Koehler, MPI Magdeburg
 
- \date June 2023
+ \date October 2023
 */
 void mepack_single_gesylv(const char *FACTA, const char *FACTB, const char *TRANSA, const char*TRANSB, float SGN,  int M, int N,
         float * A, int LDA,float * B, int LDB, float *QA, int LDQA, float *QB, int LDQB, float *X, int LDX,

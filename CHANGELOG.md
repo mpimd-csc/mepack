@@ -1,15 +1,19 @@
-Version 1.0.5 (June 5, 2023)
-============================
+Version 1.x.x
+=============
 
-- Fix: CMAKE_INSTALL_MODULEDIR handling
-
-Version 1.0.4 (May 5, 2023)
-===========================
-
+- Changed default block size for level-2 code from 32 to 64
+- Add routines to compute the relative residual
 - Fix mepack.pc package config file
 - Fix OpenMP settings while configuring
+- Fix wrong block size setting in examples/triangular/benchmark_trsylv.c
+- Standard Equation solvers now allow Hessenberg coefficient matrices on input
+- Add version script
 - Fix: Error in computing workspace for D/SLA_TRSYLV_LEVEL3_2S
 - Fix: Working with Intel ifx / OneAPI
+- Fix: D/SLA_TCGSYLV_L2 wrong results in the (T,T) case
+- Fix: mepack_memory: wrong results if M or N = 0
+- Fix: mepack_memory_frontend: wrong results if M or N = 0
+- MATLAB/Octave checks for Hessenberg (Triangular) Matrix automatically.
 
 Version 1.0.3 (January 31, 2023)
 ================================

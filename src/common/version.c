@@ -25,7 +25,7 @@
  * @brief Get the version information of MEPACK
  * @param[out]  MAJOR       Major version number of MEPACK
  * @param[out]  MINOR       Minor version number of MEPACK
- * @param[out]  PATCHLEVEL  Patchlevel of MEPACK
+ * @param[out]  PATCHLEVEL  Patch level of MEPACK
  * @ingroup aux
  *
  * The mepack_version function returns the version of MEPACK. The version number is returned in

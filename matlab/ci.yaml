@@ -3,6 +3,7 @@
     stage: octave
     needs: []
     script:
+        - export OMP_NUM_THREADS=2
         - apt update; apt install --yes libhdf5-dev libbz2-dev
         - if [ -d build ]; then rm -rf build; fi
         - mkdir -p build
@@ -28,6 +29,7 @@
     stage: matlab
     needs: []
     script:
+        - export OMP_NUM_THREADS=2
         - apt update; apt install --yes libhdf5-dev cmake libbz2-dev libblas64-dev liblapack64-dev
         - if [ -d build ]; then rm -rf build; fi
         -  mkdir -p build
@@ -47,6 +49,11 @@
         when: on_success
         paths:
             - build/mepack-*.tar.gz
+
+octave-8.3:
+    <<: *octave_job
+    variables:
+        OCTAVE_VERSION: "8.3"
 
 octave-8.2:
     <<: *octave_job

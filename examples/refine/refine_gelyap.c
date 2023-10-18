@@ -31,6 +31,7 @@
 
 #include "mepack.h"
 #include "mepack_internal.h"
+#include "cscutils/table.h"
 
 void usage(char *prgmname) {
     int is;
@@ -48,6 +49,8 @@ void usage(char *prgmname) {
     printf("--runs=R                 Number of runs per equation.\n");
     printf("--solver=S, -s S         Select the solver \n");
     printf("--alignoff, -a           Turn off the blocksize alignment.\n");
+    printf("--output=path, -o path   Write the final result table to csv-like file.\n");
+
 
     printf("\nPossible Solvers\n");
 
@@ -79,15 +82,15 @@ int main(int argc, char **argv)
     Int align_on = 1;
     Int ldwork;
     double alpha, beta;
-    double sign = 1;
     char TRANSA[20]="N";
-
+    char *output_file = NULL;
     int info, run;
     double te, ts;
+    double res =0.0;
 
     double times,ts2, te2;
     double ctimes;
-    double ress = 1.0;
+    double ferr = 1.0;
     double eps;
     size_t mem = 1;
 
@@ -110,7 +113,7 @@ int main(int argc, char **argv)
             {"runs",    required_argument, 0, 'r'},
             {"solver",  required_argument, 0, 's'},
             {"alignoff", no_argument, 0, 'a'},
-
+            {"output",  required_argument, 0, 'o'},
             {0,0,0,0}
         };
 
@@ -121,7 +124,7 @@ no_argument: " "
 required_argument: ":"
 optional_argument: "::" */
 
-        choice = getopt_long( argc, argv, "hm:M:A:t:r:s:S:",
+        choice = getopt_long( argc, argv, "hm:M:A:t:r:s:S:o:",
                 long_options, &option_index);
 
         if (choice == -1)
@@ -187,6 +190,10 @@ optional_argument: "::" */
             case 'a':
                 align_on = 0;
                 break;
+            case 'o':
+                output_file = strdup ( optarg );
+                break;
+
             default:
                 /* Not sure how to get here... */
                 return EXIT_FAILURE;
@@ -203,27 +210,37 @@ optional_argument: "::" */
     /*-----------------------------------------------------------------------------
      *  Output Configuration
      *-----------------------------------------------------------------------------*/
-    printf("# Command Line: ");
-    for (i = 1; i < argc; i++) {
-        printf("%s ", argv[i]);
-    }
-    printf("\n");
-    printf("# RUNS:  %d\n", (int) RUNS);
-    printf("# Number of Matrices: %d\n", (int) nMAT);
-    printf("# Rows: %d (%d:%d:%d)\n", (int) M , (int) M_MIN, (int) M_STEP, (int) M_MAX);
-    printf("# TRANSA: %s\n", TRANSA);
-    printf("# SIGN:   %lg\n", sign);
-    printf("# Block Alignment: %s\n", (align_on == 1)?"YES":"NO");
+    csc_table_t *tab = csc_table_new(0);
+    csc_table_comment_cmd(tab, argc, argv);
+    csc_table_comment_allinfo(tab);
+    csc_table_comment_printf(tab, "RUNS:  %d", (int) RUNS);
+    csc_table_comment_printf(tab, "Number of Matrices: %d", (int) nMAT);
+    csc_table_comment_printf(tab, "Rows: %d (%d:%d:%d)", (int) M , (int) M_MIN, (int) M_STEP, (int) M_MAX);
+    csc_table_comment_printf(tab, "TRANSA: %s", TRANSA);
+    csc_table_comment_printf(tab, "Block Alignment: %s", (align_on == 1)?"YES":"NO");
+    csc_table_comment_printf(tab, "Solution of the Lyapunov Equation");
+    csc_table_comment_printf(tab, "Solver: %s", solver_name_str(is));
+
+    int col_m = csc_table_add_column(tab, "M", CSC_TABLE_INTEGER, CSC_TABLE_RIGHT);
+    int col_mb = csc_table_add_column(tab, "MB", CSC_TABLE_INTEGER, CSC_TABLE_RIGHT);
+    int col_walltime = csc_table_add_column(tab, "Wall-Time", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+    int col_cputime = csc_table_add_column(tab, "CPU-Time", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+    int col_ratio = csc_table_add_column(tab, "Ratio", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+    int col_ferr  = csc_table_add_column(tab, "Forward-Error", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+    int col_res   = csc_table_add_column(tab, "Residual", CSC_TABLE_FLOAT, CSC_TABLE_RIGHT);
+
+    csc_table_column_minwidth(tab, col_m, 5);
+    csc_table_column_minwidth(tab, col_mb, 5);
+    csc_table_column_minwidth(tab, col_walltime, 12);
+    csc_table_column_minwidth(tab, col_cputime, 12);
+    csc_table_column_minwidth(tab, col_ratio, 12);
+    csc_table_column_minwidth(tab, col_ferr, 12);
+    csc_table_column_minwidth(tab, col_res, 12);
+    csc_table_print_current_row(tab);
 
     mepack_tglyap_isolver_set(1);
 
     eps = mepack_double_epsilon();
-
-    printf("# Solver: "); solver_name(is);
-
-
-    printf("#\n");
-    printf("#  M   MB  Wall-Time     CPU-Time       Ratio    Forward-Err\n");
 
     for (M = M_MIN ;  M <= M_MAX ; M = M + M_STEP ) {
         for (MB = MB_MIN; MB <= MB_MAX ; MB += MB_STEP) {
@@ -240,7 +257,8 @@ optional_argument: "::" */
             /* Prepare  */
             times = 0;
             ctimes = 0;
-            ress = 0.0;
+            ferr = 0.0;
+            res = 0.0;
 
             A = (double *) malloc(sizeof(double) * (M*M));
             Aorig = (double *) malloc(sizeof(double) * (M*M));
@@ -301,19 +319,28 @@ optional_argument: "::" */
                 times += te;
                 ctimes += te2;
 
-                ress += benchmark_check_X_double(M,M,X, M, Xorig, M);
+                res += mepack_double_residual_lyap(TRANSA, M, Aorig, M, X, M, RHS, M, 1.0);
+                ferr += benchmark_check_X_double(M,M,X, M, Xorig, M);
 
             }
             times /= (double) nMAT;
             ctimes /= (double) nMAT;
-            ress /= (double) nMAT;
+            ferr /= (double) nMAT;
+            res /= (double) nMAT;
 
 
             /* Print  */
+            csc_table_new_row(tab);
+            csc_table_set_entry_integer(tab, col_m, M);
+            csc_table_set_entry_integer(tab, col_mb, MB);
+            csc_table_set_entry_float(tab, col_walltime, times);
+            csc_table_set_entry_float(tab, col_cputime, ctimes);
+            csc_table_set_entry_float(tab, col_ratio, ctimes/times);
+            csc_table_set_entry_float(tab, col_ferr, ferr);
+            csc_table_set_entry_float(tab, col_res, res);
+            csc_table_print_current_row(tab);
 
-            printf("%5d %3d %10.5e  %10.5e  %10.5e  %10.5e \n",
-                    (int) M,(int)  MB, times, ctimes, ctimes/times, (double) ress);
-            fflush(stdout);
+
             free(convlog);
             free(A);
             free(X);
@@ -325,8 +352,16 @@ optional_argument: "::" */
         }
     }
 
+    if ( output_file) {
+        FILE *fp = fopen(output_file, "w");
+        csc_table_print_ascii(fp, tab, " ");
+        fclose(fp);
+        free(output_file);
+    }
+    csc_table_destroy(tab);
+
     benchmark_exit();
-    return (ress < sqrt(eps)*100)? 0 : -1 ;
+    return ( res < eps*100)? 0 : -1 ;
 }
 
 

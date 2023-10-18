@@ -141,6 +141,7 @@ int main(int argc, char **argv)
 
             for (mat = 0; mat < nMAT; mat++) {
                 /* Setup the Problem  */
+                printf("Generate M = %d, number = %d\n",(int) M, (int)mat);
                 benchmark_random_gevp_double(M, iseed, A, B, NULL, NULL, NULL, NULL, 0);
 
             }

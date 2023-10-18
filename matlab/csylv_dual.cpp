@@ -24,7 +24,7 @@
 #include "mepackoptions.hpp"
 #include "qtriangular_test.hpp"
 #include "triangular_test.hpp"
-
+#include "hess_triangular_test.hpp"
 
 using namespace mexoct;
 
@@ -199,12 +199,22 @@ GSylvDriver( ArrayType<T>& A, ArrayType<T>& B, ArrayType<T>& C, ArrayType<T>& D,
 
 
     ssize_t auxmem;
+    std::string factA = std::string("N");
+    std::string factB = std::string("N");
 
     if ( factorize ) {
-        auxmem = mepack_memory_frontend(cgsylv_dual_solver<T>::fn, (const char *){"N"}, (const char *){"N"}, A.rows, B.rows);
+        /* Check if the matrices are Hessenberg */
+        bool ac_hess = mepack_mexoct_check_hess_triangular(A,C);
+        bool bd_hess = mepack_mexoct_check_hess_triangular(B,D);
+
+        if ( ac_hess ) factA = std::string("H");
+        if ( bd_hess ) factB = std::string("H");
     } else {
-        auxmem = mepack_memory_frontend(cgsylv_dual_solver<T>::fn, (const char *){"F"}, (const char *){"F"}, A.rows, B.rows);
+        factA = std::string("F");
+        factB = std::string("F");
     }
+
+    auxmem = mepack_memory_frontend(cgsylv_dual_solver<T>::fn, factA.c_str(), factB.c_str(), A.rows, B.rows);
 
     if ( auxmem < 0 ) {
         mexoct_error("MEPACK:mepack_memory", "Failed to obtain the size of the auxiliary memory.");
@@ -224,16 +234,11 @@ GSylvDriver( ArrayType<T>& A, ArrayType<T>& B, ArrayType<T>& C, ArrayType<T>& D,
     }
 
 
-    if ( factorize ) {
-        cgsylv_dual_solver<T>::solve("N", "N", opA.c_str(), opB.c_str(), sign1, sign2, A.rows, B.rows, A.ptr(), A.ld, B.ptr(), B.ld, C.ptr(), C.ld, D.ptr(), D.ld,
+    cgsylv_dual_solver<T>::solve(factA.c_str(), factB.c_str(), opA.c_str(), opB.c_str(), sign1, sign2, A.rows, B.rows, A.ptr(), A.ld, B.ptr(), B.ld, C.ptr(), C.ld, D.ptr(), D.ld,
                 QA.ptr(), QA.ld, ZA.ptr(), ZA.ld, QB.ptr(), QB.ld, ZB.ptr(), ZB.ld, X.ptr(), X.ld, Y.ptr(), Y.ld, &scale, auxbuf, auxmem, &info);
-    } else {
-        cgsylv_dual_solver<T>::solve("F", "F", opA.c_str(), opB.c_str(), sign1, sign2, A.rows, B.rows, A.ptr(), A.ld, B.ptr(), B.ld, C.ptr(), C.ld, D.ptr(), D.ld,
-                QA.ptr(), QA.ld, ZA.ptr(), ZA.ld, QB.ptr(), QB.ld, ZB.ptr(), ZB.ld, X.ptr(), X.ld, Y.ptr(), Y.ld, &scale, auxbuf, auxmem, &info);
-    }
 
     if ( info != 0) {
-        mexoct_error("MEPACK:GGSYLV", "GGSYLV failed with info = %d", (int) info);
+        mexoct_error("MEPACK:GGSYLV_DUAL", "GGSYLV_DUAL failed with info = %d", (int) info);
     }
 
     return std::make_tuple(std::move(X), std::move(Y), std::move(A), std::move(B), std::move(C), std::move(D), std::move(QA), std::move(ZA), std::move(QB), std::move(ZB));
@@ -443,6 +448,10 @@ the generalized Schur forms of (A, C) and (B,D) including their
 unitary transformation matrices are returned.
 
 The function uses the level-3 solver D/SLA_GGCSYLV_DUAL of MEPACK.
+
+The involved generalized Schur decomposition is aware of matrix pairs in
+Hessenberg-Triangular form. In this case the initial Hessenberg reduction
+of the generalized Schur decomposition is skipped.
 
 If the OptSet argument is given, the default settings of MEPACK can
 be overwritten this structure can have the following members for

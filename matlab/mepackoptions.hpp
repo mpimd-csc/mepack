@@ -28,8 +28,8 @@ namespace mexoct {
             MepackOptions() : m_mb(-1), m_nb(-1), m_bignb(-1), m_isolver(-1), m_fsolver(-1), m_openmp(1),
                               m_sign(1), m_sign2(1), m_maxit(15), m_tau(1.0) {
 #ifdef MEXOCT_MATLAB
-                                  mepack_openmp_enable(0);
-                                  m_openmp = 0;
+                                  mepack_openmp_enable(1);
+                                  m_openmp = 1;
 #else
                                   mepack_openmp_enable(1);
                                   m_openmp = 1;

@@ -8,7 +8,7 @@ The *following* tools and libraries are required for installing MEPACK:
    IBM XLF, ...
  - A C99 compiler, e.g. GNU GCC, Intel icc, IBM XLC, ...
  - (*optional*) A C++14 compiler for MATLAB/GNU Octave interfaces
- - CMake 3.15 or newer. If Intel's oneAPI icx and ifx are used, CMake >=3.20 is
+ - CMake 3.15 or newer. If Intel's oneAPI icx and ifx are used, CMake>=3.20 is
    required.
  - BLAS and LAPACK, at least version 3.4.2
  - (*optional*) HDF5, at least version 1.8.5 (only for tests and examples)
@@ -18,6 +18,12 @@ The *following* tools and libraries are required for installing MEPACK:
  - (*optional*) GNU Octave, at least version 4.4, for building the GNU Octave
    interface
  - (*optional*) lcov and gcov for building the tests with code coverage
+
+The following compilers are known to be unusable due to compiler bugs:
+
+ - AMD AOCC 3.x and 4.0 (Compiler Crash)
+ - Intel ICC/IFort Classic 2021 (OpenMP failures)
+ - Intel ICX/IFX 2021.x, 2022.x (OpenMP failures)
 
 If the BLAS / LAPACK library does not provide the full interface, i.e. some
 routines are not implemented or available for the user, MEPACK builds the

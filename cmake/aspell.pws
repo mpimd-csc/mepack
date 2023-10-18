@@ -1,9 +1,10 @@
-personal_ws-1.1 en 423 
+personal_ws-1.1 en 438 
 AAAaa
 AAaa
 AAaaa
 AXB
 Aaa
+Acyclic
 Aschur
 BBBB
 BBbbb
@@ -30,6 +31,8 @@ DGEMV
 DGER
 DGETC
 DGGES
+DHGEES
+DHGGES
 DIAG
 DIMMAT
 DL
@@ -44,6 +47,7 @@ DTGEX
 DTREXC
 DTRMM
 DTRMV
+DTRSYL
 DimMissMatch
 DisCont
 Dongarra
@@ -57,8 +61,10 @@ FB
 FC
 FCMangle
 Fortran
+Frobenius
 Fs
 GARDINER
+GCSYLV
 GELYAP
 GEMM
 GESTEIN
@@ -147,6 +153,7 @@ OpA
 OpB
 OpenMP
 OptSet
+PATCHLEVEL
 PY
 Poromaa
 Precompute
@@ -160,6 +167,7 @@ RHS
 RHSX
 ROWISE
 ROWWISE
+RelRes
 SAXPY
 SCAL
 SCOPY
@@ -171,6 +179,8 @@ SGER
 SGETC
 SGGES
 SGN
+SHGEES
+SHGGES
 SLA
 SLACPY
 SLICOT
@@ -185,6 +195,7 @@ STRMM
 STRMV
 Sandia
 Schur
+SortEV
 Ss
 TEMPX
 TGCSYLV
@@ -265,8 +276,10 @@ const
 convlog
 cptr
 cputime
+cresidual
 csc
 cscutils
+csv
 csylv
 ctglyap
 ctgsylv
@@ -316,6 +329,7 @@ glyap
 gstein
 gsylv
 hdf
+hess
 hm
 hpp
 href
@@ -331,6 +345,7 @@ io
 iseed
 isolver
 kron
+lapack
 lapackfix
 laub
 ld

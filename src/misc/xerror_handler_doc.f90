@@ -58,7 +58,7 @@
 !>  
 !>  \author Martin Koehler, MPI Magdeburg 
 !>  
-!>  \date June 2023
+!>  \date October 2023
 !>  \ingroup auxerror
 SUBROUTINE XERROR_HANDLER(NAME, INFO)
     RETURN 
@@ -103,7 +103,7 @@ END SUBROUTINE
 !>  
 !>  \author Martin Koehler, MPI Magdeburg 
 !>  
-!>  \date June 2023
+!>  \date October 2023
 !>  \ingroup auxerror
 SUBROUTINE XERROR_SET_HANDLER_C(ROUTINE)
     RETURN 
@@ -150,7 +150,7 @@ END SUBROUTINE
 !>  
 !>  \author Martin Koehler, MPI Magdeburg 
 !>  
-!>  \date June 2023
+!>  \date October 2023
 !>  \ingroup auxerror
 SUBROUTINE XERROR_SET_HANDLER_F(ROUTINE)
     RETURN 

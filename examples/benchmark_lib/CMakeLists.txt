@@ -2,6 +2,8 @@ SET(SRC init.c
 	problems.c
 	rhs.c
 	recsy_helper.c
+	hess.c
+    context.c
 )
 
 
