@@ -1,5 +1,5 @@
-Version 1.x.x
-=============
+Version 1.1.0 (October 18, 2023)
+================================
 
 - Changed default block size for level-2 code from 32 to 64
 - Add routines to compute the relative residual

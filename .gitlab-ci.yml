@@ -259,6 +259,9 @@ release-job:
                 - octave-7.1
                 - octave-7.2
                 - octave-7.3
+                - octave-8.1
+                - octave-8.2
+                - octave-8.3
                 - documentation
         script:
                 - |
