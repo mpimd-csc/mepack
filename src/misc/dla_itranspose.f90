@@ -80,7 +80,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date October 2023
+!> \date January 2024
 !> \ingroup dblaux
 !
 SUBROUTINE DLA_ITRANSPOSE(K,KH,L,LH, X,LDX)

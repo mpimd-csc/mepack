@@ -95,7 +95,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date October 2023
+!> \date January 2024
 !> \ingroup sglaux
 !
 SUBROUTINE SLA_TRANSFORM_STANDARD(TRANS, M, X, LDX, Q, LDQ, WORK)

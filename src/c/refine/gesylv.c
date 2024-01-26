@@ -241,7 +241,7 @@
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 void mepack_double_gesylv_refine(const char * TRANSA, const char * TRANSB, const char *GUESS, double SGN, int M, int N , double * A, int LDA,
         double *B, int LDB, double *X, int LDX, double *Y, int LDY, double *AS, int LDAS, double *BS, int LDBS,
@@ -493,7 +493,7 @@ void mepack_double_gesylv_refine(const char * TRANSA, const char * TRANSB, const
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 void mepack_single_gesylv_refine(const char * TRANSA, const char * TRANSB, const char *GUESS, float SGN, int M , int N,  float * A, int LDA,
         float *B, int LDB, float *X, int LDX, float *Y, int LDY, float *AS, int LDAS, float *BS, int LDBS,

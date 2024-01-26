@@ -244,7 +244,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date October 2023
+!> \date January 2024
 !> \ingroup sglgesylv
 !
 SUBROUTINE SLA_GESYLV(FACTA, FACTB, TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, QA, LDQA, QB, LDQB, &

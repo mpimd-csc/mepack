@@ -33,7 +33,6 @@ SET(COMMON_SRC
 
 IF( LUA_ENABLE)
     SET(LUA_SRC
-        common/error_message.c
         lua/interface.c
         lua/fortran_interface.f90
         )
@@ -109,7 +108,7 @@ IF(TRACE_ENABLE)
         )
 ENDIF()
 
-SET(SRC ${COMMON_SRC} ${LUA_SRC} ${FILE_SRC} ${IO_SRC} ${INI_SRC} ${THREAD_SRC} ${HDF5_SRC} ${IMAGE_SRC} ${DS_SRC} ${TRACE_SRC})
+SET(SRC ${COMMON_SRC} ${FILE_SRC} ${IO_SRC} ${INI_SRC} ${THREAD_SRC} ${HDF5_SRC} ${IMAGE_SRC} ${DS_SRC} ${TRACE_SRC})
 
 INCLUDE_DIRECTORIES(${INCLUDE_DIR})
 #INCLUDE_DIRECTORIES(${PROJECT_BINARY_DIR}/include)
@@ -117,8 +116,7 @@ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/src)
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/include)
 
 IF ( LUA_ENABLE )
-    SET (SRC ${SRC})
-    ADD_LIBRARY(cscutils_lua_src OBJECT ${LUA_SRC})
+    ADD_LIBRARY(cscutils_lua_src OBJECT ${LUA_SRC} common/error_message.c)
     IF (CMAKE_Fortran_COMPILER_ID STREQUAL "IntelLLVM")
         SET_TARGET_PROPERTIES(cscutils_lua_src PROPERTIES C_STANDARD 11 C_VISIBILITY_PRESET hidden)
     ELSE()
@@ -143,7 +141,6 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL Linux)
     set_source_files_properties(sysinfo/cmake.c PROPERTIES COMPILE_DEFINITIONS CMAKE_ARGS="${CMAKE_ARGS}")
 endif()
 
-
 get_property(elg GLOBAL PROPERTY ENABLED_LANGUAGES)
 FOREACH ( L ${elg})
     STRING(TOUPPER ${CMAKE_BUILD_TYPE} BT)
@@ -164,10 +161,11 @@ ENDIF()
     # TARGET_LINK_LIBRARIES(cscutils_src PUBLIC ${LIBS})
 #
 # ELSE()
-    ADD_LIBRARY(cscutils $<TARGET_OBJECTS:cscutils_src>)
     IF(LUA_ENABLE)
+        ADD_LIBRARY(cscutils $<TARGET_OBJECTS:cscutils_src> $<TARGET_OBJECTS:cscutils_lua_src>)
         TARGET_LINK_LIBRARIES(cscutils lua  ${LIBS})
     ELSE()
+        ADD_LIBRARY(cscutils $<TARGET_OBJECTS:cscutils_src>)
         TARGET_LINK_LIBRARIES(cscutils  ${LIBS})
     ENDIF()
     TARGET_INCLUDE_DIRECTORIES(cscutils PUBLIC

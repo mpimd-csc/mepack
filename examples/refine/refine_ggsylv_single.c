@@ -31,6 +31,7 @@
 #include "mepack_internal.h"
 #include "cscutils/table.h"
 
+
 void solver_name(int is) {
     switch(is) {
         case MEPACK_FRONTEND_SOLVER_LEVEL3:
@@ -50,6 +51,29 @@ void solver_name(int is) {
             break;
     }
 }
+
+const char * solver_name_str(int is) {
+     switch(is) {
+        case MEPACK_FRONTEND_SOLVER_LEVEL3:
+            return ("Refine with LEVEL3 solver");
+            break;
+        case MEPACK_FRONTEND_SOLVER_LEVEL2:
+            return ("Refine with LEVEL2 solver");
+            break;
+        case MEPACK_FRONTEND_SOLVER_2STAGE:
+            return ("Refine with LEVEL3 two stage solver");
+            break;
+        case MEPACK_FRONTEND_SOLVER_DAG:
+            return ("Refine with DAG solver.");
+            break;
+        case MEPACK_FRONTEND_SOLVER_RECURSIVE:
+            return ("Refine with RECURSIVE solver.");
+            break;
+    }
+     return "unknown";
+}
+
+
 
 void usage(char *prgmname) {
     int is;

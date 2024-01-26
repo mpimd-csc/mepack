@@ -131,7 +131,7 @@
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
  */
 void mepack_double_trstein_dag(const char *TRANSA, int M, double * A, int LDA, double *X, int LDX, double * SCALE, double *WORK, int *INFO)
 {
@@ -251,7 +251,7 @@ void mepack_double_trstein_dag(const char *TRANSA, int M, double * A, int LDA, d
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
  */
 
 void mepack_single_trstein_dag(const char *TRANSA, int M, float * A, int LDA, float *X, int LDX, float * SCALE, float *WORK, int *INFO)

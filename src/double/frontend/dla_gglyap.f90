@@ -201,7 +201,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date October 2023
+!> \date January 2024
 !> \ingroup dblgglyap
 !
 SUBROUTINE DLA_GGLYAP(FACT, TRANS, M , A, LDA, B, LDB, Q, LDQ, Z, LDZ, X, LDX, SCALE, WORK, LDWORK, INFO)

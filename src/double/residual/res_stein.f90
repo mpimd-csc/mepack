@@ -110,7 +110,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date October 2023
+!> \date January 2024
 !> \ingroup residual
 !
 FUNCTION DLA_RESIDUAL_STEIN(TRANS, M, A, LDA, X, LDX, Y, LDY, SCALE)

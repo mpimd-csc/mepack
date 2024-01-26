@@ -225,7 +225,7 @@
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 
 
@@ -454,7 +454,7 @@ void mepack_double_tgcsylv_dual_dag(const char *TRANSA, const char*TRANSB, doubl
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 void mepack_single_tgcsylv_dual_dag(const char *TRANSA, const char*TRANSB, float SGN1, float SGN2,  int M, int N,
         float * A, int LDA,float * B, int LDB, float *C, int LDC, float *D, int LDD,

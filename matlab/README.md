@@ -15,6 +15,20 @@ for the MATLAB interface and in
 for the GNU Octave interface. These paths need to be added to your MATLAB or
 GNU Octave search path.
 
+Documentation Update
+--------------------
+
+The documentation is maintained as part of the source code, as it is done in GNU
+Octave. In order to extract (and update) the currently extracted documentation
+one have to build the GNU Octave interface and execute
+```shell
+make update-matlab-doc
+```
+afterwards. Now, mepack can be reconfigured for the use with MATLAB.
+
+**This step is only required if the documentation was changed. By default MEPACK
+ships the latest version of the MATLAB documentation.**
+
 Interface Functions
 -------------------
 
@@ -88,15 +102,5 @@ The following routines implement the iterative refinement strategy:
  - `mepack_sylv_refine`: Solve the standard Sylvester equation (`SYLV`)
                          $`AX\pm XB = Y`$.
 
-
-Known Issues
-------------
-
-### MATLAB and OpenMP Codes
-
-Due to bugs in MATLABs GNU OpenMP - Intel OpenMP wrapper, algorithms using
-OpenMP's task dependencies are disable when calling the interface from MATLAB.
-The algorithms can be enabled at runtime by setting the `openmp` value in the
-optional **options** structure to `1`.
 
 

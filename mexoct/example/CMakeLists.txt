@@ -11,7 +11,9 @@ mexoct_add(example_function_variants example_function_variants.cpp)
 
 #
 # Build the QR example
-#
-mexoct_add(geqrf geqrf.cpp)
-mexoct_target_link_blas(geqrf)
+##
+if(NOT WIN32)
+    mexoct_add(geqrf geqrf.cpp)
+    mexoct_target_link_blas(geqrf)
+endif() 
 

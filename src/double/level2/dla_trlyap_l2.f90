@@ -132,7 +132,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date October 2023
+!> \date January 2024
 !> \ingroup dbltrlyap
 !
 SUBROUTINE DLA_TRLYAP_L2 ( TRANSA, M, A, LDA, X, LDX, SCALE, WORK, INFO)

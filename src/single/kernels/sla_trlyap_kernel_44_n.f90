@@ -103,7 +103,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date October 2023
+!> \date January 2024
 !> \ingroup sgltrlyap
 !
 SUBROUTINE SLA_TRLYAP_KERNEL_44N (M, A, LDA, X, LDX, SCALE, INFO)

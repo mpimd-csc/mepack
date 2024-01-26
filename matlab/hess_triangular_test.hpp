@@ -35,6 +35,6 @@ static bool mepack_mexoct_check_hess_triangular(mexoct::ArrayType<T>& A, mexoct:
                 return false;
         }
     }
-    return true;
+    return b_triag;
 }
 

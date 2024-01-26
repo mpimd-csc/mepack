@@ -193,7 +193,7 @@
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 
 void mepack_double_gglyap(const char * FACT, const char *TRANS, int M, double * A,  int LDA, double *B, int LDB,
@@ -388,7 +388,7 @@ void mepack_double_gglyap(const char * FACT, const char *TRANS, int M, double * 
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 
 

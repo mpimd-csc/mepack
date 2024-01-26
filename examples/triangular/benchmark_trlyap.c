@@ -195,7 +195,7 @@ static void context_lyap_iter_prepare(void * _ctx) {
 
 static void context_lyap_iter_solve(void *_ctx){
     context_lyap_t * ctx = _ctx;
-    int info= 0;
+    int info = 0;
 
     if ( ctx->isolver < 7 ) {
         MEPACK_PREFIX(trlyap_level3)(ctx->TRANSA, ctx->M,
@@ -218,10 +218,12 @@ static void context_lyap_iter_solve(void *_ctx){
     }
 #if defined(RECSY) && !defined (SINGLE_PRECISION)
     else if ( ctx->isolver == 25 ) {
-        FC_GLOBAL_(reclyct,RECLYCT)(&ctx->type, &ctx->scale, &ctx->M, ctx->A, &ctx->LDA, ctx->X, &ctx->LDX,  &info, ctx->MACHINE_RECSY);
+        Int infox = 0;
+        FC_GLOBAL_(reclyct,RECLYCT)(&ctx->type, &ctx->scale, &ctx->M, ctx->A, &ctx->LDA, ctx->X, &ctx->LDX,  &infox, ctx->MACHINE_RECSY);
     } else if ( ctx->isolver == 26 ) {
         Int proc = omp_get_num_procs();
-        FC_GLOBAL_(reclyct_p,RECLYCT_P)(&proc, &ctx->type, &ctx->scale, &ctx->M, ctx->A, &ctx->LDA, ctx->X, &ctx->LDX, &info, ctx->MACHINE_RECSY);
+        Int infox = 0;
+        FC_GLOBAL_(reclyct_p,RECLYCT_P)(&proc, &ctx->type, &ctx->scale, &ctx->M, ctx->A, &ctx->LDA, ctx->X, &ctx->LDX, &infox, ctx->MACHINE_RECSY);
     }
 #endif
 #ifndef SINGLE_PRECISION
@@ -232,9 +234,9 @@ static void context_lyap_iter_solve(void *_ctx){
         } else {
             TRANSX[0]='N';
         }
+        Int infox = 0;
 
-
-        FC_GLOBAL_(sb03my,SB03MY)(TRANSX, &ctx->M, ctx->A, &ctx->LDA, ctx->X, &ctx->LDX, &ctx->scale, &info, 1);
+        FC_GLOBAL_(sb03my,SB03MY)(TRANSX, &ctx->M, ctx->A, &ctx->LDA, ctx->X, &ctx->LDX, &ctx->scale, &infox, 1);
     }
 #endif
 }

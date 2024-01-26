@@ -40,7 +40,7 @@
     A ** T * X  +  X * A = SCALE * Y                              (2)
 
  where A is a M-by-M general matrix or a matrix in upper Hessenberg form.
- The right hand side Y and the solution X are M-by-M matrices.  
+ The right hand side Y and the solution X are M-by-M matrices.
  The general matrix A can supplied factorized in terms of its
  Schur decomposition.
 
@@ -161,7 +161,7 @@
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
  */
 void mepack_double_gelyap(const char * FACT, const char *TRANS, int M, double * A,  int LDA, double * Q, int LDQ, double *X, int LDX,
         double * SCALE, double *WORK, size_t LDWORK, int *INFO)
@@ -322,7 +322,7 @@ void mepack_double_gelyap(const char * FACT, const char *TRANS, int M, double * 
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
  */
 void mepack_single_gelyap(const char * FACT, const char *TRANS, int M, float * A,  int LDA, float * Q, int LDQ, float *X, int LDX,
         float * SCALE, float *WORK, size_t LDWORK, int *INFO)

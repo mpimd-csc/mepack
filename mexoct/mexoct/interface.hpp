@@ -27,7 +27,7 @@
 #    define MEXOCT_EXTERN_C extern
 #  endif
 #endif
-#ifdef _MSC_VER
+#if defined(_WIN32) || defined(_MSC_VER)
 #define MEXOCT_DLL_EXPORT_SYM __declspec(dllexport)
 #define MEXOCT_DLL_IMPORT_SYM __declspec(dllimport)
 #elif __GNUC__ >= 4
@@ -174,7 +174,9 @@ lu_nopiv  LU decomposition without pivoting\n\
  */
 #ifdef MEXOCT_OCTAVE
     #define MEXOCT_INIT()           octave_value_list * __mexoct_retval;
-    #define MEXOCT_ENTRY(name,desc) DEFUN_DLD ( name , __mexoct_args, __mexoct_nargout, desc )
+    #define MEXOCT_ENTRY(name,desc) char const * octHelpTxt = desc; \
+                                    MEXOCT_EXTERN_C char const * octHelp(void) { return octHelpTxt; } \
+                                    DEFUN_DLD ( name , __mexoct_args, __mexoct_nargout, desc )
     #define MEXOCT_PARSE(parser)    try { \
                                         (parser).parse(__mexoct_nargout, &__mexoct_retval, __mexoct_args.length(),  __mexoct_args); \
                                     } catch ( MexOctException & e ) { \

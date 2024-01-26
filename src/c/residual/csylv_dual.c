@@ -193,7 +193,7 @@
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 
 
  */
@@ -389,7 +389,7 @@ double mepack_double_residual_csylv_dual(const char * TRANSA, const char *TRANSB
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 
 
  */

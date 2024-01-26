@@ -78,7 +78,6 @@ static void context_sylv2_init(void *_ctx, Int M, Int N, Int ISolver, Int MB, In
     Int i;
     (void) sgn2;
 
-    printf("MB %d NB %d\n", MB, NB);
     MEPACK_PREFIX(trsylv2_blocksize_2stage_set)(BIGMB);
     MEPACK_PREFIX(trsylv2_blocksize_mb_set)(MB);
     MEPACK_PREFIX(trsylv2_blocksize_nb_set)(NB);
@@ -221,7 +220,7 @@ static void context_sylv2_iter_prepare(void * _ctx) {
 
 static void context_sylv2_iter_solve(void *_ctx){
     context_sylv2_t * ctx = _ctx;
-    Int info= 0;
+    int info= 0;
 
     if ( ctx->isolver < 7 ) {
         MEPACK_PREFIX(trsylv2_level3)(ctx->TRANSA, ctx->TRANSB, ctx->sgn, ctx->M, ctx->N,
@@ -272,13 +271,15 @@ static void context_sylv2_iter_solve(void *_ctx){
 #if defined(RECSY) && !defined (SINGLE_PRECISION)
     else if ( ctx->isolver == 25 ) {
         Int N2 = ctx->M * ctx->N;
-        FC_GLOBAL_(recsydt,RECSYDT)(&ctx->type, &ctx->scale, &ctx->M, &ctx->N, ctx->A, &ctx->LDA, ctx->B, &ctx->LDB, ctx->X, &ctx->LDX,  &info, ctx->MACHINE_RECSY,
+        Int infox = 0;
+        FC_GLOBAL_(recsydt,RECSYDT)(&ctx->type, &ctx->scale, &ctx->M, &ctx->N, ctx->A, &ctx->LDA, ctx->B, &ctx->LDB, ctx->X, &ctx->LDX,  &infox, ctx->MACHINE_RECSY,
                 ctx->work, &N2);
     } else if ( ctx->isolver == 26 ) {
         Int N2 = ctx->M * ctx->N;
+        Int infox = 0;
         Int proc = omp_get_num_procs();
         FC_GLOBAL_(recsydt_p,RECSYDT_P)(&proc, &ctx->type, &ctx->scale, &ctx->M, &ctx->N, ctx->A, &ctx->LDA, ctx->B, &ctx->LDB,
-                ctx->X, &ctx->LDX, &info, ctx->MACHINE_RECSY, ctx->work, &N2);
+                ctx->X, &ctx->LDX, &infox, ctx->MACHINE_RECSY, ctx->work, &N2);
     }
 #endif
 }

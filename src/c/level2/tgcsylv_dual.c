@@ -225,7 +225,7 @@
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 
 void mepack_double_tgcsylv_dual_level2(const char *TRANSA, const char*TRANSB, double SGN1, double SGN2,  int M, int N,
@@ -454,7 +454,7 @@ void mepack_double_tgcsylv_dual_level2(const char *TRANSA, const char*TRANSB, do
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 
 void mepack_double_tgcsylv_dual_level2_local_copy(const char *TRANSA, const char*TRANSB, double SGN1, double SGN2,  int M, int N,
@@ -683,7 +683,7 @@ void mepack_double_tgcsylv_dual_level2_local_copy(const char *TRANSA, const char
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 
 void mepack_double_tgcsylv_dual_level2_local_copy_32(const char *TRANSA, const char*TRANSB, double SGN1, double SGN2,  int M, int N,
@@ -911,7 +911,7 @@ void mepack_double_tgcsylv_dual_level2_local_copy_32(const char *TRANSA, const c
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 
 void mepack_double_tgcsylv_dual_level2_local_copy_64(const char *TRANSA, const char*TRANSB, double SGN1, double SGN2,  int M, int N,
@@ -1140,7 +1140,7 @@ void mepack_double_tgcsylv_dual_level2_local_copy_64(const char *TRANSA, const c
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 
 
@@ -1369,7 +1369,7 @@ void mepack_double_tgcsylv_dual_level2_local_copy_96(const char *TRANSA, const c
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 
 
@@ -1598,7 +1598,7 @@ void mepack_double_tgcsylv_dual_level2_local_copy_128(const char *TRANSA, const 
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 void mepack_single_tgcsylv_dual_level2(const char *TRANSA, const char*TRANSB, float SGN1, float SGN2,  int M, int N,
         float * A, int LDA,float * B, int LDB, float *C, int LDC, float *D, int LDD,
@@ -1825,7 +1825,7 @@ void mepack_single_tgcsylv_dual_level2(const char *TRANSA, const char*TRANSB, fl
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 
 
@@ -2055,7 +2055,7 @@ void mepack_single_tgcsylv_dual_level2_local_copy(const char *TRANSA, const char
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 
 
@@ -2285,7 +2285,7 @@ void mepack_single_tgcsylv_dual_level2_local_copy_32(const char *TRANSA, const c
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 
 void mepack_single_tgcsylv_dual_level2_local_copy_64(const char *TRANSA, const char*TRANSB, float SGN1, float SGN2,  int M, int N,
@@ -2514,7 +2514,7 @@ void mepack_single_tgcsylv_dual_level2_local_copy_64(const char *TRANSA, const c
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 
 
@@ -2745,7 +2745,7 @@ void mepack_single_tgcsylv_dual_level2_local_copy_96(const char *TRANSA, const c
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 
 

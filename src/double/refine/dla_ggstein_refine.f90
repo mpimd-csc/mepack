@@ -237,7 +237,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date October 2023
+!> \date January 2024
 !> \ingroup dbltglyap
 !
 SUBROUTINE DLA_GGSTEIN_REFINE(TRANS, GUESS, M ,  &

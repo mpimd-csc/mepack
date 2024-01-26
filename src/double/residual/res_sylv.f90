@@ -142,7 +142,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date October 2023
+!> \date January 2024
 !> \ingroup residual
 !
 FUNCTION DLA_RESIDUAL_SYLV(TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, X, LDX, Y, LDY, SCALE)

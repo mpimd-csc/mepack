@@ -127,7 +127,7 @@
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 void mepack_double_trlyap_level2(const char *TRANS, int M, double * A, int LDA, double *X, int LDX, double * SCALE, double *WORK, int *INFO)
 {
@@ -244,7 +244,7 @@ void mepack_double_trlyap_level2(const char *TRANS, int M, double * A, int LDA, 
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 void mepack_double_trlyap_level2_opt(const char *TRANS, int M, double * A, int LDA, double *X, int LDX, double * SCALE, double *WORK, int *INFO)
 {
@@ -360,7 +360,7 @@ void mepack_double_trlyap_level2_opt(const char *TRANS, int M, double * A, int L
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 void mepack_single_trlyap_level2(const char *TRANS, int M, float * A, int LDA, float *X, int LDX, float * SCALE, float *WORK, int *INFO)
 {
@@ -477,7 +477,7 @@ void mepack_single_trlyap_level2(const char *TRANS, int M, float * A, int LDA, f
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 void mepack_single_trlyap_level2_opt(const char *TRANS, int M, float * A, int LDA, float *X, int LDX, float * SCALE, float *WORK, int *INFO)
 {

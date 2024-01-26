@@ -147,7 +147,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg 
 !
-!> \date October 2023
+!> \date January 2024
 !> \ingroup sglaux 
 !
 SUBROUTINE SLA_QTRMM2(SIDE, TRANS, M, N, ALPHA, A, LDA, B, LDB, C, LDC)

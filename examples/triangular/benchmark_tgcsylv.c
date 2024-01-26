@@ -248,7 +248,7 @@ static void context_csylv_iter_prepare(void * _ctx) {
 
 static void context_csylv_iter_solve(void *_ctx){
     context_csylv_t * ctx = _ctx;
-    int info= 0;
+    int info = 0;
 
     if ( ctx->isolver < 7 ) {
         MEPACK_PREFIX(tgcsylv_level3)(ctx->TRANSA, ctx->TRANSB, ctx->sgn1, ctx->sgn2,  ctx->M, ctx->N,
@@ -299,11 +299,13 @@ static void context_csylv_iter_solve(void *_ctx){
 
 #if defined(RECSY) && !defined (SINGLE_PRECISION)
     else if ( ctx->isolver == 25 ) {
-        FC_GLOBAL_(recgcsy,RECGCSY)(&ctx->type, &ctx->scale, &ctx->M, &ctx->N, ctx->A, &ctx->LDA, ctx->B, &ctx->LDB, ctx->R, &ctx->LDR, ctx->C, &ctx->LDC, ctx->D, &ctx->LDD, ctx->L, &ctx->LDL,  &info, ctx->MACHINE_RECSY);
+        Int infox = 0;
+        FC_GLOBAL_(recgcsy,RECGCSY)(&ctx->type, &ctx->scale, &ctx->M, &ctx->N, ctx->A, &ctx->LDA, ctx->B, &ctx->LDB, ctx->R, &ctx->LDR, ctx->C, &ctx->LDC, ctx->D, &ctx->LDD, ctx->L, &ctx->LDL,  &infox, ctx->MACHINE_RECSY);
     } else if ( ctx->isolver == 26 ) {
         Int proc = omp_get_num_procs();
+        Int infox = 0;
         FC_GLOBAL_(recgcsy_p,RECGCSY_P)(&proc, &ctx->type, &ctx->scale, &ctx->M, &ctx->N, ctx->A, &ctx->LDA, ctx->B, &ctx->LDB, ctx->R, &ctx->LDR,
-                ctx->C, &ctx->LDC, ctx->D, &ctx->LDD,ctx->L, &ctx->LDL,  &info, ctx->MACHINE_RECSY);
+                ctx->C, &ctx->LDC, ctx->D, &ctx->LDD,ctx->L, &ctx->LDL,  &infox, ctx->MACHINE_RECSY);
     }
 #endif
 }

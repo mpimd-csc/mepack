@@ -118,7 +118,7 @@
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 
 
  */
@@ -231,7 +231,7 @@ double mepack_double_residual_glyap(const char * TRANS, int M, double *A, int LD
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 
 
  */

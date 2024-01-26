@@ -1,3 +1,12 @@
+Version 1.1.1 (January 26, 2024)
+=================================
+
+- Enable Windows building with MingW
+- Enable mex files for Windows with MingW
+- Fix compilation error in the examples/ folder, see GH #2
+- Fix Hessenberg-Triangular Detection in MATLAB/Octave interfaces
+
+
 Version 1.1.0 (October 18, 2023)
 ================================
 

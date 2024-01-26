@@ -13,6 +13,7 @@
 build*
 deploy/*
 doc/explore-html/*
+matlab-dist/
 mepack-external/
 mepack.wiki
 output_err

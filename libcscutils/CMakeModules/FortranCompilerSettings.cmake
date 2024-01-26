@@ -32,7 +32,7 @@ FUNCTION(ADD_FORTRAN_COMPILER_FLAG VAR FLAGNAME )
     SET(FORTRAN_${FLAGNAME}_WORK ${_WORKS} CACHE INTERNAL "Fortran Compiler supports ${FLAGNAME}")
 
     IF ( _WORKS)
-        SET(${VAR} "${${VAR}} ${FLAGNAME}" CACHE INTERNAL "")
+        SET(${VAR} "${${VAR}} ${FLAGNAME}" CACHE INTERNAL "" )
         MESSAGE(STATUS "Fortran compiler supports ${FLAGNAME}")
     ELSE()
         MESSAGE(STATUS "Fortran compiler does not support ${FLAGNAME}")
@@ -72,7 +72,7 @@ IF(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
     ENDIF()
 
     IF(INTEGER8 STREQUAL ON)
-        SET(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fdefault-integer-8" CACHE INTERNAL "")
+        ADD_FORTRAN_COMPILER_FLAG(CMAKE_Fortran_FLAGS "-fdefault-integer-8")
     ENDIF()
 
     IF(HOSTOPT STREQUAL ON)

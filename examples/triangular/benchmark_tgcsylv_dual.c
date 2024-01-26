@@ -249,7 +249,7 @@ static void context_csylv_iter_prepare(void * _ctx) {
 
 static void context_csylv_iter_solve(void *_ctx){
     context_csylv_t * ctx = _ctx;
-    int info= 0;
+    int info = 0;
 
     if ( ctx->isolver < 7 ) {
         MEPACK_PREFIX(tgcsylv_dual_level3)(ctx->TRANSA, ctx->TRANSB, ctx->sgn1, ctx->sgn2,  ctx->M, ctx->N,

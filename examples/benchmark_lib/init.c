@@ -29,6 +29,11 @@
 
 #include "benchmark.h"
 
+#ifdef _WIN32
+#define PATH_SEP "\\"
+#else
+#define PATH_SEP "/"
+#endif
 
 char *hdfstore_path = NULL;
 
@@ -38,19 +43,23 @@ void benchmark_init(void)
     hdfstore_path = malloc(sizeof(char) * PATH_LEN + 128);
 
     if (getenv("MEPACK_HDF_PATH") == NULL) {
-        strncpy(hdfstore_path, "./", PATH_LEN);
+#ifdef _WIN32
+	    strncpy(hdfstore_path, ".\\", PATH_LEN);
+#else
+	    strncpy(hdfstore_path, "./", PATH_LEN);
+#endif 
     } else {
         strncpy(hdfstore_path, getenv("MEPACK_HDF_PATH"), PATH_LEN);
     }
     fprintf(stdout, "# HDF5 Store Path: %s (set with MEPACK_HDF_PATH)\n", hdfstore_path);
 
-    snprintf(tmp, PATH_LEN, "%s/qr", hdfstore_path);
+    snprintf(tmp, PATH_LEN, "%s" PATH_SEP "qr", hdfstore_path);
     if ( csc_file_mkdir(tmp, S_IRUSR|S_IWUSR|S_IXUSR) ) {
         fprintf(stderr, "Failed to create %s\n", tmp);
         exit(-1);
     }
 
-    snprintf(tmp, PATH_LEN, "%s/qz", hdfstore_path);
+    snprintf(tmp, PATH_LEN, "%s" PATH_SEP "qz", hdfstore_path);
     if ( csc_file_mkdir(tmp, S_IRUSR|S_IWUSR|S_IXUSR)) {
         fprintf(stderr, "Failed to create %s\n", tmp);
         exit(-1);

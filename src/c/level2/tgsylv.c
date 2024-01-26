@@ -190,7 +190,7 @@
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 void mepack_double_tgsylv_level2_local_copy_32 (const char *TRANSA, const char*TRANSB, double SGN,
         int M, int N, double * A, int LDA, double * B, int LDB,
@@ -384,7 +384,7 @@ void mepack_double_tgsylv_level2_local_copy_32 (const char *TRANSA, const char*T
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 void mepack_double_tgsylv_level2_local_copy_64 (const char *TRANSA, const char*TRANSB, double SGN,
         int M, int N, double * A, int LDA, double * B, int LDB,
@@ -578,7 +578,7 @@ void mepack_double_tgsylv_level2_local_copy_64 (const char *TRANSA, const char*T
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 void mepack_double_tgsylv_level2_local_copy_96 (const char *TRANSA, const char*TRANSB, double SGN,
         int M, int N, double * A, int LDA, double * B, int LDB,
@@ -772,7 +772,7 @@ void mepack_double_tgsylv_level2_local_copy_96 (const char *TRANSA, const char*T
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 void mepack_double_tgsylv_level2_local_copy_128 (const char *TRANSA, const char*TRANSB, double SGN,
         int M, int N, double * A, int LDA, double * B, int LDB,
@@ -966,7 +966,7 @@ void mepack_double_tgsylv_level2_local_copy_128 (const char *TRANSA, const char*
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 void mepack_double_tgsylv_level2_local_copy(const char *TRANSA, const char*TRANSB, double SGN,
         int M, int N, double * A, int LDA, double * B, int LDB,
@@ -1160,7 +1160,7 @@ void mepack_double_tgsylv_level2_local_copy(const char *TRANSA, const char*TRANS
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 void mepack_double_tgsylv_level2_reorder(const char *TRANSA, const char*TRANSB, double SGN,
         int M, int N, double * A, int LDA, double * B, int LDB,
@@ -1354,7 +1354,7 @@ void mepack_double_tgsylv_level2_reorder(const char *TRANSA, const char*TRANSB, 
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 void mepack_double_tgsylv_level2(const char *TRANSA, const char*TRANSB, double SGN,
         int M, int N, double * A, int LDA, double * B, int LDB,
@@ -1548,7 +1548,7 @@ void mepack_double_tgsylv_level2(const char *TRANSA, const char*TRANSB, double S
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 void mepack_double_tgsylv_level2_rowwise(const char *TRANSA, const char*TRANSB, double SGN,
         int M, int N, double * A, int LDA, double * B, int LDB,
@@ -1742,7 +1742,7 @@ void mepack_double_tgsylv_level2_rowwise(const char *TRANSA, const char*TRANSB, 
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 void mepack_double_tgsylv_level2_colwise(const char *TRANSA, const char*TRANSB, double SGN,
         int M, int N, double * A, int LDA, double * B, int LDB,
@@ -1936,7 +1936,7 @@ void mepack_double_tgsylv_level2_colwise(const char *TRANSA, const char*TRANSB, 
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 void mepack_double_tgsylv_gardiner_laub(const char *TRANSA, const char*TRANSB, double SGN,
         int M, int N, double * A, int LDA, double * B, int LDB,
@@ -2131,7 +2131,7 @@ void mepack_double_tgsylv_gardiner_laub(const char *TRANSA, const char*TRANSB, d
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 
 void mepack_single_tgsylv_level2_local_copy_32 (const char *TRANSA, const char*TRANSB, float SGN,
@@ -2326,7 +2326,7 @@ void mepack_single_tgsylv_level2_local_copy_32 (const char *TRANSA, const char*T
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 
 
@@ -2522,7 +2522,7 @@ void mepack_single_tgsylv_level2_local_copy_64 (const char *TRANSA, const char*T
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 
 
@@ -2718,7 +2718,7 @@ void mepack_single_tgsylv_level2_local_copy_96 (const char *TRANSA, const char*T
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 
 
@@ -2914,7 +2914,7 @@ void mepack_single_tgsylv_level2_local_copy_128 (const char *TRANSA, const char*
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 
 
@@ -3110,7 +3110,7 @@ void mepack_single_tgsylv_level2_local_copy(const char *TRANSA, const char*TRANS
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 void mepack_single_tgsylv_level2_reorder(const char *TRANSA, const char*TRANSB, float SGN,
         int M, int N, float * A, int LDA, float * B, int LDB,
@@ -3306,7 +3306,7 @@ void mepack_single_tgsylv_level2_reorder(const char *TRANSA, const char*TRANSB, 
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 void mepack_single_tgsylv_level2(const char *TRANSA, const char*TRANSB, float SGN,
         int M, int N, float * A, int LDA, float * B, int LDB,
@@ -3500,7 +3500,7 @@ void mepack_single_tgsylv_level2(const char *TRANSA, const char*TRANSB, float SG
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 void mepack_single_tgsylv_level2_rowwise(const char *TRANSA, const char*TRANSB, float SGN,
         int M, int N, float * A, int LDA, float * B, int LDB,
@@ -3694,7 +3694,7 @@ void mepack_single_tgsylv_level2_rowwise(const char *TRANSA, const char*TRANSB, 
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 void mepack_single_tgsylv_level2_colwise(const char *TRANSA, const char*TRANSB, float SGN,
         int M, int N, float * A, int LDA, float * B, int LDB,
@@ -3889,7 +3889,7 @@ void mepack_single_tgsylv_level2_colwise(const char *TRANSA, const char*TRANSB, 
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 void mepack_single_tgsylv_gardiner_laub(const char *TRANSA, const char*TRANSB, float SGN,
         int M, int N, float * A, int LDA, float * B, int LDB,

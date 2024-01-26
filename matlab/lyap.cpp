@@ -131,7 +131,7 @@ LyapDriver( ArrayType<T> A, ArrayType<T> Y, ArrayType<T> Q, std::string opA = st
     auxmem = mepack_memory_frontend(lyap_solver<T>::fn, factA.c_str(), factA.c_str(), A.rows, A.columns);
 
     if ( auxmem < 0 ) {
-        mexoct_error("MEPACK:mepack_memory", "Failed to obtain the size of the auxiliary memory.");
+        mexoct_error("MEPACK:mepack_memory", "Failed to obtain the size of the auxiliary memory. Return Code = %d", (int) auxmem);
     }
 
     MEXOCT_BUFFER(T, auxbuf, auxmem);

@@ -166,7 +166,7 @@ int main(int argc, char **argv)
 
     double *QA, *QB;
     double *X, *Xorig,*Work, *RHS, *Hwork, *Dwork, *Z;
-    int *Iwork;
+    Int *Iwork;
     Int M = 1024, N=1024;
     Int M_MIN=1024,M_MAX=1024,M_STEP=128;
     Int N_MIN=1024,N_MAX=1024,N_STEP=128;
@@ -524,7 +524,7 @@ optional_argument: "::" */
             mem = mepack_memory_frontend("DLA_GESYLV2", reusestr, reusestr, M, N);
 
             Work = (double *) malloc(sizeof(double) * (mem));
-            Iwork = (int *) malloc(sizeof(int) * (4 * M));
+            Iwork = (Int *) malloc(sizeof(Int) * (4 * M));
             Int ldworkx = 2 * M * M + 9 * M;
             Dwork = (double *) malloc(sizeof(double) * ldworkx);
 
@@ -593,6 +593,7 @@ optional_argument: "::" */
                 te = 0.0;
                 te2 = 0.0;
                 for (run = -1; run < RUNS; run++) {
+                    Int infox = 0 ;
                     FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &N, RHS, &M, X, &M, 1);
                     if ( run == -1 || !reuse ) {
                         FC_GLOBAL_(dlacpy,DLACPY)("All", &M, &M, Aorig, &M, A, &M, 1);
@@ -605,7 +606,7 @@ optional_argument: "::" */
                     if ( run == -1 || !reuse) {
                         if ( !hess ) {
                             if ( is == 27 && run != -1) {
-                                FC_GLOBAL_(sb04qd,SB04QD)(&M, &N, A, &M, B, &N, X, &M, Z, &N, Iwork, Dwork, &ldworkx, &info);
+                                FC_GLOBAL_(sb04qd,SB04QD)(&M, &N, A, &M, B, &N, X, &M, Z, &N, Iwork, Dwork, &ldworkx, &infox);
                             } else {
                                 mepack_double_gesylv2("N", "N", TRANSA, TRANSB, sign,  M, N, A, M, B, N, QA, M, QB, N, X, M, &scale, Work, ldwork,  &info);
                                 if ( is == 27 ) {
@@ -617,7 +618,7 @@ optional_argument: "::" */
                         }
                     } else {
                         if ( is == 27 ) {
-                            FC_GLOBAL_(sb04rd,SB04RD)("S", "U", "U", &M, &N, A, &M, B, &N, X, &M, NULL, NULL, Dwork, &ldworkx, &info, 1, 1, 1);
+                            FC_GLOBAL_(sb04rd,SB04RD)("S", "U", "U", &M, &N, A, &M, B, &N, X, &M, NULL, NULL, Dwork, &ldworkx, &infox, 1, 1, 1);
                         } else {
                             mepack_double_gesylv2("F", "F", TRANSA, TRANSB, sign,  M, N, A, M, B, N, QA, M, QB, N, X, M, &scale, Work, ldwork,  &info);
                         }

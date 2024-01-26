@@ -126,7 +126,7 @@
 !> \author Univ. of Colorado Denver
 !> \author NAG Ltd.
 !
-!> \date October 2023
+!> \date January 2024
 !
 !> \ingroup double_blas_level2
 !

@@ -443,43 +443,37 @@ SET (C_INTERFACE_SRC
 
 SET(SRC ${DOUBLE_SRC} ${SINGLE_SRC} ${C_INTERFACE_SRC} ${MISC_SRC})
 
+IF (MINGW)
+	SET(SRC ${SRC} mepack.def)
+ENDIF()
+
 # Integrate the version number
 SET_SOURCE_FILES_PROPERTIES(common/version.c PROPERTIES COMPILE_DEFINITIONS "MEPACK_MAJOR=${PROJECT_VERSION_MAJOR};MEPACK_MINOR=${PROJECT_VERSION_MINOR};MEPACK_PATCH_LEVEL=${PROJECT_VERSION_PATCH}")
 SET_SOURCE_FILES_PROPERTIES(common/version.F90 PROPERTIES COMPILE_DEFINITIONS "MEPACK_MAJOR=${PROJECT_VERSION_MAJOR};MEPACK_MINOR=${PROJECT_VERSION_MINOR};MEPACK_PATCH_LEVEL=${PROJECT_VERSION_PATCH}")
 
+#
+# Default LUA Config
+#
+INCLUDE(${PROJECT_SOURCE_DIR}/libcscutils/src/lua/LuaInterface.cmake)
+
 # Add the libraries
+IF(BUILD_DYNAMIC STREQUAL ON)
+    ADD_LIBRARY(mepack SHARED ${SRC} $<TARGET_OBJECTS:lapack_missing> $<TARGET_OBJECTS:cscutils_lua_src> $<TARGET_OBJECTS:lua_src>)
 
-ADD_LIBRARY(mepack SHARED ${SRC} $<TARGET_OBJECTS:lapack_missing> $<TARGET_OBJECTS:cscutils_lua_src> $<TARGET_OBJECTS:lua_src> $<$<BOOL:${STARPU_FOUND}>:$<TARGET_OBJECTS:mepack_starpu>>)
+    IF (CMAKE_C_COMPILER_ID MATCHES "Intel.*")
+        ADD_VERSION_SCRIPT(mepack ${CMAKE_CURRENT_SOURCE_DIR}/mepack.intel.map)
+    ELSE()
+        ADD_VERSION_SCRIPT(mepack ${CMAKE_CURRENT_SOURCE_DIR}/mepack.map)
+    ENDIF()
 
-IF (CMAKE_C_COMPILER_ID MATCHES "Intel.*")
-    ADD_VERSION_SCRIPT(mepack ${CMAKE_CURRENT_SOURCE_DIR}/mepack.intel.map)
-ELSE()
-    ADD_VERSION_SCRIPT(mepack ${CMAKE_CURRENT_SOURCE_DIR}/mepack.map)
-ENDIF()
-
-IF(BUILD_STATIC STREQUAL "ON")
-    ADD_LIBRARY(mepack_static STATIC ${SRC} $<TARGET_OBJECTS:lapack_missing> $<TARGET_OBJECTS:cscutils_lua_src> $<TARGET_OBJECTS:lua_src> )
-ENDIF()
-
-# Generate the export headers
-generate_export_header(mepack
-    EXPORT_FILE_NAME mepack_exports.h
-    INCLUDE_GUARD_NAME MEPACK${MEPACK_SUFFIX}_EXPORTS_H
-    BASE_NAME mepack
-)
-
-MACRO(MEPACK_LINK_LIBRARIES target)
     TARGET_LINK_LIBRARIES(
-        ${target}
+        mepack
             PUBLIC
                 OpenMP::OpenMP_Fortran
                 ${LAPACK_LIBRARIES}
                 ${BLAS_LIBRARIES}
         )
-ENDMACRO(MEPACK_LINK_LIBRARIES)
-
-
-TARGET_INCLUDE_DIRECTORIES(
+    TARGET_INCLUDE_DIRECTORIES(
         mepack
         PUBLIC
             $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
@@ -490,22 +484,52 @@ TARGET_INCLUDE_DIRECTORIES(
             $<INSTALL_INTERFACE:${CMAKE_INSTALL_FULL_MODULEDIR}>
         PRIVATE
             $<TARGET_PROPERTY:cscutils_src,INCLUDE_DIRECTORIES>
-     )
-MEPACK_LINK_LIBRARIES(mepack)
+    )
+    SET_TARGET_PROPERTIES(mepack PROPERTIES Fortran_MODULE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/f90mod-shared")
+    SET_TARGET_PROPERTIES(mepack PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION ${PROJECT_VERSION_MAJOR}  )
+    SET_PROPERTY(TARGET mepack PROPERTY
+                               PUBLIC_HEADER
+                                    "${CMAKE_CURRENT_SOURCE_DIR}/mepack.h"
+                                    "${CMAKE_CURRENT_BINARY_DIR}/mepack_exports.h"
+                         )
+
+    SET_TARGET_PROPERTIES(mepack PROPERTIES OUTPUT_NAME mepack${MEPACK_SUFFIX}
+	WINDOWS_EXPORT_ALL_SYMBOLS ON)
+    IF ( NOT MEPACK_LUA_CONFIG )
+        CSC_LUA_ADD_INLINE_CODE(mepack ${CMAKE_CURRENT_SOURCE_DIR}/default_config.lua VARNAME mepack_default_config_code FUNCTIONNAME mepack_default_config)
+    ELSE()
+        CSC_LUA_ADD_INLINE_CODE(mepack ${MEPACK_LUA_CONFIG} VARNAME mepack_default_config_code FUNCTIONNAME mepack_default_config)
+    ENDIF()
+
+    # Generate the export headers
+    generate_export_header(mepack
+    	EXPORT_FILE_NAME mepack_exports.h
+    	INCLUDE_GUARD_NAME MEPACK${MEPACK_SUFFIX}_EXPORTS_H
+    	BASE_NAME mepack
+    )
+
+    ADD_LIBRARY(MEPACK::mepack ALIAS mepack)
+
+    INSTALL(TARGETS mepack
+        EXPORT MEPACKTargets
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/mepack${MEPACK_SUFFIX}
+    )
+
+    INSTALL(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/f90mod-shared/" DESTINATION ${CMAKE_INSTALL_FULL_MODULEDIR})
+
+ENDIF()
 
 
-SET_TARGET_PROPERTIES(mepack PROPERTIES Fortran_MODULE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/f90mod-shared")
-SET_TARGET_PROPERTIES(mepack PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION ${PROJECT_VERSION_MAJOR}  )
-SET_PROPERTY(TARGET mepack PROPERTY
-                           PUBLIC_HEADER
-                                "${CMAKE_CURRENT_SOURCE_DIR}/mepack.h"
-                                "${CMAKE_CURRENT_BINARY_DIR}/mepack_exports.h"
-                     )
 
-SET_TARGET_PROPERTIES(mepack PROPERTIES OUTPUT_NAME mepack${MEPACK_SUFFIX})
+
 
 IF(BUILD_STATIC STREQUAL "ON")
-    SET_TARGET_PROPERTIES(mepack_static PROPERTIES COMPILE_FLAGS -DMEPACK_STATIC_DEFINE)
+    ADD_LIBRARY(mepack_static STATIC ${SRC} $<TARGET_OBJECTS:cscutils_lua_src> $<TARGET_OBJECTS:lua_src> )
+    TARGET_COMPILE_OPTIONS(mepack_static PUBLIC ${OpenMP_Fortran_FLAGS})
+    TARGET_COMPILE_DEFINITIONS(mepack_static PRIVATE -DMEPACK_STATIC_DEFINE)
 
     TARGET_INCLUDE_DIRECTORIES(
         mepack_static
@@ -519,7 +543,11 @@ IF(BUILD_STATIC STREQUAL "ON")
         PRIVATE
             $<TARGET_PROPERTY:cscutils_src,INCLUDE_DIRECTORIES>
     )
-    MEPACK_LINK_LIBRARIES(mepack_static)
+    # TARGET_LINK_LIBRARIES(
+        # mepack_static
+            # PUBLIC
+                # OpenMP::OpenMP_Fortran
+        # )
     SET_TARGET_PROPERTIES(mepack_static PROPERTIES Fortran_MODULE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/f90mod-static")
 
     SET_PROPERTY(TARGET mepack_static PROPERTY
@@ -529,27 +557,30 @@ IF(BUILD_STATIC STREQUAL "ON")
                      )
 
     SET_TARGET_PROPERTIES(mepack_static PROPERTIES OUTPUT_NAME mepack${MEPACK_SUFFIX})
-ENDIF()
-
-
-
-#
-# Default LUA Config
-#
-INCLUDE(${PROJECT_SOURCE_DIR}/libcscutils/src/lua/LuaInterface.cmake)
-IF ( NOT MEPACK_LUA_CONFIG )
-    CSC_LUA_ADD_INLINE_CODE(mepack ${CMAKE_CURRENT_SOURCE_DIR}/default_config.lua VARNAME mepack_default_config_code FUNCTIONNAME mepack_default_config)
-    IF(BUILD_STATIC STREQUAL "ON")
+    IF ( NOT MEPACK_LUA_CONFIG )
         CSC_LUA_ADD_INLINE_CODE(mepack_static ${CMAKE_CURRENT_SOURCE_DIR}/default_config.lua VARNAME mepack_default_config_code FUNCTIONNAME mepack_default_config)
-    ENDIF()
-ELSE()
-    CSC_LUA_ADD_INLINE_CODE(mepack ${MEPACK_LUA_CONFIG} VARNAME mepack_default_config_code FUNCTIONNAME mepack_default_config)
-    IF(BUILD_STATIC STREQUAL "ON")
+    ELSE()
         CSC_LUA_ADD_INLINE_CODE(mepack_static ${MEPACK_LUA_CONFIG} VARNAME mepack_default_config_code FUNCTIONNAME mepack_default_config)
     ENDIF()
+    IF (NOT BUILD_DYNAMIC)
+	# Generate the export headers
+	generate_export_header(mepack_static
+   		 EXPORT_FILE_NAME mepack_exports.h
+    		 INCLUDE_GUARD_NAME MEPACK${MEPACK_SUFFIX}_EXPORTS_H
+		 BASE_NAME mepack
+	)
+
+        INSTALL(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/f90mod-static/" DESTINATION ${CMAKE_INSTALL_FULL_MODULEDIR})
+    ENDIF()
+    ADD_LIBRARY(MEPACK::mepack_static ALIAS mepack_static)
+    INSTALL(TARGETS mepack_static
+        EXPORT MEPACKTargets
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/mepack${MEPACK_SUFFIX}
+    )
 ENDIF()
-
-
 
 # Fix missing files in coverage
 IF (COVERAGE STREQUAL ON)
@@ -570,34 +601,4 @@ IF (COVERAGE STREQUAL ON)
         ${CMAKE_CURRENT_BINARY_DIR}
     )
 ENDIF()
-
-
-ADD_LIBRARY(MEPACK::mepack ALIAS mepack)
-
-
-INSTALL(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/f90mod-shared/" DESTINATION ${CMAKE_INSTALL_FULL_MODULEDIR})
-
-INSTALL(TARGETS mepack
-    EXPORT MEPACKTargets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/mepack${MEPACK_SUFFIX}
-
-)
-IF(BUILD_STATIC STREQUAL "ON")
-    ADD_LIBRARY(MEPACK::mepack_static ALIAS mepack_static)
-    INSTALL(TARGETS mepack_static
-        EXPORT MEPACKTargets
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/mepack${MEPACK_SUFFIX}
-    )
-
-ENDIF()
-
-
-
-
 

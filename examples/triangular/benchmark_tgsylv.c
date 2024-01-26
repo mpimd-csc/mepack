@@ -237,7 +237,7 @@ static void context_sylv_iter_prepare(void * _ctx) {
 
 static void context_sylv_iter_solve(void *_ctx){
     context_gsylv_t * ctx = _ctx;
-    int info= 0;
+    int info = 0;
 
     if ( ctx->isolver < 7 ) {
         MEPACK_PREFIX(tgsylv_level3)(ctx->TRANSA, ctx->TRANSB, ctx->sgn, ctx->M, ctx->N,
@@ -289,13 +289,15 @@ static void context_sylv_iter_solve(void *_ctx){
 #if defined(RECSY) && !defined (SINGLE_PRECISION)
     else if ( ctx->isolver == 25 ) {
         Int N2 = ctx->M * ctx->N;
-        FC_GLOBAL_(recgsyl,RECGSYL)(&ctx->type, &ctx->scale, &ctx->M, &ctx->N, ctx->A, &ctx->LDA, ctx->B, &ctx->LDB, ctx->C, &ctx->LDC, ctx->D, &ctx->LDD, ctx->X, &ctx->LDX,  &info, ctx->MACHINE_RECSY,
+        Int infox = 0;
+        FC_GLOBAL_(recgsyl,RECGSYL)(&ctx->type, &ctx->scale, &ctx->M, &ctx->N, ctx->A, &ctx->LDA, ctx->B, &ctx->LDB, ctx->C, &ctx->LDC, ctx->D, &ctx->LDD, ctx->X, &ctx->LDX,  &infox, ctx->MACHINE_RECSY,
                 ctx->work, &N2);
     } else if ( ctx->isolver == 26 ) {
         Int N2 = ctx->M * ctx->N;
         Int proc = omp_get_num_procs();
+        Int infox = 0;
         FC_GLOBAL_(recgsyl_p,RECGSYL_P)(&proc, &ctx->type, &ctx->scale, &ctx->M, &ctx->N, ctx->A, &ctx->LDA, ctx->B, &ctx->LDB,
-                ctx->C, &ctx->LDC, ctx->D, &ctx->LDD, ctx->X, &ctx->LDX, &info, ctx->MACHINE_RECSY, ctx->work, &N2);
+                ctx->C, &ctx->LDC, ctx->D, &ctx->LDD, ctx->X, &ctx->LDX, &infox, ctx->MACHINE_RECSY, ctx->work, &N2);
     }
 #endif
     else if ( ctx->isolver == 27 ) {
@@ -305,6 +307,7 @@ static void context_sylv_iter_solve(void *_ctx){
 #if defined(GL705) && !defined (SINGLE_PRECISION)
     else if ( ctx->isolver == 28) {
         Int job = 0;
+        Int infox = 0;
         if (tolower(ctx->TRANSA[0])!='n' && tolower(ctx->TRANSB[0]) != 't') {
             fprintf(stderr, "# ---> Gardiner-Laub (Algorithm 705) only supports the (N,T) case <--- \n");
         }
@@ -313,7 +316,7 @@ static void context_sylv_iter_solve(void *_ctx){
         }
         Int * IWork = (Int *) malloc(sizeof(Int) * (2*ctx->M));
 
-        FC_GLOBAL(bkhs2,BKHS2) (&ctx->M, &ctx->N, ctx->A, &ctx->LDA, ctx->B, &ctx->LDB, ctx->C,&ctx->LDC,  ctx->D,&ctx->LDD,  ctx->X,&ctx->LDX,  ctx->work, IWork, &job, &info);
+        FC_GLOBAL(bkhs2,BKHS2) (&ctx->M, &ctx->N, ctx->A, &ctx->LDA, ctx->B, &ctx->LDB, ctx->C,&ctx->LDC,  ctx->D,&ctx->LDD,  ctx->X,&ctx->LDX,  ctx->work, IWork, &job, &infox);
         free(IWork);
     }
 #endif

@@ -23,6 +23,13 @@
 
 #include "benchmark.h"
 
+#ifdef _WIN32
+#define PATH_SEP "\\"
+#else
+#define PATH_SEP "/"
+#endif
+
+
 void benchmark_random_evp_double(Int M, Int *iseed,double *Ar, double *Q, double *A, Int sort)
 {
         Int N2 = M *M ;
@@ -43,7 +50,7 @@ void benchmark_random_evp_double(Int M, Int *iseed,double *Ar, double *Q, double
         iA  = (double *) malloc(sizeof(double) * (M*M));
         FC_GLOBAL(dlarnv,DLARNV)(&IDIST, iseed, &N2, iA);
 
-        snprintf(hdffile, PATH_LEN, "%s/qr/qr_%06d.h5", hdfstore_path, (int) M);
+        snprintf(hdffile, PATH_LEN, "%s" PATH_SEP "qr" PATH_SEP "qr_%06d.h5", hdfstore_path, (int) M);
         h5file = csc_hdf5_open(hdffile, "rw");
 
         snprintf(all, 512, "%s/%s", groupname_outer, groupname);
@@ -188,7 +195,7 @@ void benchmark_random_evp_float(Int M, Int *iseed,float *Ar, float *Q, float *A,
         iA  = (float *) malloc(sizeof(float) * (M*M));
         FC_GLOBAL(slarnv,SLARNV)(&IDIST, iseed, &N2, iA);
 
-        snprintf(hdffile, PATH_LEN, "%s/qr/qr_float_%06d.h5", hdfstore_path, (int) M);
+        snprintf(hdffile, PATH_LEN, "%s" PATH_SEP "qr" PATH_SEP "qr_float_%06d.h5", hdfstore_path, (int) M);
         h5file = csc_hdf5_open(hdffile, "rw");
 
         snprintf(all, 512, "%s/%s", groupname_outer, groupname);
@@ -337,7 +344,7 @@ void benchmark_random_gevp_double(Int M, Int *iseed, double *Ar, double *Cr, dou
         }
 
 
-        snprintf(hdffile, PATH_LEN, "%s/qz/qz_%06d.h5", hdfstore_path, (int) M);
+        snprintf(hdffile, PATH_LEN, "%s" PATH_SEP "qz" PATH_SEP "qz_%06d.h5", hdfstore_path, (int) M);
         h5file = csc_hdf5_open(hdffile, "rw");
 
 
@@ -522,7 +529,7 @@ void benchmark_random_gevp_float(Int M, Int *iseed, float *Ar, float *Cr, float 
         }
 
 
-        snprintf(hdffile, PATH_LEN, "%s/qz/qz_float_%06d.h5", hdfstore_path, (int) M);
+        snprintf(hdffile, PATH_LEN, "%s" PATH_SEP "qz" PATH_SEP "qz_float_%06d.h5", hdfstore_path, (int) M);
         h5file = csc_hdf5_open(hdffile, "rw");
 
 

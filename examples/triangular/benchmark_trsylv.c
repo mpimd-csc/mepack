@@ -220,7 +220,7 @@ static void context_sylv_iter_prepare(void * _ctx) {
 
 static void context_sylv_iter_solve(void *_ctx){
     context_sylv_t * ctx = _ctx;
-    int info= 0;
+    int info = 0;
 
     if ( ctx->isolver < 7 ) {
         MEPACK_PREFIX(trsylv_level3)(ctx->TRANSA, ctx->TRANSB, ctx->sgn, ctx->M, ctx->N,
@@ -270,22 +270,25 @@ static void context_sylv_iter_solve(void *_ctx){
     }
 #if defined(RECSY) && !defined (SINGLE_PRECISION)
     else if ( ctx->isolver == 25 ) {
-        FC_GLOBAL_(recsyct,RECSYCT)(&ctx->type, &ctx->scale, &ctx->M, &ctx->N, ctx->A, &ctx->LDA, ctx->B, &ctx->LDB, ctx->X, &ctx->LDX,  &info, ctx->MACHINE_RECSY);
+        Int infox = 0;
+        FC_GLOBAL_(recsyct,RECSYCT)(&ctx->type, &ctx->scale, &ctx->M, &ctx->N, ctx->A, &ctx->LDA, ctx->B, &ctx->LDB, ctx->X, &ctx->LDX,  &infox, ctx->MACHINE_RECSY);
     } else if ( ctx->isolver == 26 ) {
+        Int infox = 0;
         Int proc = omp_get_num_procs();
-        FC_GLOBAL_(recsyct_p,RECSYCT_P)(&proc, &ctx->type, &ctx->scale, &ctx->M, &ctx->N, ctx->A, &ctx->LDA, ctx->B, &ctx->LDB, ctx->X, &ctx->LDX, &info, ctx->MACHINE_RECSY);
+        FC_GLOBAL_(recsyct_p,RECSYCT_P)(&proc, &ctx->type, &ctx->scale, &ctx->M, &ctx->N, ctx->A, &ctx->LDA, ctx->B, &ctx->LDB, ctx->X, &ctx->LDX, &infox, ctx->MACHINE_RECSY);
     }
 #endif
     else if ( ctx->isolver == 29 ) {
         Int isgn;
+        Int infox = 0;
         if ( ctx->sgn < 0 )
             isgn = -1;
         else
             isgn = 1;
     #ifdef SINGLE_PRECISION
-        FC_GLOBAL_(strsyl,STRSYL)(ctx->TRANSA, ctx->TRANSB, &isgn, &ctx->M, &ctx->N, ctx->A, &ctx->LDA, ctx->B, &ctx->LDB,ctx->X,  &ctx->LDX, &ctx->scale, &info);
+        FC_GLOBAL_(strsyl,STRSYL)(ctx->TRANSA, ctx->TRANSB, &isgn, &ctx->M, &ctx->N, ctx->A, &ctx->LDA, ctx->B, &ctx->LDB,ctx->X,  &ctx->LDX, &ctx->scale, &infox);
     #else
-        FC_GLOBAL_(dtrsyl,DTRSYL)(ctx->TRANSA, ctx->TRANSB, &isgn, &ctx->M, &ctx->N, ctx->A, &ctx->LDA, ctx->B, &ctx->LDB,ctx->X,  &ctx->LDX, &ctx->scale, &info);
+        FC_GLOBAL_(dtrsyl,DTRSYL)(ctx->TRANSA, ctx->TRANSB, &isgn, &ctx->M, &ctx->N, ctx->A, &ctx->LDA, ctx->B, &ctx->LDB,ctx->X,  &ctx->LDX, &ctx->scale, &infox);
 #endif
 
     }

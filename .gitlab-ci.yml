@@ -249,6 +249,7 @@ release-job:
                 - matlab-2020b
                 - matlab-2021a
                 - matlab-2022a
+                - matlab-2023b
                 - octave-4.4
                 - octave-5.1
                 - octave-5.2
@@ -262,6 +263,7 @@ release-job:
                 - octave-8.1
                 - octave-8.2
                 - octave-8.3
+                - octave-8.4
                 - documentation
         script:
                 - |

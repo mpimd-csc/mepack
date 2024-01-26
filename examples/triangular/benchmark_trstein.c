@@ -195,7 +195,7 @@ static void context_stein_iter_prepare(void * _ctx) {
 
 static void context_stein_iter_solve(void *_ctx){
     context_stein_t * ctx = _ctx;
-    int info= 0;
+    int info = 0;
 
     if ( ctx->isolver < 7 ) {
         MEPACK_PREFIX(trstein_level3)(ctx->TRANSA, ctx->M,
@@ -219,11 +219,13 @@ static void context_stein_iter_solve(void *_ctx){
 #if defined(RECSY) && !defined (SINGLE_PRECISION)
     else if ( ctx->isolver == 25 ) {
         Int M2 = ctx->M  * ctx->M;
-        FC_GLOBAL_(reclydt,RECLYDT)(&ctx->type, &ctx->scale, &ctx->M, ctx->A, &ctx->LDA, ctx->X, &ctx->LDX,  &info, ctx->MACHINE_RECSY, ctx->work, &M2);
+        Int infox = 0;
+        FC_GLOBAL_(reclydt,RECLYDT)(&ctx->type, &ctx->scale, &ctx->M, ctx->A, &ctx->LDA, ctx->X, &ctx->LDX,  &infox, ctx->MACHINE_RECSY, ctx->work, &M2);
     } else if ( ctx->isolver == 26 ) {
+        Int infox = 0;
         Int proc = omp_get_num_procs();
         Int M2 = ctx->M * ctx->M;
-        FC_GLOBAL_(reclydt_p,RECLYDT_P)(&proc, &ctx->type, &ctx->scale, &ctx->M, ctx->A, &ctx->LDA, ctx->X, &ctx->LDX, &info, ctx->MACHINE_RECSY, ctx->work, &M2);
+        FC_GLOBAL_(reclydt_p,RECLYDT_P)(&proc, &ctx->type, &ctx->scale, &ctx->M, ctx->A, &ctx->LDA, ctx->X, &ctx->LDX, &infox, ctx->MACHINE_RECSY, ctx->work, &M2);
     }
 #endif
 #ifndef SINGLE_PRECISION
@@ -234,9 +236,9 @@ static void context_stein_iter_solve(void *_ctx){
         } else {
             TRANSX[0]='N';
         }
+        Int infox = 0;
 
-
-        FC_GLOBAL_(sb03mx,SB03MX)(TRANSX, &ctx->M, ctx->A, &ctx->LDA, ctx->X, &ctx->LDX, &ctx->scale, ctx->work, &info, 1);
+        FC_GLOBAL_(sb03mx,SB03MX)(TRANSX, &ctx->M, ctx->A, &ctx->LDA, ctx->X, &ctx->LDX, &ctx->scale, ctx->work, &infox, 1);
     }
 #endif
 }

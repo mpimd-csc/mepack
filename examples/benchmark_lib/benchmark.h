@@ -47,6 +47,26 @@ extern "C" {
 #endif
 
 
+#ifdef MEPACK_STATIC_DEFINE
+#  define MEPACK_EXPORT
+#  define MEPACK_NO_EXPORT
+#else
+#  ifndef MEPACK_EXPORT
+#    ifdef mepack_EXPORTS
+        /* We are building this library */
+#      define MEPACK_EXPORT __declspec(dllexport)
+#    else
+#warning import
+        /* We are using this library */
+#      define MEPACK_EXPORT __declspec(dllimport)
+#    endif
+#  endif
+
+#  ifndef MEPACK_NO_EXPORT
+#    define MEPACK_NO_EXPORT 
+#  endif
+#endif
+
     void benchmark_init(void);
     void benchmark_exit(void);
 
@@ -173,10 +193,10 @@ extern "C" {
      *-----------------------------------------------------------------------------*/
 
 
-    extern void FC_GLOBAL_(dla_sort_gev,DLA_SORT_GEV)( Int * M,  double * A, Int * lDA, double *C, Int *ldc, double * Q, Int *ldq, double *Z, Int *ldz, Int *NB, double * work, Int *ldwork, Int *info );
-    extern void FC_GLOBAL_(dla_sort_ev,DLA_SORT_EV)( Int * M,  double * A, Int * lDA, double * Q, Int *ldq, Int *NB, double * work, Int *ldwork, Int *info );
-    extern void FC_GLOBAL_(sla_sort_ev,SLA_SORT_EV)( Int * M,  float * A, Int * lDA, float * Q, Int *ldq, Int *NB, float * work, Int *ldwork, Int *info );
-    extern void FC_GLOBAL_(sla_sort_gev,SLA_SORT_GEV)( Int * M,  float * A, Int * lDA, float *C, Int *ldc, float * Q, Int *ldq, float *Z, Int *ldz, Int *NB, float * work, Int *ldwork, Int *info );
+    MEPACK_EXPORT void FC_GLOBAL_(dla_sort_gev,DLA_SORT_GEV)( Int * M,  double * A, Int * lDA, double *C, Int *ldc, double * Q, Int *ldq, double *Z, Int *ldz, Int *NB, double * work, Int *ldwork, Int *info );
+    MEPACK_EXPORT void FC_GLOBAL_(dla_sort_ev,DLA_SORT_EV)( Int * M,  double * A, Int * lDA, double * Q, Int *ldq, Int *NB, double * work, Int *ldwork, Int *info );
+    MEPACK_EXPORT void FC_GLOBAL_(sla_sort_ev,SLA_SORT_EV)( Int * M,  float * A, Int * lDA, float * Q, Int *ldq, Int *NB, float * work, Int *ldwork, Int *info );
+    MEPACK_EXPORT void FC_GLOBAL_(sla_sort_gev,SLA_SORT_GEV)( Int * M,  float * A, Int * lDA, float *C, Int *ldc, float * Q, Int *ldq, float *Z, Int *ldz, Int *NB, float * work, Int *ldwork, Int *info );
 
     /*-----------------------------------------------------------------------------
      *  RECSY

@@ -1,4 +1,9 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.15)
+IF (WIN32)
+    CMAKE_MINIMUM_REQUIRED(VERSION 3.22)
+ELSE()
+    CMAKE_MINIMUM_REQUIRED(VERSION 3.15)
+ENDIF()
+
 LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/libcscutils/CMakeModules")
 INCLUDE(CheckPolicy)
 
@@ -11,11 +16,11 @@ CheckPolicy(CMP0075 NEW)
 CheckPolicy(CMP0115 NEW)
 
 # General Project Setup
-SET(VERSION 1.1.0)
+SET(VERSION 1.1.1)
 PROJECT(MEPACK
-        VERSION ${VERSION}
-	    LANGUAGES C Fortran
-        DESCRIPTION "MEPACK is an Fortran software library for the solution of dense Sylvester-likematrix equations.")
+    VERSION ${VERSION}
+    LANGUAGES C Fortran
+    DESCRIPTION "MEPACK is an Fortran software library for the solution of dense Sylvester-likematrix equations.")
 
 IF ( NOT CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
     MESSAGE(STATUS "MEPACK: Build within another project. Tests, examples, documentation, and the MATLAB interface are disabled.")
@@ -24,7 +29,16 @@ ELSE()
     SET(MEPACK_IN_PROJECT 0)
 ENDIF()
 
+MESSAGE(STATUS "CMAKE_Fortran_FLAGS: ${CMAKE_Fortran_FLAGS}")
+
+MESSAGE(STATUS "Building on ${CMAKE_SYSTEM_NAME}")
+IF(MINGW)
+    MESSAGE(STATUS "--> Using MINGW")
+ENDIF()
+
 INCLUDE(GNUInstallDirs)
+
+SET(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 
 # Options
 OPTION(DEBUG "Enable Debug" OFF)
@@ -32,18 +46,29 @@ OPTION(LTO  "Enable Link Time Optimization" ON)
 OPTION(HOSTOPT "Enable Host Optimization" OFF)
 # OPTION(BUILD_SHARED_LIBS "Build a shared libary" ON)
 OPTION(INTEGER8 "Build 8-byte integer aware libary." OFF)
-OPTION(EXAMPLES "Build Examples" ON)
+OPTION(EXAMPLES "Build Examples and Test" ON)
 OPTION(MATLAB "Build the MATLAB and Octave Interface" OFF)
 OPTION(DOC "Build documentation" OFF)
-OPTION(BUILD_STATIC "Build Static Libraries" OFF)
+OPTION(BUILD_STATIC "Build Static Library" OFF)
+OPTION(BUILD_DYNAMIC "Build Dynamic Library" ON)
+
+IF (NOT BUILD_DYNAMIC)
+    SET(EXAMPLES OFF)
+    SET(TESTS OFF)
+    MESSAGE(STATUS "Examples and Tests are cannot be built with BUILD_DYNAMIC=OFF")
+ENDIF()
+
+IF(NOT BUILD_DYNAMIC AND NOT BUILD_STATIC)
+    MESSAGE(FATAL_ERROR "Either BUILD_DYNAMIC or BUILD_STATIC must be set to ON")
+ENDIF()
 
 SET(CMAKE_POSITION_INDEPENDENT_CODE True)
 
 
 IF ( DEBUG STREQUAL ON )
-	SET (CMAKE_BUILD_TYPE "Debug")
+    SET (CMAKE_BUILD_TYPE "Debug")
 ELSEIF(NOT CMAKE_BUILD_TYPE)
-	SET (CMAKE_BUILD_TYPE "Release")
+    SET (CMAKE_BUILD_TYPE "Release")
 ENDIF()
 
 IF (INTEGER8 STREQUAL ON)
@@ -90,7 +115,7 @@ INCLUDE(cmake/FortranModuleDir.cmake)
 INCLUDE(cmake/version-script.cmake)
 
 IF (OPENMP_FOUND)
-	MESSAGE(STATUS "OpenMP : ${OpenMP_Fortran_VERSION}")
+    MESSAGE(STATUS "OpenMP : ${OpenMP_Fortran_VERSION}")
     SET(OpenMP_Fortran_VERSION ${OpenMP_Fortran_VERSION} CACHE INTERNAL "OpenMP Fortran Version")
     IF ("${OpenMP_Fortran_VERSION}" VERSION_LESS "4.0")
         MESSAGE(WARNING "The Fortran Compiler does not fully upport OpenMP 4 or the version could not be detected correctly. This may cause problems.")
@@ -102,34 +127,46 @@ INCLUDE(CCompilerSettings)
 # INCLUDE(CXXCompilerSettings)
 INCLUDE(CMakeHelpers)
 
+
+MESSAGE(STATUS "CMAKE_Fortran_FLAGS: ${CMAKE_Fortran_FLAGS}")
+
+
 # Name Mangling
 include(FortranCInterface)
 FortranCInterface_HEADER(FCMangle.h
-	                 MACRO_NAMESPACE "FC_"
-			 SYMBOL_NAMESPACE "FC_")
+    MACRO_NAMESPACE "FC_"
+    SYMBOL_NAMESPACE "FC_")
 FortranCInterface_VERIFY()
 
 # BLAS and LAPACK
-IF ( INTEGER8 STREQUAL ON)
-	FIND_PACKAGE(BLAS64 REQUIRED)
-    FIND_PACKAGE(LAPACK64 REQUIRED)
-    SET (BLAS_LIBRARIES ${BLAS64_LIBRARIES})
-    SET (LAPACK_LIBRARIES ${LAPACK64_LIBRARIES})
-    MESSAGE(STATUS "Build with ILP64 memory model")
-    SET(BLAS64_FOUND true)
-    SET(LAPACK64_FOUND true)
-ELSE()
-	FIND_PACKAGE(BLAS REQUIRED)
-	FIND_PACKAGE(LAPACK REQUIRED)
+IF(BUILD_DYNAMIC)
+    IF ( INTEGER8 STREQUAL ON)
+        IF (WIN32)
+            SET(BLA_SIZEOF_INTEGER 8)
+            FIND_PACKAGE(BLAS REQUIRED)
+            FIND_PACKAGE(LAPACK REQUIRED)
+            SET(BLAS_LIBRARIES BLAS::BLAS)
+            SET(LAPACK_LIBRARIES LAPACK::LAPACK)
+        ELSE()
+            FIND_PACKAGE(BLAS64 REQUIRED)
+            FIND_PACKAGE(LAPACK64 REQUIRED)
+            SET (BLAS_LIBRARIES ${BLAS64_LIBRARIES})
+            SET (LAPACK_LIBRARIES ${LAPACK64_LIBRARIES})
+        ENDIF()
+        MESSAGE(STATUS "Build with ILP64 memory model")
+        SET(BLAS64_FOUND true)
+        SET(LAPACK64_FOUND true)
+    ELSE()
+        FIND_PACKAGE(BLAS REQUIRED)
+        FIND_PACKAGE(LAPACK REQUIRED)
+    ENDIF()
+    SET(LIBRARIES ${LIBRARIES} ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES})
+
+    # LAPACK setup
+    SET(LAPACK_MISSING_TARGET_NAME lapack_missing)
+    INCLUDE(${PROJECT_SOURCE_DIR}/lapack-missing/LapackMissing.cmake)
+    # SET(LIBRARIES lapack_missing ${LIBRARIES})
 ENDIF()
-SET(LIBRARIES ${LIBRARIES} ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES})
-
-
-
-# LAPACK setup
-SET(LAPACK_MISSING_TARGET_NAME lapack_missing)
-INCLUDE(${PROJECT_SOURCE_DIR}/lapack-missing/LapackMissing.cmake)
-# SET(LIBRARIES lapack_missing ${LIBRARIES})
 
 CHECK_ADD_C_FLAG("-Wno-overlength-strings" NO_OVERLENGTH)
 
@@ -298,17 +335,17 @@ write_basic_package_version_file(
     MEPACK${MEPACK_SUFFIX}ConfigVersion.cmake
     VERSION ${PROJECT_VERSION}
     COMPATIBILITY AnyNewerVersion
-)
+    )
 install(EXPORT MEPACKTargets
     FILE MEPACK${MEPACK_SUFFIX}Targets.cmake
     NAMESPACE MEPACK::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/mepack${MEPACK_SUFFIX}
-)
+    )
 configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/MEPACKConfig.cmake.in MEPACK${MEPACK_SUFFIX}Config.cmake INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/mepack${MEPACK_SUFFIX})
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/MEPACK${MEPACK_SUFFIX}Config.cmake"
-              "${CMAKE_CURRENT_BINARY_DIR}/MEPACK${MEPACK_SUFFIX}ConfigVersion.cmake"
-              DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/mepack${MEPACK_SUFFIX}
-        )
+    "${CMAKE_CURRENT_BINARY_DIR}/MEPACK${MEPACK_SUFFIX}ConfigVersion.cmake"
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/mepack${MEPACK_SUFFIX}
+    )
 # PKGconfig
 
 # Export a pkg-config file
@@ -319,25 +356,25 @@ ELSE()
 ENDIF()
 
 configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/mepack.pc.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/${MEPACK_NAME}.pc"
-  @ONLY
-)
+    "${CMAKE_CURRENT_SOURCE_DIR}/mepack.pc.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/${MEPACK_NAME}.pc"
+    @ONLY
+    )
 install(
-  FILES
-  "${CMAKE_CURRENT_BINARY_DIR}/${MEPACK_NAME}.pc"
-  DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig"
-)
+    FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/${MEPACK_NAME}.pc"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig"
+    )
 
 
 # Final
 
-SET(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}" CACHE STRING "Fortran Flags")
-SET(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG}" CACHE STRING "Fortran Flags DEBUG")
-SET(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE}" CACHE STRING "Fortran Flags RELEASE")
-SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}" CACHE STRING "C Flags")
-SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}" CACHE STRING "C Flags DEBUG")
-SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}" CACHE STRING "C Flags RELEASE")
+# SET(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}" CACHE STRING "Fortran Flags")
+# SET(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG}" CACHE STRING "Fortran Flags DEBUG")
+# SET(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE}" CACHE STRING "Fortran Flags RELEASE")
+# SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}" CACHE STRING "C Flags")
+# SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}" CACHE STRING "C Flags DEBUG")
+# T(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}" CACHE STRING "C Flags RELEASE")
 
 
 MESSAGE(STATUS "--------------------")

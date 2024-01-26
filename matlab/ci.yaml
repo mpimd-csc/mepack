@@ -50,6 +50,11 @@
         paths:
             - build/mepack-*.tar.gz
 
+octave-8.4:
+    <<: *octave_job
+    variables:
+        OCTAVE_VERSION: "8.4"
+
 octave-8.3:
     <<: *octave_job
     variables:
@@ -113,23 +118,21 @@ octave-4.4:
     variables:
         OCTAVE_VERSION: "4.4"
 
-matlab-2022a:
-    <<: *matlab_job
-    variables:
-        MATLAB_VERSION: "2022a"
-
-
-matlab-2021a:
-    <<: *matlab_job
-    variables:
-        MATLAB_VERSION: "2021a"
-
 matlab-2020b:
-    <<: *matlab_job
-    variables:
-        MATLAB_VERSION: "2020b"
-
-
-
+  <<: *matlab_job
+  variables:
+    MATLAB_VERSION: "2020b"
+matlab-2021b:
+  <<: *matlab_job
+  variables:
+    MATLAB_VERSION: "2021a"
+matlab-2022a:
+  <<: *matlab_job
+  variables:
+    MATLAB_VERSION: "2022a"
+matlab-2023b:
+  <<: *matlab_job
+  variables:
+    MATLAB_VERSION: "2023b"
 
 

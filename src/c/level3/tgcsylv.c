@@ -207,7 +207,7 @@
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 
 
@@ -418,7 +418,7 @@ void mepack_double_tgcsylv_level3(const char *TRANSA, const char*TRANSB, double 
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 
 
@@ -629,7 +629,7 @@ void mepack_double_tgcsylv_level3_unopt(const char *TRANSA, const char*TRANSB, d
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 
 
@@ -840,7 +840,7 @@ void mepack_double_tgcsylv_level3_2stage(const char *TRANSA, const char*TRANSB, 
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 
 
@@ -1051,7 +1051,7 @@ void mepack_single_tgcsylv_level3(const char *TRANSA, const char*TRANSB, float S
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 
 
@@ -1262,7 +1262,7 @@ void mepack_single_tgcsylv_level3_unopt(const char *TRANSA, const char*TRANSB, f
 
  \author Martin Koehler, MPI Magdeburg
 
- \date October 2023
+ \date January 2024
 */
 
 

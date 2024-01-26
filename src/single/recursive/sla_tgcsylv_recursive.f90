@@ -199,7 +199,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date October 2023
+!> \date January 2024
 !> \ingroup sgltgsylv
 !
 RECURSIVE SUBROUTINE SLA_TGCSYLV_RECURSIVE(TRANSA, TRANSB, SGN1, SGN2, M, N, A, LDA, B, LDB, C, LDC, D, LDD, E, LDE,  F, LDF, &
