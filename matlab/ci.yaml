@@ -122,7 +122,7 @@ matlab-2020b:
   <<: *matlab_job
   variables:
     MATLAB_VERSION: "2020b"
-matlab-2021b:
+matlab-2021a:
   <<: *matlab_job
   variables:
     MATLAB_VERSION: "2021a"
