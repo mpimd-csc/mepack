@@ -39,7 +39,7 @@ include:
 ubuntu2004-gcc:
         <<: *artifact_config
         stage: build
-        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:focal
+        image: gitlab.mpi-magdeburg.mpg.de/ci-images/minimal/ubuntu:focal
         needs: []
         script:
                 - apt-get update; apt-get install --yes cmake libopenblas-openmp-dev  libhdf5-dev
@@ -52,7 +52,7 @@ ubuntu2004-gcc:
 test-ubuntu2004-gcc:
         <<: *test_config
         stage: test
-        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:focal
+        image: gitlab.mpi-magdeburg.mpg.de/ci-images/minimal/ubuntu:focal
         needs:
             - ubuntu2004-gcc
         script:
@@ -68,7 +68,7 @@ ubuntu2004-gcc-64bit:
         <<: *artifact_config
         stage: build
         needs: []
-        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:focal
+        image: gitlab.mpi-magdeburg.mpg.de/ci-images/minimal/ubuntu:focal
         script:
                 - apt-get update; apt-get install --yes cmake libopenblas64-openmp-dev  libhdf5-dev
                 - cmake --version
@@ -80,7 +80,7 @@ ubuntu2004-gcc-64bit:
 test-ubuntu2004-gcc-64bit:
         <<: *test_config
         stage: test
-        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:focal
+        image: gitlab.mpi-magdeburg.mpg.de/ci-images/minimal/ubuntu:focal
         needs:
             - ubuntu2004-gcc-64bit
         script:
@@ -97,7 +97,7 @@ ubuntu2004-gcc-refblas:
         <<: *artifact_config
         stage: build
         needs: []
-        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:focal
+        image: gitlab.mpi-magdeburg.mpg.de/ci-images/minimal/ubuntu:focal
         script:
                 - apt-get update; apt-get install --yes cmake libblas-dev liblapack-dev libhdf5-dev
                 - cmake --version
@@ -109,7 +109,7 @@ ubuntu2004-gcc-refblas:
 test-ubuntu2004-gcc-refblas:
         <<: *test_config
         stage: test
-        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:focal
+        image: gitlab.mpi-magdeburg.mpg.de/ci-images/minimal/ubuntu:focal
         needs:
             - ubuntu2004-gcc-refblas
         script:
@@ -127,7 +127,7 @@ ubuntu2004-gcc10:
         <<: *artifact_config
         stage: build
         needs: []
-        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:focal
+        image: gitlab.mpi-magdeburg.mpg.de/ci-images/minimal/ubuntu:focal
         script:
                 - apt-get update; apt-get install --yes gcc-10 gfortran-10 g++-10 cmake libopenblas-openmp-dev  libhdf5-dev
                 - cmake --version
@@ -139,7 +139,7 @@ ubuntu2004-gcc10:
 test-ubuntu2004-gcc10:
         <<: *test_config
         stage: test
-        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:focal
+        image: gitlab.mpi-magdeburg.mpg.de/ci-images/minimal/ubuntu:focal
         needs:
             - ubuntu2004-gcc10
         script:
@@ -155,7 +155,7 @@ ubuntu2204-gcc:
         <<: *artifact_config
         stage: build
         needs: []
-        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:jammy
+        image: gitlab.mpi-magdeburg.mpg.de/ci-images/minimal/ubuntu:jammy
         script:
                 - export
                 - apt-get update; apt-get install --yes cmake libopenblas-openmp-dev  libhdf5-dev
@@ -168,7 +168,7 @@ ubuntu2204-gcc:
 test-ubuntu2204-gcc:
         <<: *test_config
         stage: test
-        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:jammy
+        image: gitlab.mpi-magdeburg.mpg.de/ci-images/minimal/ubuntu:jammy
         needs:
             - ubuntu2204-gcc
         script:
@@ -184,7 +184,7 @@ ubuntu2204-gcc-64bit:
         <<: *artifact_config
         stage: build
         needs: []
-        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:jammy
+        image: gitlab.mpi-magdeburg.mpg.de/ci-images/minimal/ubuntu:jammy
         script:
                 - apt-get update; apt-get install --yes cmake libopenblas64-openmp-dev  libhdf5-dev
                 - cmake --version
@@ -196,7 +196,7 @@ ubuntu2204-gcc-64bit:
 test-ubuntu2204-gcc-64bit:
         <<: *test_config
         stage: test
-        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:jammy
+        image: gitlab.mpi-magdeburg.mpg.de/ci-images/minimal/ubuntu:jammy
         needs:
             - ubuntu2204-gcc-64bit
         script:
@@ -216,7 +216,7 @@ ubuntu2204-gcc-coverage:
         <<: *artifact_config
         stage: build
         needs: []
-        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:jammy
+        image: gitlab.mpi-magdeburg.mpg.de/ci-images/minimal/ubuntu:jammy
         script:
                  - apt-get update; apt-get install --yes cmake libopenblas-openmp-dev  libhdf5-dev lcov
                  - mkdir -p build
@@ -227,7 +227,7 @@ ubuntu2204-gcc-coverage:
 test-ubuntu2204-gcc-coverage:
         <<: *test_config
         stage: test
-        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:jammy
+        image: gitlab.mpi-magdeburg.mpg.de/ci-images/minimal/ubuntu:jammy
         needs:
                 - ubuntu2204-gcc-coverage
         script:
@@ -244,7 +244,7 @@ release-job:
         rules:
             - if: $CI_COMMIT_TAG
         stage: release
-        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:jammy
+        image: gitlab.mpi-magdeburg.mpg.de/ci-images/minimal/ubuntu:jammy
         needs:
                 - matlab-2020b
                 - matlab-2021a
