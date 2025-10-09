@@ -60,7 +60,7 @@ INCLUDE(CheckCXXCompilerFlag)
 SET(MEXOCT_MATLAB_FOUND 0)
 IF(WIN32)
     # Search for a version of Matlab available, starting from the most modern one to older versions
-    FOREACH(MATVER  "24.2" "24.1"
+    FOREACH(MATVER "27.2" "27.1" "26.2" "26.1" "25.2" "25.1" "24.2" "24.1"
             "23.2"
             "9.14" "9.13" "9.12" "9.11" "9.10" "9.9" "9.8" "9.7" "9.6" "9.5" "9.4" "9.3" "9.2" "9.1" "9.0"
             "8.6" "8.5" "8.4" "8.3" "8.2" "8.1"
@@ -396,6 +396,11 @@ function(mexoct_add_mex target)
     if(DEFINED MEXOCT_MATLAB_MX_LIBRARY)
         target_link_libraries(${${target}_NAME} ${MEXOCT_MATLAB_MX_LIBRARY})
     endif()
+
+    target_compile_options(${${target}_NAME} PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:-static-libstdc++>")
+    target_compile_options(${${target}_NAME} PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:-static-libgcc>")
+    target_link_options( ${${target}_NAME} PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:-static-libstdc++>")
+    target_link_options( ${${target}_NAME} PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:-static-libgcc>")
 
     if (MATLAB_MEX_INTERLEAVED_COMPLEX_API)
         set(MEX_API_MACRO "MATLAB_DEFAULT_RELEASE=R2018a")

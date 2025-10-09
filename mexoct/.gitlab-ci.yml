@@ -1,102 +1,52 @@
 stages:
         - test
 
-matlab-2016b:
-        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/matlab-ci-images/matlab:2016b
-        stage: test
-        script:
-                - bash ./tests/install_pre_2016b.sh
-                - bash ./tests/build_matlab_2016b.sh
-                - cd build/tests/; matlab -nojvm -nodesktop -nosplash -r "ierr=run_tests_matlab(); quit(ierr);"
+matlab:
+    parallel:
+        matrix:
+          - MATLAB_VERSION:
+            - "2018a"
+            - "2019b"
+            - "2020b"
+            - "2021a"
+            - "2022a"
+            - "2023b"
+            - "2024b"
+            - "2025a"
+    image: gitlab.mpi-magdeburg.mpg.de/ci-images/matlab-ci-images/matlab:${MATLAB_VERSION}
+    stage: test
+    script:
+        - bash ./tests/install_pre_2018a.sh
+        - bash ./tests/build_matlab_2018a.sh
+        - cd build/tests/; matlab -nojvm -nodesktop -nosplash -r "ierr=run_tests_matlab(); quit(ierr);"
 
-matlab-2017a:
-        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/matlab-ci-images/matlab:2017a
-        stage: test
-        script:
-                - bash ./tests/install_pre_2016b.sh
-                - bash ./tests/build_matlab_2016b.sh
-                - cd build/tests/; matlab -nojvm -nodesktop -nosplash -r "ierr=run_tests_matlab(); quit(ierr);"
+octave:
+    parallel:
+        matrix:
+            - OCTAVE_VERSION:
+                - "10.2"
+                - "10.1"
+                - "9.4"
+                - "9.3"
+                - "9.2"
+                - "9.1"
+                - "8.4"
+                - "8.3"
+                - "8.2"
+                - "8.1"
+                - "7.3"
+                - "7.2"
+                - "7.1"
+                - "6.4"
+                - "6.3"
+                - "6.2"
+                - "6.1"
+                - "5.2"
+                - "5.1"
+                - "4.4"
+    image: gitlab.mpi-magdeburg.mpg.de/ci-images/octave:${OCTAVE_VERSION}
+    stage: test
+    script:
+        - bash ./tests/build_octave.sh
+        - cd build/tests/; octave-cli --eval "ierr=run_tests_octave(); quit(ierr);"
 
-matlab-2017b:
-        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/matlab-ci-images/matlab:2017b
-        stage: test
-        script:
-                - bash ./tests/install_pre_2016b.sh
-                - bash ./tests/build_matlab_2016b.sh
-                - cd build/tests/; matlab -nojvm -nodesktop -nosplash -r "ierr=run_tests_matlab(); quit(ierr);"
-matlab-2018a:
-        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/matlab-ci-images/matlab:2018a
-        stage: test
-        script:
-                - bash ./tests/install_pre_2018a.sh
-                - bash ./tests/build_matlab_2018a.sh
-                - cd build/tests/; matlab -nojvm -nodesktop -nosplash -r "ierr=run_tests_matlab(); quit(ierr);"
-
-matlab-2019b:
-        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/matlab-ci-images/matlab:2019b
-        stage: test
-        script:
-                - bash ./tests/install_pre_2018a.sh
-                - bash ./tests/build_matlab_2018a.sh
-                - cd build/tests/; matlab -nojvm -nodesktop -nosplash -r "ierr=run_tests_matlab(); quit(ierr);"
-
-matlab-2020b:
-        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/matlab-ci-images/matlab:2020b
-        stage: test
-        script:
-                - bash ./tests/install_pre_2018a.sh
-                - bash ./tests/build_matlab_2018a.sh
-                - cd build/tests/; matlab -nojvm -nodesktop -nosplash -r "ierr=run_tests_matlab(); quit(ierr);"
-
-matlab-2021a:
-        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/matlab-ci-images/matlab:2021a
-        stage: test
-        script:
-                - bash ./tests/install_pre_2018a.sh
-                - bash ./tests/build_matlab_2018a.sh
-                - cd build/tests/; matlab -nojvm -nodesktop -nosplash -r "ierr=run_tests_matlab(); quit(ierr);"
-
-octave-6.2:
-        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/octave:6.2
-        stage: test
-        script:
-                - bash ./tests/build_octave.sh
-                - cd build/tests/; octave-cli --eval "ierr=run_tests_octave(); quit(ierr);"
-
-octave-6.1:
-        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/octave:6.1
-        stage: test
-        script:
-                - bash ./tests/build_octave.sh
-                - cd build/tests/; octave-cli --eval "ierr=run_tests_octave(); quit(ierr);"
-
-
-
-octave-5.2:
-        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/octave:5.2
-        stage: test
-        script:
-                - bash ./tests/build_octave.sh
-                - cd build/tests/; octave-cli --eval "ierr=run_tests_octave(); quit(ierr);"
-
-
-octave-5.1:
-        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/octave:5.1
-        stage: test
-        script:
-                - bash ./tests/build_octave.sh
-                - cd build/tests/; octave-cli --eval "ierr=run_tests_octave(); quit(ierr);"
-
-octave-4.4:
-        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/octave:4.4
-        stage: test
-        script:
-                - bash ./tests/build_octave.sh
-                - cd build/tests/; octave-cli --eval "ierr=run_tests_octave(); quit(ierr);"
-
-octave-4.2:
-        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/octave:4.2
-        stage: test
-        script:
-                - bash ./tests/build_octave.sh
-                - cd build/tests/; octave-cli --eval "ierr=run_tests_octave(); quit(ierr);"

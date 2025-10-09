@@ -1,10 +1,10 @@
 
-SET(CMAKE_CXX_STANDARD 11)
+SET(CMAKE_CXX_STANDARD 17)
 INCLUDE(CheckCXXCompilerFlag)
 
-check_cxx_compiler_flag("-std=c++11" COMPILER_CXX_11)
-if(NOT COMPILER_CXX_11)
-    message(FATAL_ERROR "C++ compiler does not support C++11")
+check_cxx_compiler_flag("-std=c++17" COMPILER_CXX_17)
+if(NOT COMPILER_CXX_17)
+    message(FATAL_ERROR "C++ compiler does not support C++14")
 endif()
 
 SET(MEXOCT_DIR ${CMAKE_CURRENT_LIST_DIR})
@@ -53,7 +53,7 @@ macro(mexoct_add target)
     if ( MEXOCT_MATLAB_FOUND )
         message(STATUS "Build MATLAB interface for ${target}")
         mexoct_add_mex(${target} ${ARGN})
-        set_target_properties(mex_${target} PROPERTIES CXX_STANDARD 11)
+        set_target_properties(mex_${target} PROPERTIES CXX_STANDARD 17)
         if (MEXOCT_MATLAB_DIRECTORY)
             set_target_properties(mex_${target} PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${MEXOCT_MATLAB_DIRECTORY}"
 	                                                   RUNTIME_OUTPUT_DIRECTORY "${MEXOCT_MATLAB_DIRECTORY}")
@@ -88,7 +88,7 @@ macro(mexoct_add target)
     if ( MEXOCT_OCTAVE_FOUND)
         message(STATUS "Build OCTAVE interface for ${target}")
         mexoct_add_oct(${target} ${ARGN})
-        set_target_properties(oct_${target} PROPERTIES CXX_STANDARD 11)
+        set_target_properties(oct_${target} PROPERTIES CXX_STANDARD 17)
 
         if (MEXOCT_OCTAVE_DIRECTORY)
             set_target_properties(oct_${target} PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${MEXOCT_OCTAVE_DIRECTORY}"

@@ -23,7 +23,7 @@
 #if __cplusplus >= 201402L
 
 #define MEXOCT_BUFFER(T, buf, size)                               \
-  auto __mexoct_buffer_ ## buf = std::make_unique<T []> (size);     \
+  auto __mexoct_buffer__ ## buf = std::make_unique<T []> (size);     \
   T *buf = __mexoct_buffer__ ## buf.get ()
 
 #else

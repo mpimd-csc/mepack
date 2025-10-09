@@ -274,13 +274,21 @@ namespace mexoct {
 
             }
 
+#if OCTAVE_MAJOR_VERSION >= 10
+#define OCTAVE_RAW_DATA rwdata
+#else
+#define OCTAVE_RAW_DATA fortran_vec
+#endif
             static ArrayType<T> copy_in(const octave_value & _array)
             {
                 OctaveArrayType<T> wrapper;
                 typename OctaveArrayType<T>::type r = wrapper.get(_array);
-                T * _xvals = new T [_array.rows() * _array.columns()];
-                std::memcpy(_xvals, r.fortran_vec(), sizeof(T) * _array.rows() * _array.columns());
-                ArrayType<T> result(r.rows(), r.columns(), _xvals, false);
+                dim_vector array_dims = r.dims();
+                size_t rows = array_dims(0);
+                size_t columns = array_dims(1);
+                T * _xvals = new T [ rows * columns ] ;
+                std::memcpy(_xvals, r.OCTAVE_RAW_DATA(), sizeof(T) * rows * columns);
+                ArrayType<T> result(rows, columns, _xvals, false);
                 return result;
             }
 
@@ -290,7 +298,7 @@ namespace mexoct {
                 typename OctaveArrayType<T>::type _val (dv);
                 if ( array.rows != array.ld ) {
                     ssize_t k;
-                    T * ptr = reinterpret_cast<T*>(_val.fortran_vec());
+                    T * ptr = reinterpret_cast<T*>(_val.OCTAVE_RAW_DATA());
                     T * inptr = array.ptr();
                     for (k = 0; k < array.columns; k++) {
                         std::memcpy( ptr, array.ptr(), sizeof(T)* array.rows );
@@ -298,13 +306,13 @@ namespace mexoct {
                         inptr += array.ld;
                     }
                 } else {
-                    std::memcpy(_val.fortran_vec(), array.ptr(), sizeof(T)* array.rows * array.columns);
+                    std::memcpy(_val.OCTAVE_RAW_DATA(), array.ptr(), sizeof(T)* array.rows * array.columns);
                 }
                 return octave_value(_val);
             }
 
             static constexpr const char* NAME = OctaveType<T>::class_name;
-
+#undef OCTAVE_RAW_DATA
 
 #endif
         };

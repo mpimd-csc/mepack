@@ -19,8 +19,18 @@
 
 #include <iostream>
 #ifdef MEXOCT_OCTAVE
-#define ROWS(a)  (a.rows())
-#define COLS(a)  (a.columns())
+static inline octave_idx_type get_rows(const octave_value & val)
+{
+    dim_vector dv = val.dims();
+    return dv(0);
+}
+static inline octave_idx_type get_columns(const octave_value & val)
+{
+    dim_vector dv = val.dims();
+    return dv(1);
+}
+#define ROWS(a)  (get_rows(a))
+#define COLS(a)  (get_columns(a))
 #define ARG_T      const octave_value &
 #else
 #define ROWS(a)  (mxGetM(a))
