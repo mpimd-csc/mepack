@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) Martin Koehler, 2017-2023
+ * Copyright (C) Martin Koehler, 2017-2025
  */
 
 #include "FCMangle.h"
@@ -183,7 +183,7 @@
 
  \author Martin Koehler, MPI Magdeburg
 
- \date January 2024
+ \date October 2025
 */
 void mepack_double_gelyap_refine(const char * TRANS, const char *GUESS, int M , double * A, int LDA,
         double *X, int LDX, double *Y, int LDY, double *AS, int LDAS, double * Q, int LDQ,
@@ -368,7 +368,7 @@ void mepack_double_gelyap_refine(const char * TRANS, const char *GUESS, int M , 
 
  \author Martin Koehler, MPI Magdeburg
 
- \date January 2024
+ \date October 2025
 */
 
 void mepack_single_gelyap_refine(const char * TRANS, const char *GUESS, int M , float * A, int LDA,

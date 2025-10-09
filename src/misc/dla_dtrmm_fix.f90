@@ -12,7 +12,7 @@
 ! You should have received a copy of the GNU General Public License
 ! along with this program.  If not, see <http://www.gnu.org/licenses/>.
 !
-! Copyright (C) Martin Koehler, 2017-2023
+! Copyright (C) Martin Koehler, 2017-2025
 
 ! This is an internal routine of MEPACK and not intended to be used from outside.
 ! The routine computes

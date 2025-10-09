@@ -1,6 +1,6 @@
 --
 -- Example MEPACK config file
--- Copyright (C) Martin Koehler, 2017-2023
+-- Copyright (C) Martin Koehler, 2017-2025
 --
 
 --

@@ -12,7 +12,7 @@
 ! You should have received a copy of the GNU General Public License
 ! along with this program; if not, see <http://www.gnu.org/licenses/>.
 !
-! Copyright (C) Martin Koehler, 2017-2023
+! Copyright (C) Martin Koehler, 2017-2025
 !
 
 
@@ -209,7 +209,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date January 2024
+!> \date October 2025
 !> \ingroup sgltgsylv
 !
 SUBROUTINE SLA_TGSYLV_L2_LOCAL_COPY_64( TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, C, LDC, D, LDD, X, LDX, SCALE, &

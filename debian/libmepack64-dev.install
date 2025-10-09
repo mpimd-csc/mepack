@@ -1,0 +1,4 @@
+usr/lib/*/*mepack64.so
+usr/lib/*/cmake/mepack64/*
+usr/include/mepack64/*
+usr/lib/*/pkgconfig/mepack64.pc

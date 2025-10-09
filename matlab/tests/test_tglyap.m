@@ -1,4 +1,4 @@
-% Copyright (C) Martin Koehler, 2017-2023
+% Copyright (C) Martin Koehler, 2017-2025
 %
 % This program is free software: you can redistribute it and/or modify it
 % under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,9 @@ function test_tglyap()
     is_octave =  exist('OCTAVE_VERSION', 'builtin');
     if ( is_octave )
         openmp = 1;
+        qz_return_complex = ~compare_versions(version, "9.0.0", "<");
     else
+        qz_return_complex = 1;
         openmp = 0;
     end
     optset = struct();
@@ -38,7 +40,7 @@ function test_tglyap()
     B = rand( n,  n );
 
     is_octave =  exist('OCTAVE_VERSION', 'builtin');
-    if (is_octave)
+    if (is_octave && ~qz_return_complex)
         [A, B] = qz(A, B);
     else
         [A, B] = qz(A, B, 'real');

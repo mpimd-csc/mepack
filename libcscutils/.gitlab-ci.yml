@@ -34,7 +34,7 @@ include: '/misc/cmake-runs.yml'
 
 ubuntu1604-gcc:
         stage: build
-        image: gitlab.mpi-magdeburg.mpg.de/ci-images/minimal/ubuntu:xenial
+        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:xenial
         script:
                 - apt update; apt install --yes git
                 - apt-get install --yes cmake libhdf5-dev zlib1g-dev libbz2-dev liblzma-dev
@@ -46,7 +46,7 @@ ubuntu1604-gcc:
 
 ubuntu1804-gcc:
         stage: build
-        image: gitlab.mpi-magdeburg.mpg.de/ci-images/minimal/ubuntu:bionic
+        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:bionic
         script:
                 - apt update; apt install --yes git
                 - apt-get install --yes cmake libhdf5-dev zlib1g-dev libbz2-dev liblzma-dev
@@ -58,7 +58,7 @@ ubuntu1804-gcc:
 
 ubuntu1804-gcc-nofortran:
         stage: build
-        image: gitlab.mpi-magdeburg.mpg.de/ci-images/minimal/ubuntu:bionic
+        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:bionic
         script:
                 - apt update; apt install --yes git
                 - apt-get install --yes cmake libhdf5-dev zlib1g-dev libbz2-dev liblzma-dev
@@ -70,7 +70,7 @@ ubuntu1804-gcc-nofortran:
 
 ubuntu1804-clang:
         stage: build
-        image: gitlab.mpi-magdeburg.mpg.de/ci-images/minimal/ubuntu:bionic
+        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:bionic
         script:
                 - apt update; apt install --yes git
                 - apt-get install --yes cmake clang-9 libhdf5-dev zlib1g-dev libbz2-dev liblzma-dev
@@ -82,7 +82,7 @@ ubuntu1804-clang:
 
 ubuntu2004-gcc:
         stage: build
-        image: gitlab.mpi-magdeburg.mpg.de/ci-images/minimal/ubuntu:focal
+        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:focal
         script:
                 - apt update; apt install --yes git
                 - apt-get install --yes cmake libhdf5-dev zlib1g-dev libbz2-dev liblzma-dev libzstd-dev
@@ -94,7 +94,7 @@ ubuntu2004-gcc:
 
 ubuntu2004-gcc10:
         stage: build
-        image: gitlab.mpi-magdeburg.mpg.de/ci-images/minimal/ubuntu:focal
+        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:focal
         script:
                 - apt update; apt install --yes git
                 - apt-get install --yes cmake gcc-10 g++-10 gfortran-10 libhdf5-dev zlib1g-dev libbz2-dev liblzma-dev libzstd-dev
@@ -106,7 +106,7 @@ ubuntu2004-gcc10:
 
 ubuntu2204-gcc:
         stage: build
-        image: gitlab.mpi-magdeburg.mpg.de/ci-images/minimal/ubuntu:jammy
+        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/ubuntu:jammy
         script:
                 - apt update; apt install --yes git
                 - apt-get install --yes cmake libhdf5-dev zlib1g-dev libbz2-dev liblzma-dev libzstd-dev
@@ -120,7 +120,7 @@ ubuntu2204-gcc:
 
 centos7-gcc:
         stage: build
-        image: gitlab.mpi-magdeburg.mpg.de/ci-images/minimal/centos:7-base
+        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/centos:7-base
         script:
                 - yum -y install hdf5-devel zlib-devel bzip2-devel xz-devel libzstd-devel
                 - mkdir -p build
@@ -131,7 +131,7 @@ centos7-gcc:
 
 centos8-gcc:
         stage: build
-        image: gitlab.mpi-magdeburg.mpg.de/ci-images/minimal/centos:8-base
+        image: docker-registry.csc.mpi-magdeburg.mpg.de:5000/ci-images/minimal/centos:8-base
         script:
                 - yum -y install hdf5-devel zlib-devel bzip2-devel xz-devel
                 - mkdir -p build

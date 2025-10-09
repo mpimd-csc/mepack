@@ -1,0 +1,38 @@
+mepack (1.1.1+17) noble; urgency=medium
+
+  * Version 1.1.1+17
+
+ -- root <root@hugin>  Mon, 06 Oct 2025 13:32:37 +0200
+
+mepack (1.1.1+16) noble; urgency=medium
+
+  * Version 1.1.1+16
+
+ -- root <root@hugin>  Thu, 02 Oct 2025 11:20:02 +0200
+
+mepack (1.1.1+15) noble; urgency=medium
+
+  * Version 1.1.1+15
+
+ -- root <root@hugin>  Thu, 02 Oct 2025 11:10:00 +0200
+
+mepack (1.0.3-1) focal; urgency=medium
+
+  [ Martin Köhler ]
+  * New upstream version 1.0.3
+
+ -- Martin Koehler <koehlerm@mpi-magdeburg.mpg.de>  Tue, 31 Jan 2023 13:53:34 +0100
+
+mepack (1.0.2-1) focal; urgency=medium
+
+  [ Martin Köhler ]
+  * New upstream version 1.0.2
+  * Update gbp.conf
+
+ -- Martin Koehler <koehlerm@mpi-magdeburg.mpg.de>  Tue, 31 Jan 2023 11:25:05 +0100
+
+mepack (1.0.0-1) focal; urgency=medium
+
+  * Initial release
+
+ -- Martin Koehler <koehlerm@mpi-magdeburg.mpg.de>  Tue, 10 Jan 2023 15:11:54 +0100

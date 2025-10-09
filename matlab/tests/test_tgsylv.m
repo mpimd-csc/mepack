@@ -1,4 +1,4 @@
-% Copyright (C) Martin Koehler, 2017-2023
+% Copyright (C) Martin Koehler, 2017-2025
 %
 % This program is free software: you can redistribute it and/or modify it
 % under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,9 @@ function test_tgsylv()
     is_octave =  exist('OCTAVE_VERSION', 'builtin');
     if ( is_octave )
         openmp = 1;
+        qz_return_complex = ~compare_versions(version, "9.0.0", "<");
     else
+        qz_return_complex = 1;
         openmp = 0;
     end
     optset = struct();
@@ -48,7 +50,7 @@ function test_tgsylv()
     B = rand( n , n );
     D = rand( n , n );
 
-    if (is_octave)
+    if (is_octave && ~qz_return_complex)
         [A, C] = qz(A, C);
         [B, D] = qz(B, D);
     else
@@ -93,7 +95,6 @@ function test_tgsylv()
             tol = tols;
         end
 
-        fprintf('block 1\n');
         X1 = mepack_tgsylv(A, B, C, D, Y1);
         X2 = mepack_tgsylv(A, B, C, D, Y2, 'N', 'T');
         X3 = mepack_tgsylv(A, B, C, D, Y3, 'T', 'N');

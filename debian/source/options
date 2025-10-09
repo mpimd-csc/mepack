@@ -1,0 +1,3 @@
+tar-ignore=build*
+tar-ignore=.ccls*
+tar-ignore=.git*

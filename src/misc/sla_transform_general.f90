@@ -12,7 +12,7 @@
 ! You should have received a copy of the GNU General Public License
 ! along with this program; if not, see <http://www.gnu.org/licenses/>.
 !
-! Copyright (C) Martin Koehler, 2017-2023
+! Copyright (C) Martin Koehler, 2017-2025
 !
 
 !> \brief Transform the Right-Hand Side or Solution for generalized projections.
@@ -113,7 +113,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date January 2024
+!> \date October 2025
 !> \ingroup sglaux
 !
 SUBROUTINE SLA_TRANSFORM_GENERAL(TRANS, M, N, X, LDX, QA, LDQA, QB, LDQB, WORK )

@@ -1,3 +1,11 @@
+Version 1.1.2 (October 9, 2025)
+=================================
+
+- Fix: Building with Octave >= 10
+- Minimum requirements for MATLAB changed, C++ 17 compatible compiler and
+  MATLAB >= 2018a
+- Fix MATLAB build with newer GCC compilers ( >10.x )
+
 Version 1.1.1 (January 26, 2024)
 =================================
 

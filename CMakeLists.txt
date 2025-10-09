@@ -16,7 +16,7 @@ CheckPolicy(CMP0075 NEW)
 CheckPolicy(CMP0115 NEW)
 
 # General Project Setup
-SET(VERSION 1.1.1)
+SET(VERSION 1.1.2)
 PROJECT(MEPACK
     VERSION ${VERSION}
     LANGUAGES C Fortran

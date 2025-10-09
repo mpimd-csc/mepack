@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) Martin Koehler, 2017-2023
+ * Copyright (C) Martin Koehler, 2017-2025
  */
 
 #include "FCMangle.h"
@@ -208,7 +208,7 @@
 
  \author Martin Koehler, MPI Magdeburg
 
- \date January 2024
+ \date October 2025
 */
 
 void mepack_double_tgcsylv_recursive(const char *TRANSA, const char*TRANSB, double SGN1, double SGN2,  int M, int N,
@@ -418,7 +418,7 @@ void mepack_double_tgcsylv_recursive(const char *TRANSA, const char*TRANSB, doub
 
  \author Martin Koehler, MPI Magdeburg
 
- \date January 2024
+ \date October 2025
 */
 void mepack_single_tgcsylv_recursive(const char *TRANSA, const char*TRANSB, float SGN1, float SGN2,  int M, int N,
         float * A, int LDA,float * B, int LDB, float *C, int LDC, float *D, int LDD,

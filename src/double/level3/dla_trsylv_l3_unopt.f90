@@ -12,7 +12,7 @@
 ! You should have received a copy of the GNU General Public License
 ! along with this program; if not, see <http://www.gnu.org/licenses/>.
 !
-! Copyright (C) Martin Koehler, 2017-2023
+! Copyright (C) Martin Koehler, 2017-2025
 !
 
 !> \brief Level-3 Bartels-Stewart Algorithm for the generalized Sylvester equation (unoptimized)
@@ -166,7 +166,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date January 2024
+!> \date October 2025
 !> \ingroup dbltrsylv
 !
 SUBROUTINE DLA_TRSYLV_L3_UNOPT ( TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, X, LDX, SCALE, WORK, INFO)

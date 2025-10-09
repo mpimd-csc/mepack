@@ -1,0 +1,6 @@
+mepack for Debian
+----------------
+
+This project contains the debian packaging system for MEPACK.
+
+ -- Martin Koehler <koehlerm@mpi-magdeburg.mpg.de>  Tue, 10 Jan 2023 15:11:54 +0100

@@ -10,14 +10,14 @@ or Unix-like operating systems:
  - A Fortran compiler supporting Fortran 95/2003, e.g. GNU Fortran, Intel ifort,
    IBM XLF, ...
  - A C99 compiler, e.g. GNU GCC, Intel icc, IBM XLC, ...
- - (*optional*) A C++14 compiler for MATLAB/GNU Octave interfaces
+ - (*optional*) A C++17 compiler for MATLAB/GNU Octave interfaces
  - CMake 3.15 or newer. If Intel's oneAPI icx and ifx are used, CMake>=3.20 is
    required.
  - BLAS and LAPACK, at least version 3.4.2
  - (*optional*) HDF5, at least version 1.8.5 (only for tests and examples)
  - (*optional*) doxygen, at least version 1.8.16 with dot, if the HTML
    documentation is required
- - (*optional*) MATLAB for building the MATLAB interface
+ - (*optional*) MATLAB, at least 2018a, for building the MATLAB interface
  - (*optional*) GNU Octave, at least version 4.4, for building the GNU Octave
    interface
  - (*optional*) lcov and gcov for building the tests with code coverage

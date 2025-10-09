@@ -12,7 +12,7 @@
 ! YOU SHOULD HAVE RECEIVED A COPY OF THE GNU GENERAL PUBLIC LICENSE
 ! ALONG WITH THIS PROGRAM; IF NOT, SEE <HTTP://WWW.GNU.ORG/LICENSES/>.
 !
-! Copyright (C) Martin Koehler, 2017-2023
+! Copyright (C) Martin Koehler, 2017-2025
 !
 
 !> @addtogroup frontend_solver

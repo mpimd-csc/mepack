@@ -12,7 +12,7 @@
 ! You should have received a copy of the GNU General Public License
 ! along with this program; if not, see <http://www.gnu.org/licenses/>.
 !
-! Copyright (C) Martin Koehler, 2017-2023
+! Copyright (C) Martin Koehler, 2017-2025
 !
 
 !> \brief Level-3 Kagstroem-Westin/Bartels-Stewart Algorithm for the generalized coupled Sylvester equation (optimized)
@@ -217,7 +217,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date January 2024
+!> \date October 2025
 !> \ingroup dbltgsylv
 !
 SUBROUTINE DLA_TGCSYLV_L3 ( TRANSA, TRANSB, SGN1, SGN2,  M, N, A, LDA, B, LDB, C, LDC, D, LDD, &

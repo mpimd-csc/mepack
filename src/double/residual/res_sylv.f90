@@ -12,7 +12,7 @@
 ! You should have received a copy of the GNU General Public License
 ! along with this program; if not, see <http://www.gnu.org/licenses/>.
 !
-! Copyright (C) Martin Koehler, 2017-2023
+! Copyright (C) Martin Koehler, 2017-2025
 !
 
 !> \brief Compute the relative residual for the Sylvester equation.
@@ -142,7 +142,7 @@
 !
 !> \author Martin Koehler, MPI Magdeburg
 !
-!> \date January 2024
+!> \date October 2025
 !> \ingroup residual
 !
 FUNCTION DLA_RESIDUAL_SYLV(TRANSA, TRANSB, SGN, M, N, A, LDA, B, LDB, X, LDX, Y, LDY, SCALE)

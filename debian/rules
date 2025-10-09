@@ -1,0 +1,83 @@
+#!/usr/bin/make -f
+# See debhelper(7) (uncomment to enable)
+# output every command that modifies files on the build system.
+#export DH_VERBOSE = 1
+#export DEB_BUILD_OPTIONS=nocheck
+
+pkgsrc = $(shell LC_ALL=C dpkg-parsechangelog --show-field Source )
+pkgver = $(shell LC_ALL=C dpkg-parsechangelog --show-field Version )
+pkgdist = $(shell LC_ALL=C dpkg-parsechangelog --show-field Distribution )
+
+
+OS_MAJOR := $(shell grep ^VERSION_ID /etc/os-release | cut -d'=' -f2 | sed 's/\"//gI' | cut -d'.' -f1)
+OS_NAME := $(shell grep ^NAME /etc/os-release | cut -d '=' -f2 | sed 's/\"//gI')
+OS_VERSION := $(shell grep ^VERSION_ID /etc/os-release | cut -d'=' -f2 | sed 's/\"//gI')
+OS_DIST := $(shell grep ^VERSION_CODENAME /etc/os-release | cut -d'=' -f2 | sed 's/\"//gI')
+
+# Needed by debchange to set Name and EMAIL in changelog
+# DEBFULLNAME is filtered out by debuild
+# use DEB_FULLNAME instead, which will set DEBFULLNAME
+ifdef DEB_FULLNAME
+export DEBFULLNAME=$(DEB_FULLNAME)
+endif
+# DEBEMAIL is not filtered out by debuild
+#
+
+SC_VERSION = $(shell cmake/get_version.sh deb)
+NEW_VERSION = $(shell dpkg --compare-versions $(SC_VERSION) gt $(pkgver) && echo $(SC_VERSION) )
+
+
+%:
+	dh $@ --with-missing
+
+override_dh_missing:
+	dh_missing --fail-missing
+
+override_dh_auto_clean:
+	dh_auto_clean -B build-32
+	dh_auto_clean -B build-64
+	rm -rf build-32
+	rm -rf build-64
+ifneq ($(NEW_VERSION),)
+	$(warning "Setting new version in debian changelog: $(NEW_VERSION)")
+	debchange -v $(NEW_VERSION)$(VERSION_POSTFIX) "Version $(NEW_VERSION)" && debchange -D $(OS_DIST) -m -r ""
+endif
+
+
+override_dh_auto_configure:
+ifneq ($(NEW_VERSION),)
+	$(warning "Setting new version in debian changelog: $(NEW_VERSION)")
+	@debchange -v $(NEW_VERSION)$(VERSION_POSTFIX) "Version $(NEW_VERSION)" && debchange -m -D $(OS_DIST) -r ""
+endif
+	debchange -D $(OS_DIST) -m  ""
+	mkdir -p build-32
+	mkdir -p build-64
+	dh_auto_configure -B build-32 -- \
+		-DBLA_VENDOR=Generic \
+		-DINTEGER8=OFF \
+		-DDOC=OFF \
+		-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo
+	dh_auto_configure -B build-64 -- \
+		-DBLA_VENDOR=Generic \
+		-DINTEGER8=ON \
+		-DDOC=OFF \
+		-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo
+
+override_dh_auto_build:
+	dh_auto_build -B build-32
+	dh_auto_build -B build-64
+
+override_dh_auto_install:
+	dh_auto_install -B build-32
+	dh_auto_install -B build-64
+
+
+
+override_dh_auto_test:
+	# dh_auto_test --no-parallel
+	dh_auto_test -B build-32 --no-parallel
+	dh_auto_test -B build-64 --no-parallel
+
+
+
+

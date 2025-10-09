@@ -1,4 +1,4 @@
-% Copyright (C) Martin Koehler, 2017-2023
+% Copyright (C) Martin Koehler, 2017-2025
 %
 % This program is free software: you can redistribute it and/or modify it
 % under the terms of the GNU Affero General Public License as published by
@@ -16,13 +16,15 @@
 %
 
 function test_gsylv_refine_single()
-     mepack_test_init_random();
+    mepack_test_init_random();
 
     is_octave =  exist('OCTAVE_VERSION', 'builtin');
     if ( is_octave )
         openmp = 1;
         isolver = 3;
+        qz_return_complex = ~compare_versions(version, "9.0.0", "<");
     else
+        qz_return_complex = 1;
         isolver = 1;
         openmp = 0;
     end
@@ -43,7 +45,7 @@ function test_gsylv_refine_single()
     B = single(rand( n,  n ));
     D = single(rand( n,  n ));
 
-    if (exist('OCTAVE_VERSION', 'builtin'))
+    if (is_octave && ~qz_return_complex)
         [AS, CS, Q, Z] = qz(A, C);
         [BS, DS, U, V] = qz(B, D);
     else
